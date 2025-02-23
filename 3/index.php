@@ -2,15 +2,46 @@
 header('Content-Type: text/html; charset=UTF-8');
 echo "<link rel='stylesheet' href='style.css'>";
 
-if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+// Сохранение в базу данных.
+$user = 'u68595'; 
+$pass = '6788124'; 
+$db = new PDO('mysql:host=localhost;dbname=u68595', $user, $pass,
+  [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); 
 
-  if (!empty($_GET['submit'])) {
-    print('Спасибо, результаты сохранены.');
+try {
+  $stmt = $db->prepare("INSERT INTO users (fio, tel, email, gender, bdate, bio, ccheck) VALUES (?, ?, ?, ?, ?, ?, ?)");
+  $stmt->execute([$_POST['fio'], $_POST['tel'], $_POST['email'], $P['radio'], $_POST['bdate'], $_POST['bio'], isset($_POST["ccheck"])]);
+
+  $a_id = $db->lastInsertId();
+
+  $stmt = $db->prepare("INSERT INTO abilities (id, name) VALUES (?, ?)");
+  foreach ($language_ids as $lang_id) {
+      $stmt->execute([$a_id, $lang_id]);
   }
-  // Включаем содержимое файла form.php.
-  include('form.php');
+
+} catch (PDOException $e) {
+  print('Ошибка БД : ' . $e->getMessage());
   exit();
 }
+
+function getAbilities($db){
+  try {
+    $abilities = [];
+    $data = $db->query("SELECT id, name FROM abilities")->fetchAll();
+    foreach ($data as $ability) {
+      $name = $ability['name'];
+      $lang_id = $ability['id'];
+      $abilities[$lang_id] = $name;
+    }
+    return $abilities;
+  }
+  catch(PDOException $e){
+    print('Error: ' . $e->getMessage());
+    exit();
+  }
+}
+
+$abilities = getAbilities($db);
 
 // Проверяем на наличие ошибок.
 $errors = FALSE;
@@ -80,45 +111,14 @@ if ($errors) {
   exit();
 }
 
-// Сохранение в базу данных.
-$user = 'u68595'; 
-$pass = '6788124'; 
-$db = new PDO('mysql:host=localhost;dbname=u68595', $user, $pass,
-  [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); 
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
-try {
-  $stmt = $db->prepare("INSERT INTO users (fio, tel, email, gender, bdate, bio, ccheck) VALUES (?, ?, ?, ?, ?, ?, ?)");
-  $stmt->execute([$_POST['fio'], $_POST['tel'], $_POST['email'], $P['radio'], $_POST['bdate'], $_POST['bio'], isset($_POST["ccheck"])]);
-
-  $a_id = $db->lastInsertId();
-
-  $stmt = $db->prepare("INSERT INTO abilities (id, name) VALUES (?, ?)");
-  foreach ($language_ids as $lang_id) {
-      $stmt->execute([$a_id, $lang_id]);
+  if (!empty($_GET['submit'])) {
+    print('Спасибо, результаты сохранены.');
   }
-
-} catch (PDOException $e) {
-  print('Ошибка БД : ' . $e->getMessage());
+  // Включаем содержимое файла form.php.
+  include('form.php');
   exit();
 }
-
-function getAbilities($db){
-  try {
-    $abilities = [];
-    $data = $db->query("SELECT id, name FROM abilities")->fetchAll();
-    foreach ($data as $ability) {
-      $name = $ability['name'];
-      $lang_id = $ability['id'];
-      $abilities[$lang_id] = $name;
-    }
-    return $abilities;
-  }
-  catch(PDOException $e){
-    print('Error: ' . $e->getMessage());
-    exit();
-  }
-}
-
-$abilities = getAbilities($db);
 
 header('Location: ?save=1');
