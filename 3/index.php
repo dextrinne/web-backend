@@ -17,7 +17,7 @@ try {
 
 $abilities = [];
 try {
-    $data = $db->query("SELECT user_id, lang_id FROM user")->fetchAll(PDO::FETCH_KEY_PAIR); 
+    $data = $db->query("SELECT lang_id, name FROM lang")->fetchAll(PDO::FETCH_KEY_PAIR); 
     $abilities = $data;
 } catch (PDOException $e) {
     print('Error: ' . $e->getMessage());
@@ -36,27 +36,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
 $errors = FALSE;
 
-if (empty($_POST['fio']) || !preg_match('/^([A-Z]|[a-z]| |[а-я]|[А-Я]){3,150}$/ui', $_POST['fio'])) {
+if (empty($_POST['fio']) || !preg_match('/^([A-Za-zА-Яа-я\s]){3,150}$/u', $_POST['fio'])) {
   print('Заполните имя.<br/>');
   $errors = TRUE;
 }
 
-if (empty($_POST['tel']) || !preg_match('/^\+?[0-9]{11,14}$/', $_POST['telephone'])) {
+if (empty($_POST['tel']) || !preg_match('/^\+?[0-9]{11,14}$/', $_POST['tel'])) {
   print('Заполните телефон.<br/>');
   $errors = TRUE;
 }
 
-if (empty($_POST['email']) || !preg_match('/^\w{1,80}@\w{1,10}.\w{1,10}$/', $_POST['email'])) {
+if (empty($_POST['email']) || !preg_match('/^\w+@\w+\.\w+$/', $_POST['email'])) {
   print('Заполните почту.<br/>');
   $errors = TRUE;
 }
 
-if (empty($_POST['bdate']) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['dateOfBirth'])) {
+if (empty($_POST['bdate']) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['bdate'])) {
   print('Заполните дату рождения.<br/>');
   $errors = TRUE;
 }
 
-if (empty($_POST['radio']) || !($_POST['radio'] == "female" || $_POST['radio'] == "male")) {
+if (empty($_POST['radio']) || !in_array($_POST['radio'], ['female', 'male'])) {
   print('Выберите пол.<br/>');
   $errors = TRUE;
 }
@@ -67,19 +67,19 @@ if (empty($_POST['abilities'])) {
 } else {
   foreach ($_POST['abilities'] as $ability) {
     if (!array_key_exists($ability, $abilities)) {  
-      print('Выберите любимый язык программирования.<br/>');
+      print('Недопустимый язык программирования.<br/>');
       $errors = TRUE;
       break; 
     }
   }
 }
 
-if (empty($_POST['bio']) || !preg_match('/^(\w|\s|.|!|,|\?|\(|\)){1,1000}$/', $_POST['bio'])) {
+if (empty($_POST['bio']) || !preg_match('/^[\w\s.,!?"()]{1,1000}$/u', $_POST['bio'])) {
   print('Заполните биографию.<br/>');
   $errors = TRUE;
 }
 
-if (empty($_POST['сcheck'])) {
+if (empty($_POST['сheck'])) {
   print('Согласие надо подписать.<br/>');
   $errors = TRUE;
 }
@@ -89,26 +89,29 @@ if ($errors) {
 }
 
 try {
-  $stmt = $db->prepare("INSERT INTO users (fio, tel, email, gender, bdate, bio, ccheck) VALUES (:name, :phone, :email, :date, :sex, :bio)");
-  $stmt->bindParam(':name', $_POST['fio']);
-  $stmt->bindParam(':phone', $_POST['tel']);
+  $stmt = $db->prepare("INSERT INTO users (fio, tel, email, bdate, gender, bio, ccheck) VALUES (:fio, :tel, :email, :bdate, :gender, :bio, :ccheck)");
+  $stmt->bindParam(':fio', $_POST['fio']);
+  $stmt->bindParam(':tel', $_POST['tel']);
   $stmt->bindParam(':email', $_POST['email']);
-  $stmt->bindParam(':date', $_POST['bdate']);
-  $stmt->bindParam(':sex', $_POST['radio']);
+  $stmt->bindParam(':bdate', $_POST['bdate']);
+  $stmt->bindParam(':gender', $_POST['radio']);
   $stmt->bindParam(':bio', $_POST['bio']);
+  $stmt->bindValue(':ccheck', isset($_POST['сheck']) ? 1 : 0, PDO::PARAM_INT); 
   $stmt->execute();
 
   $id_app = $db->lastInsertId();
 
-  $stmt = $db->prepare("INSERT INTO user (user_id, lang_id) VALUES (:id_user, :id_lang)");
-  $stmt->bindParam(':id_user', $id_app);
-  $stmt->bindParam(':id_lang', $ability); 
+  $stmt = $db->prepare("INSERT INTO user (user_id, lang_id) VALUES (:user_id, :lang_id)");
+  $stmt->bindParam(':user_id', $id_app);
+  
 
   foreach ($_POST['abilities'] as $ability) {
+    $stmt->bindParam(':lang_id', $ability);
     $stmt->execute(); 
   }
 
   header('Location: ?save=1');
+  exit(); 
 
 } catch (PDOException $e) {
   print('Ошибка сохранения в БД: ' . $e->getMessage());
