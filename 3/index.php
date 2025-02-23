@@ -17,7 +17,7 @@ try {
 
 $abilities = [];
 try {
-    $data = $db->query("SELECT lang_id, name FROM lang")->fetchAll(PDO::FETCH_KEY_PAIR); 
+    $data = $db->query("SELECT user_id, lang_id FROM user")->fetchAll(PDO::FETCH_KEY_PAIR); 
     $abilities = $data;
 } catch (PDOException $e) {
     print('Error: ' . $e->getMessage());
