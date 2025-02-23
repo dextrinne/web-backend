@@ -2,123 +2,120 @@
 header('Content-Type: text/html; charset=UTF-8');
 echo "<link rel='stylesheet' href='style.css'>";
 
-if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+$user = 'u68595';
+$pass = '6788124';
 
-  if (!empty($_GET['submit'])) {
-    print('Спасибо, результаты сохранены.');
+try {
+  $db = new PDO('mysql:host=localhost;dbname=u68595', $user, $pass,
+    [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+  $db->exec("SET NAMES utf8"); 
+} catch (PDOException $e) {
+  print('Ошибка соединения с БД: ' . $e->getMessage());
+  exit();
+}
+
+
+$abilities = [];
+try {
+    $data = $db->query("SELECT user_id, lang_id FROM user")->fetchAll(PDO::FETCH_KEY_PAIR); 
+    $abilities = $data;
+} catch (PDOException $e) {
+    print('Error: ' . $e->getMessage());
+    exit();
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+  if (!empty($_GET['save'])) {
+    print('Результаты сохранены.');
   }
-  // Включаем содержимое файла form.php.
+
   include('form.php');
   exit();
 }
 
-// Проверяем на наличие ошибок.
+
 $errors = FALSE;
 
-if (empty($_POST['fio'])) {
+if (empty($_POST['fio']) || !preg_match('/^([A-Za-zА-Яа-я\s]){3,150}$/u', $_POST['fio'])) {
   print('Заполните имя.<br/>');
   $errors = TRUE;
 }
-else{
-    if (strlen($_POST['fio']) > 150) {
-      print( "ФИО не должно превышать 150 символов.<br>");
-      $errors = TRUE;
-    }
-    elseif (!preg_match("/^[a-zA-Zа-яА-ЯёЁ\s]+$/u", $_POST['fio'])) {
-        print("ФИО должно содержать только буквы и пробелы.<br>");
-        $errors = TRUE;
-    } 
-}
 
-if (empty($_POST['tel']) || !preg_match('/^\+7\d{10}$/', $_POST['tel']) ) {
-  print('Введите корректный номер телефона.<br/>');
+if (empty($_POST['tel']) || !preg_match('/^\+?[0-9]{11,14}$/', $_POST['tel'])) {
+  print('Заполните телефон.<br/>');
   $errors = TRUE;
 }
 
-if (empty($_POST["email"]) || !filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)) {
-   print('Введите корректный email.<br/>');
-   $errors = TRUE;
-}
-
-if (empty($P['abilities'])) {
-  print('Выберите любимый язык программирования.<br/>');
+if (empty($_POST['email']) || !preg_match('/^\w+@\w+\.\w+$/', $_POST['email'])) {
+  print('Заполните почту.<br/>');
   $errors = TRUE;
 }
-else{
-  foreach ($_POST['abilities'] as $ability) {
-    if (empty($abilities[$ability])){
-      print('Выберите любимый язык программирования.<br/>');
-      $errors = TRUE;
-    }
-  }
-}
-
 
 if (empty($_POST['bdate']) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['bdate'])) {
-    print("Введите корректную дату рождения.<br>");
-    $errors = TRUE;
+  print('Заполните дату рождения.<br/>');
+  $errors = TRUE;
 }
 
-
-if (empty($P['radio']) || !($P['radio'] == "female" || $P['radio'] == "male")) {
+if (empty($_POST['radio']) || !in_array($_POST['radio'], ['female', 'male'])) {
   print('Выберите пол.<br/>');
   $errors = TRUE;
 }
 
-if (empty($_POST['bio'])) {
+if (empty($_POST['abilities'])) {
+  print('Выберите любимый язык программирования.<br/>');
+  $errors = TRUE;
+} else {
+  foreach ($_POST['abilities'] as $ability) {
+    if (!array_key_exists($ability, $abilities)) {  
+      print('Недопустимый язык программирования.<br/>');
+      $errors = TRUE;
+      break; 
+    }
+  }
+}
+
+if (empty($_POST['bio']) || !preg_match('/^[\w\s.,!?"()]{1,1000}$/u', $_POST['bio'])) {
   print('Заполните биографию.<br/>');
   $errors = TRUE;
 }
 
-if (!isset($_POST["ccheck"])) {
-  print('Подтвердите ознакомление с контрактом.<br/>');
+if (empty($_POST['сheck'])) {
+  print('Согласие надо подписать.<br/>');
   $errors = TRUE;
 }
 
 if ($errors) {
-  // При наличии ошибок завершаем работу скрипта.
   exit();
 }
-
-// Сохранение в базу данных.
-$user = 'u68595'; 
-$pass = '6788124'; 
-$db = new PDO('mysql:host=localhost;dbname=u68595', $user, $pass,
-  [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); 
 
 try {
-  $stmt = $db->prepare("INSERT INTO users (fio, tel, email, gender, bdate, bio, ccheck) VALUES (?, ?, ?, ?, ?, ?, ?)");
-  $stmt->execute([$_POST['fio'], $_POST['tel'], $_POST['email'], $P['radio'], $_POST['bdate'], $_POST['bio'], isset($_POST["ccheck"])]);
+  $stmt = $db->prepare("INSERT INTO users (fio, tel, email, bdate, gender, bio, ccheck) VALUES (:fio, :tel, :email, :bdate, :gender, :bio, :ccheck)");
+  $stmt->bindParam(':fio', $_POST['fio']);
+  $stmt->bindParam(':tel', $_POST['tel']);
+  $stmt->bindParam(':email', $_POST['email']);
+  $stmt->bindParam(':bdate', $_POST['bdate']);
+  $stmt->bindParam(':gender', $_POST['radio']);
+  $stmt->bindParam(':bio', $_POST['bio']);
+  $stmt->bindValue(':ccheck', isset($_POST['сheck']) ? 1 : 0, PDO::PARAM_INT); 
+  $stmt->execute();
 
-  $a_id = $db->lastInsertId();
+  $id_app = $db->lastInsertId();
 
-  $stmt = $db->prepare("INSERT INTO abilities (id, name) VALUES (?, ?)");
-  foreach ($language_ids as $lang_id) {
-      $stmt->execute([$a_id, $lang_id]);
+  $stmt = $db->prepare("INSERT INTO user (user_id, lang_id) VALUES (:user_id, :lang_id)");
+  $stmt->bindParam(':user_id', $id_app);
+  
+
+  foreach ($_POST['abilities'] as $ability) {
+    $stmt->bindParam(':lang_id', $ability);
+    $stmt->execute(); 
   }
 
+  header('Location: ?save=1');
+  exit(); 
+
 } catch (PDOException $e) {
-  print('Ошибка БД : ' . $e->getMessage());
+  print('Ошибка сохранения в БД: ' . $e->getMessage());
   exit();
 }
 
-function getAbilities($db){
-  try {
-    $abilities = [];
-    $data = $db->query("SELECT id, name FROM abilities")->fetchAll();
-    foreach ($data as $ability) {
-      $name = $ability['name'];
-      $lang_id = $ability['id'];
-      $abilities[$lang_id] = $name;
-    }
-    return $abilities;
-  }
-  catch(PDOException $e){
-    print('Error: ' . $e->getMessage());
-    exit();
-  }
-}
-
-$abilities = getAbilities($db);
-
-header('Location: ?save=1');
+?>
