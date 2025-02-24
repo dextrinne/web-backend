@@ -112,8 +112,8 @@ try {
 
   $a_id = $db->lastInsertId();
 
-  $stmt = $db->prepare("INSERT INTO abilities (id, name) VALUES (?, ?)");
-  foreach ($language_ids as $lang_id) {
+  $stmt = $db->prepare("INSERT INTO user (user_id , lang_id ) VALUES (?, ?)");
+  foreach ($abilities[$lang_id] as $lang_id) {
       $stmt->execute([$a_id, $lang_id]);
   }
 
