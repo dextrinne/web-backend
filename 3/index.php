@@ -40,7 +40,7 @@ if (empty($_POST["email"]) || !filter_var($_POST["email"], FILTER_VALIDATE_EMAIL
    $errors = TRUE;
 }
 
-if (empty($P['abilities'])) {
+if (empty($_POST['abilities'])) {
   print('Выберите любимый язык программирования.<br/>');
   $errors = TRUE;
 }
@@ -60,7 +60,7 @@ if (empty($_POST['bdate']) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['bdate
 }
 
 
-if (empty($P['radio'])) {
+if (empty($_POST['radio'])) {
   print('Выберите пол.<br/>');
   $errors = TRUE;
 }
