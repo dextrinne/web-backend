@@ -18,8 +18,8 @@ CREATE TABLE user_language (
     user_id INT NOT NULL,
     lang_id INT NOT NULL,
     PRIMARY KEY (user_id, lang_id),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (lang_id) REFERENCES abilities(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+    FOREIGN KEY (lang_id) REFERENCES language(id) ON DELETE CASCADE
 );
 
 INSERT INTO language (name) VALUES
