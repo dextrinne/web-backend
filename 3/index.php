@@ -122,4 +122,4 @@ try {
   exit();
 }
 
-header('Location: ?save=1');
+header('Location: index.php?save=1');
