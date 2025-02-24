@@ -2,6 +2,31 @@
 header('Content-Type: text/html; charset=UTF-8');
 echo "<link rel='stylesheet' href='style.css'>";
 
+// Сохранение в базу данных.
+$user = 'u68595'; 
+$pass = '6788124'; 
+$db = new PDO('mysql:host=localhost;dbname=u68595', $user, $pass,
+  [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); 
+
+function getAbilities($db){
+  try {
+    $abilities = [];
+    $data = $db->query("SELECT id, name FROM abilities")->fetchAll();
+    foreach ($data as $ability) {
+      $name = $ability['name'];
+      $lang_id = $ability['id'];
+      $abilities[$lang_id] = $name;
+    }
+    return $abilities;
+  }
+  catch(PDOException $e){
+    print('Error: ' . $e->getMessage());
+    exit();
+  }
+}
+
+$abilities = getAbilities($db);
+
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
   if (!empty($_GET['submit'])) {
@@ -80,11 +105,6 @@ if ($errors) {
   exit();
 }
 
-// Сохранение в базу данных.
-$user = 'u68595'; 
-$pass = '6788124'; 
-$db = new PDO('mysql:host=localhost;dbname=u68595', $user, $pass,
-  [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); 
 
 try {
   $stmt = $db->prepare("INSERT INTO users (fio, tel, email, gender, bdate, bio, ccheck) VALUES (?, ?, ?, ?, ?, ?, ?)");
@@ -101,24 +121,5 @@ try {
   print('Ошибка БД : ' . $e->getMessage());
   exit();
 }
-
-function getAbilities($db){
-  try {
-    $abilities = [];
-    $data = $db->query("SELECT id, name FROM abilities")->fetchAll();
-    foreach ($data as $ability) {
-      $name = $ability['name'];
-      $lang_id = $ability['id'];
-      $abilities[$lang_id] = $name;
-    }
-    return $abilities;
-  }
-  catch(PDOException $e){
-    print('Error: ' . $e->getMessage());
-    exit();
-  }
-}
-
-$abilities = getAbilities($db);
 
 header('Location: ?save=1');
