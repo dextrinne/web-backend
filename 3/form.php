@@ -45,5 +45,5 @@
     <textarea id="bio" name="bio"></textarea><br>
 
     <input id="ccheck" name="check" type="checkbox" checked="checked">С контрактом ознакомлен(а)<br>
-    <input id="submit" name="send" type="submit" value="Сохранить">
+    <input id="submit" name="submit" type="submit" value="Сохранить">
 </form>
