@@ -29,7 +29,7 @@ $abilities = getAbilities($db);
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
-  if (!empty($_GET['submit'])) {
+  if (!empty($_GET['save'])) {
     print('Спасибо, результаты сохранены.');
   }
   // Включаем содержимое файла form.php.
