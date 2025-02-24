@@ -108,7 +108,7 @@ if ($errors) {
 
 try {
   $stmt = $db->prepare("INSERT INTO users (fio, tel, email, gender, bdate, bio, ccheck) VALUES (?, ?, ?, ?, ?, ?, ?)");
-  $stmt->execute([$_POST['fio'], $_POST['tel'], $_POST['email'], $P['radio'], $_POST['bdate'], $_POST['bio'], isset($_POST["ccheck"])]);
+  $stmt->execute([$_POST['fio'], $_POST['tel'], $_POST['email'], $_POST['radio'], $_POST['bdate'], $_POST['bio'], isset($_POST["ccheck"])]);
 
   $a_id = $db->lastInsertId();
 
