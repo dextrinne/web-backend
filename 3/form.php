@@ -30,6 +30,6 @@
     Биография:<br>
     <textarea id="bio" name="bio"></textarea><br>
 
-    <input id="ccheck" name="ccheck" type="checkbox" checked="checked">С контрактом ознакомлен(а)<br>
+    <input id="ccheck" name="ccheck" type="checkbox">С контрактом ознакомлен(а)<br>
     <input id="submit" name="submit" type="submit" value="Сохранить">
 </form>
