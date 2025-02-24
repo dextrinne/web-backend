@@ -1,5 +1,5 @@
 <div id="form"><h2>Форма</h2></div>
-<form action="process_form.php" method="POST">
+<form action="" method="POST">
     ФИО:<br>
     <input name="fio" type="text" placeholder="ФИО"><br>
     
@@ -20,20 +20,6 @@
     <br>
     <select id="abilities" name="abilities[]" multiple="multiple">
       <?php 
-      $abilities = array(
-        '1' => 'Pascal',
-        '2' => 'C',
-        '3' => 'C++',
-        '4' => 'JavaScript',
-        '5' => 'PHP',
-        '6' => 'Python',
-        '7' => 'Java',
-        '8' => 'Haskell',
-        '9' => 'Clojure',
-        '10' => 'Prolog',
-        '11' => 'Scala',
-        '12' => 'Go'
-      );
       foreach ($abilities as $key => $value) {
         printf('<option value="%s">%s</option>', $key, $value);
       } 
