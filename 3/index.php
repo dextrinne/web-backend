@@ -113,8 +113,8 @@ try {
   $a_id = $db->lastInsertId();
 
   $stmt = $db->prepare("INSERT INTO user (user_id , lang_id ) VALUES (?, ?)");
-  foreach ($abilities as $lang_id => $value) {
-      $stmt->execute([$a_id, $lang_id]);
+  foreach ($_POST['abilities'] as $ability) {
+      $stmt->execute([$a_id, $ability]);
   }
 
 } catch (PDOException $e) {
