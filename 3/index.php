@@ -4,7 +4,7 @@ echo "<link rel='stylesheet' href='style.css'>";
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
-  if (!empty($_GET['save'])) {
+  if (!empty($_GET['submit'])) {
     print('Спасибо, результаты сохранены.');
   }
   // Включаем содержимое файла form.php.
@@ -21,7 +21,7 @@ if (empty($_POST['fio'])) {
 }
 else{
     if (strlen($_POST['fio']) > 150) {
-      print( "ФИО не должно превышать 150 символов.<br>");
+      print("ФИО не должно превышать 150 символов.<br>");
       $errors = TRUE;
     }
     elseif (!preg_match("/^[a-zA-Zа-яА-ЯёЁ\s]+$/u", $_POST['fio'])) {
@@ -60,7 +60,7 @@ if (empty($_POST['bdate']) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['bdate
 }
 
 
-if (empty($P['radio']) || !($P['radio'] == "female" || $P['radio'] == "male")) {
+if (empty($P['radio'])) {
   print('Выберите пол.<br/>');
   $errors = TRUE;
 }
@@ -118,7 +118,6 @@ function getAbilities($db){
     exit();
   }
 }
-print_r($abilities);
 
 $abilities = getAbilities($db);
 
