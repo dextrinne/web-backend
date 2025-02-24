@@ -113,7 +113,7 @@ try {
   $a_id = $db->lastInsertId();
 
   $stmt = $db->prepare("INSERT INTO user (user_id , lang_id ) VALUES (?, ?)");
-  foreach ($abilities[$lang_id] as $lang_id) {
+  foreach ($abilities as $lang_id => $value) {
       $stmt->execute([$a_id, $lang_id]);
   }
 
