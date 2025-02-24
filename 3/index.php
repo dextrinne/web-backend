@@ -118,6 +118,7 @@ function getAbilities($db){
     exit();
   }
 }
+print_r($abilities);
 
 $abilities = getAbilities($db);
 
