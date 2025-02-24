@@ -13,7 +13,7 @@
     <input name="bdate" type="date"><br>
 
     Пол:<br>
-    <label><input class="radio" name="radio" checked="checked" type="radio" value="Female">Женский</label>
+    <label><input class="radio" name="radio" type="radio" value="Female">Женский</label>
     <label><input class="radio" name="radio" type="radio" value="Male">Мужской</label><br> 
     
     Любимый язык программирования:
