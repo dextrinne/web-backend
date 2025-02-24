@@ -20,20 +20,6 @@
     <br>
     <select id="abilities" name="abilities[]" multiple="multiple">
       <?php 
-      $abilities = array(
-        '1' => 'Pascal',
-        '2' => 'C',
-        '3' => 'C++',
-        '4' => 'JavaScript',
-        '5' => 'PHP',
-        '6' => 'Python',
-        '7' => 'Java',
-        '8' => 'Haskell',
-        '9' => 'Clojure',
-        '10' => 'Prolog',
-        '11' => 'Scala',
-        '12' => 'Go'
-      );
       foreach ($abilities as $key => $value) {
         printf('<option value="%s">%s</option>', $key, $value);
       } 
@@ -44,6 +30,6 @@
     Биография:<br>
     <textarea id="bio" name="bio"></textarea><br>
 
-    <input id="ccheck" name="check" type="checkbox" checked="checked">С контрактом ознакомлен(а)<br>
+    <input id="ccheck" name="ccheck" type="checkbox" checked="checked">С контрактом ознакомлен(а)<br>
     <input id="submit" name="submit" type="submit" value="Сохранить">
 </form>
