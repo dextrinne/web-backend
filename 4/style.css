@@ -1,0 +1,48 @@
+body{
+    background-color: #cbeaed;
+    margin-top: 20px;
+  }
+
+  form{
+    color:#006a71;
+    text-align: left;
+    padding-left: 30px;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    font-size: 15pt;
+    border-radius: 10px;
+    width: 60%;
+    margin: auto;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    background-color: #ffffff;
+  }
+
+  select{
+      color: #006a71;
+  }
+
+  input{
+      color: #006a71;
+  }
+
+  h2{
+      color: #006a71;
+      text-align: center;
+      font-size: 30pt;
+  }
+
+  .error {
+    border: 2px solid red;
+  }
+
+  .error_messages{
+    max-width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    align-content: center;
+    border-radius: 10px;
+    border-width: 5px;
+    border-color: solid red;
+    background-color: #cbeaed;
+    color: solid red;
+}
