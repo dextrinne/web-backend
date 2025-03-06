@@ -26,6 +26,8 @@ function getAbilities($db){
   }
 }
 
+$abilities = getAbilities($db);
+
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
   $messages = array();
 
