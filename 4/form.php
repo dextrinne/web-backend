@@ -40,29 +40,21 @@
         
       Любимый язык программирования:
       <br>
-      <select id="abilities" name="abilities[]" multiple="multiple" <?php if (!empty($errors['abilities'])) {print 'class="error"';} ?>>
+      <select id="abilities" name="abilities[]" multiple="multiple" <?php if ($errors['abilities']) {print 'class="error"';} ?> value="<?php print $values['abilities']; ?>">
         <?php 
         foreach ($abilities as $key => $value) {
-          printf('<option value="%s" %s>%s</option>', $key, (isset($values['abilities']) && in_array($key, $values['abilities'])) ? 'selected="selected"' : '', $value);
+          printf('<option value="%s">%s</option>', $key, $value);
         } 
         ?>
       </select>
       <br>
-      <?php if (!empty($errors['abilities'])): ?>
-        <div class="error-message"><?php echo htmlspecialchars($errors['abilities']); ?></div>
-      <?php endif; ?>
 
       Биография:<br>
-      <textarea id="bio" name="bio" <?php if (!empty($errors['bio'])) {print 'class="error"';} ?>><?php print isset($values['bio']) ? htmlspecialchars($values['bio']) : ''; ?></textarea><br>
-      <?php if (!empty($errors['bio'])): ?>
-        <div class="error-message"><?php echo htmlspecialchars($errors['bio']); ?></div>
-      <?php endif; ?>
+      <textarea id="bio" name="bio" <?php if ($errors['bio']) {print 'class="error"';} ?>><?php print $values['bio']; ?></textarea><br>
 
-      <input id="ccheck" name="ccheck" type="checkbox" <?php if (!empty($errors['ccheck'])) {print 'class="error"';} ?>  <?php if (isset($_POST['ccheck']) || !isset($errors['ccheck'])) {print 'checked="checked"';} ?>/> С контрактом ознакомлен(а)<br>
-       <?php if (!empty($errors['ccheck'])): ?>
-        <div class="error-message"><?php echo htmlspecialchars($errors['ccheck']); ?></div>
-      <?php endif; ?>
+      <input id="ccheck" name="ccheck" type="checkbox" <?php if ($errors['ccheck']) {print 'class="error"';} ?>  <?php if (!$errors['ccheck']) {print 'checked="checked"';} ?>/> С контрактом ознакомлен(а)<br>
       <input id="submit" name="submit" type="submit" value="Сохранить">
+
     </form>
     
   </body>
