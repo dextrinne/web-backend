@@ -142,7 +142,7 @@ else {
   }
 
   if (isset($_POST['abilities'])) {
-      setcookie('abilities_value', implode(',', $_POST['abilities']), time() + 30 × 24 × 60 * 60);
+      setcookie('abilities_value', implode(',', $_POST['abilities']), time() + 30 * 24 * 60);
     } else {
       setcookie('abilities_value', '', time() - 3600); // Удаляем куку, если $_POST['abilities'] не существует
     }
