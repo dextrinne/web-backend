@@ -50,7 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
   // Выдаем сообщения об ошибках.
   if ($errors['fio']) {
-    switch ($_COOKIE['fio_error']) {
+    $fioError = $_COOKIE['fio_error'];
+    switch ($fioError) {
         case '1':
             setcookie('fio_error', '1', 100000); 
             setcookie('fio_value', '', 100000);
@@ -73,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             setcookie('fio_error', '', 100000); 
             break;
     }
-  }
+}
   
   if ($errors['tel']) {
     setcookie('tel_error', '', 100000);
