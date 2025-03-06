@@ -32,7 +32,9 @@ h2 {
 }
 
 .numtext{
-    font-size: 12px;
+    font-size: 7pt;
+    color: #9da1aa;
+    padding-top: none;
     text-decoration: underline;
 }
 
