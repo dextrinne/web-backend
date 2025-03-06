@@ -22,10 +22,10 @@ body {
 }
 
 h3 {
-    font-size: 7pt;
+    font-size: 5pt;
     color: #9da1aa;
-    margin: none;
-    padding: none;
+    margin-top: 0pt;
+    padding-top: 0pt;
 }
 
 form {
