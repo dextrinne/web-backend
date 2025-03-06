@@ -141,7 +141,7 @@ else {
     $errors = TRUE;
   }
 
-  if (isset($_POST['abilities']) && is_array($_POST['abilities'])) {
+  if (isset($_POST['abilities']) && is_array($_POST['abilities']) && !empty($_POST['abilities'])) {
     setcookie('abilities_value', implode(',', $_POST['abilities']), time() + 30 * 24 * 60 * 60);
   } else {
     setcookie('abilities_error', '1', time() + 24 * 60 * 60);
