@@ -15,13 +15,13 @@
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
-label.error {
-    border: 2px solid red;
-    border-radius: 2pt;
-    margin-bottom: 2pt;
-    color: red;
-    padding: 5px; 
+.radio-group.error input[type="radio"] {
+    border-color: red;
 }
+
+.radio-group.error input[type="radio"]:checked::after {
+    background-color: red;
+ }
 
 body {
     background-color: #cbeaed;
