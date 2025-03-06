@@ -31,12 +31,12 @@ h2 {
     font-size: 30pt;
 }
 
-.error_messages {
+.error {
     color: red;
     text-align: left;
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
-.error_messages.hidden {
+.error.hidden {
     display: none;
 }
