@@ -37,7 +37,7 @@
 
       Пол:<br>
       <div class="radio-group <?php if (!empty($errors['radio'])) {
-        echo 'error';
+        echo 'radio-error';
       } ?>">
         <label>
             <input class="radio" name="radio" type="radio" value="Female" <?php if (isset($values['radio']) && $values['radio'] == 'Female') {
