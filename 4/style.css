@@ -1,6 +1,30 @@
+.error {
+    border: 3px solid rgb(206, 86, 122);
+    background-color: #febbcb;
+  }
+
+.error_messages{
+    max-width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+    align-content: center;
+    border-style: dotted;
+    border-radius: 15px;
+    border-width: 5px;
+    border-color: #6f4d9f;
+    background-color: #a4afdb;
+}
+
 body {
     background-color: #cbeaed;
     margin-top: 20px;
+}
+
+h3 {
+    font-size: 7pt;
+    color: #9da1aa;
+    padding-top: none;
+    text-decoration: underline;
 }
 
 form {
@@ -29,28 +53,4 @@ h2 {
     color: #006a71;
     text-align: center;
     font-size: 30pt;
-}
-
-h3 {
-    font-size: 7pt;
-    color: #9da1aa;
-    padding-top: none;
-    text-decoration: underline;
-}
-
-.error {
-    border: 3px solid rgb(206, 86, 122);
-    background-color: #febbcb;
-  }
-
-.error_messages{
-    max-width: 60%;
-    margin-left: auto;
-    margin-right: auto;
-    align-content: center;
-    border-style: dotted;
-    border-radius: 15px;
-    border-width: 5px;
-    border-color: #6f4d9f;
-    background-color: #a4afdb;
 }
