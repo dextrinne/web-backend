@@ -32,8 +32,9 @@ h2 {
 }
 
 .error {
-    color: red;
-}
+    border: 3px solid rgb(206, 86, 122);
+    background-color: #febbcb;
+  }
 
 .error_messages{
     max-width: 60%;
