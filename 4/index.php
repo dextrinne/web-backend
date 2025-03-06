@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: text/html; charset=UTF-8');
-echo "<link rel='stylesheet' href='style.css'>";
+//echo "<link rel='stylesheet' href='style.css'>";
 
 // Сохранение в базу данных.
 $user = 'u68595'; 
