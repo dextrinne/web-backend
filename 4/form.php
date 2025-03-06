@@ -6,15 +6,18 @@
   </head>
   <body>
 
-    <?php
-    if (!empty($messages)) {
-        echo '<div id="messages" style="color: red;">';
-        foreach ($messages as $message) {
-            echo htmlspecialchars($message) . '<br>';
+    <div class="error_messages" <?php if (empty($messages)) {print 'hidden';} ?>>
+        <?php
+        if (!empty($messages)) {
+          print('<div id="messages">');
+          foreach ($messages as $message) {
+            print($message);
+          }
+          print('</div>');
         }
-        echo '</div>';
-    }
-    ?>
+        ?>
+    </div>
+    
 
     <div id="form"><h2>Форма</h2></div>
     <form action="" method="POST">
