@@ -2,9 +2,34 @@
 header('Content-Type: text/html; charset=UTF-8');
 echo "<link rel='stylesheet' href='style.css'>";
 
+// Сохранение в базу данных.
+$user = 'u68595'; 
+$pass = '6788124'; 
+$db = new PDO('mysql:host=localhost;dbname=u68595', $user, $pass,
+  [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); 
+
+function getAbilities($db){
+  try {
+    $abilities = [];
+    $data = $db->query("SELECT id, name FROM language")->fetchAll();
+    foreach ($data as $ability) {
+      $name = $ability['name'];
+      $lang_id = $ability['id'];
+      $abilities[$lang_id] = $name;
+    }
+    return $abilities;
+  }
+  catch(PDOException $e){
+    print('Error: ' . $e->getMessage());
+    exit();
+  }
+}
+
+$abilities = getAbilities($db);
+
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
-  if (!empty($_GET['submit'])) {
+  if (!empty($_GET['save'])) {
     print('Спасибо, результаты сохранены.');
   }
   // Включаем содержимое файла form.php.
@@ -21,7 +46,7 @@ if (empty($_POST['fio'])) {
 }
 else{
     if (strlen($_POST['fio']) > 150) {
-      print( "ФИО не должно превышать 150 символов.<br>");
+      print("ФИО не должно превышать 150 символов.<br>");
       $errors = TRUE;
     }
     elseif (!preg_match("/^[a-zA-Zа-яА-ЯёЁ\s]+$/u", $_POST['fio'])) {
@@ -40,7 +65,7 @@ if (empty($_POST["email"]) || !filter_var($_POST["email"], FILTER_VALIDATE_EMAIL
    $errors = TRUE;
 }
 
-if (empty($P['abilities'])) {
+if (empty($_POST['abilities'])) {
   print('Выберите любимый язык программирования.<br/>');
   $errors = TRUE;
 }
@@ -60,7 +85,7 @@ if (empty($_POST['bdate']) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['bdate
 }
 
 
-if (empty($P['radio']) || !($P['radio'] == "female" || $P['radio'] == "male")) {
+if (empty($_POST['radio'])) {
   print('Выберите пол.<br/>');
   $errors = TRUE;
 }
@@ -80,21 +105,16 @@ if ($errors) {
   exit();
 }
 
-// Сохранение в базу данных.
-$user = 'u68595'; 
-$pass = '6788124'; 
-$db = new PDO('mysql:host=localhost;dbname=u68595', $user, $pass,
-  [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); 
 
 try {
-  $stmt = $db->prepare("INSERT INTO users (fio, tel, email, gender, bdate, bio, ccheck) VALUES (?, ?, ?, ?, ?, ?, ?)");
-  $stmt->execute([$_POST['fio'], $_POST['tel'], $_POST['email'], $P['radio'], $_POST['bdate'], $_POST['bio'], isset($_POST["ccheck"])]);
+  $stmt = $db->prepare("INSERT INTO user (fio, tel, email, gender, bdate, bio, ccheck) VALUES (?, ?, ?, ?, ?, ?, ?)");
+  $stmt->execute([$_POST['fio'], $_POST['tel'], $_POST['email'], $_POST['radio'], $_POST['bdate'], $_POST['bio'], isset($_POST["ccheck"])]);
 
   $a_id = $db->lastInsertId();
 
-  $stmt = $db->prepare("INSERT INTO abilities (id, name) VALUES (?, ?)");
-  foreach ($language_ids as $lang_id) {
-      $stmt->execute([$a_id, $lang_id]);
+  $stmt = $db->prepare("INSERT INTO user_language (user_id , lang_id ) VALUES (?, ?)");
+  foreach ($_POST['abilities'] as $ability) {
+      $stmt->execute([$a_id, $ability]);
   }
 
 } catch (PDOException $e) {
@@ -102,23 +122,4 @@ try {
   exit();
 }
 
-function getAbilities($db){
-  try {
-    $abilities = [];
-    $data = $db->query("SELECT id, name FROM abilities")->fetchAll();
-    foreach ($data as $ability) {
-      $name = $ability['name'];
-      $lang_id = $ability['id'];
-      $abilities[$lang_id] = $name;
-    }
-    return $abilities;
-  }
-  catch(PDOException $e){
-    print('Error: ' . $e->getMessage());
-    exit();
-  }
-}
-
-$abilities = getAbilities($db);
-
-header('Location: ?save=1');
+header('Location: index.php?save=1');
