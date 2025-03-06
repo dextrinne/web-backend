@@ -31,6 +31,11 @@ h2 {
     font-size: 30pt;
 }
 
+.numtext{
+    font-size: 12px;
+    text-decoration: underline;
+}
+
 .error {
     border: 3px solid rgb(206, 86, 122);
     background-color: #febbcb;
