@@ -1,4 +1,6 @@
 .error {
+    border: 2px solid red;
+    border-radius: 2pt;
     margin-bottom: 2pt;
     color: red;
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
@@ -39,7 +41,7 @@
     background-color: #cbeaed;
 }
 
-.radio-group.error input[type="radio"] {
+.radio-group.radio-error input[type="radio"] {
     border-color: red;
 }
 
@@ -55,12 +57,6 @@
     background-color: #006a71;
     border-radius: 50%;
 }
-
-
-
-.radio-group.error input[type="radio"]:checked::after {
-    background-color: red;
- }
 
 body {
     background-color: #cbeaed;
