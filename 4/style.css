@@ -1,15 +1,16 @@
 .error {
-    border: 2px solid red;
-    border-radius: 2pt;
     margin-bottom: 2pt;
     color: red;
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
 .error_messages {
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+    align-content: center;
     color: red;
-    font-size: small;
-    margin-top: 5px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
 .radio-group {
