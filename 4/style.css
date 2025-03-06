@@ -1,14 +1,19 @@
 .error {
     border: 2px solid red;
+    border-radius: 3pt;
     background-color: #ffffff;
-  }
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
 
-.error_messages{
+.error_messages {
     max-width: 60%;
+    margin-left: auto;
+    margin-right: auto;
     align-content: center;
-    border-radius: 10px;
+    border-radius: 3pt;
     border-color: solid red;
     background-color: #ffffff;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
 body {
@@ -20,6 +25,7 @@ h3 {
     font-size: 7pt;
     color: #9da1aa;
     margin: none;
+    padding: none;
 }
 
 form {
