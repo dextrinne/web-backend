@@ -49,24 +49,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
 
   // Выдаем сообщения об ошибках.
-  if (!empty($_COOKIE['fio_error'])) {
-    switch ($_COOKIE['fio_error']) {
-        case '1':
-            $messages[] = '<div class="error">Пожалуйста, заполните поле "ФИО".</div>'; 
-            break;
-
-        case '2':
-            $messages[] = '<div class="error">Имя слишком длинное (максимум 150 символов).</div>';
-            break;
-
-        case '3':
-            $messages[] = '<div class="error">Имя должно содержать только буквы и пробелы.</div>'; 
-            break;
+  if ($errors['fio']) {
+    if($_COOKIE['fio_error']=='1'){
+      $messages[] = '<div class="error">Введите ФИО.</div>';
     }
-    setcookie('fio_error', '', 100000); 
+    elseif($_COOKIE['fio_error']=='2'){
+      $messages[] = '<div class="error">ФИО не должно превышать 150 символов.</div>';
+    }
+    else{
+      $messages[] = '<div class="error">ФИО должно содержать только буквы и пробелы.</div>';
+    }
+    setcookie('fio_error', '', 100000);
     setcookie('fio_value', '', 100000);
   }
-  
+
   if ($errors['tel']) {
     setcookie('tel_error', '', 100000);
     setcookie('tel_value', '', 100000);
@@ -122,15 +118,16 @@ else {
 
   // Проверяем все ошибки
   if (empty($_POST['fio'])) {
-    $errors = '1';
-  }
-  else{
-      if (strlen($_POST['fio']) > 150) {
-        $errors = '2';
-      }
-      elseif (!preg_match("/^[a-zA-Zа-яА-ЯёЁ\s]+$/u", $_POST['fio'])) {
-        $errors = '3';
-      } 
+    setcookie('fio_error', '1', time() + 24 * 60 * 60);
+    $errors = TRUE;
+  } else {
+    if (strlen($_POST['fio']) > 150) {
+      setcookie('fio_error', '2', time() + 24 * 60 * 60);
+      $errors = TRUE;
+    } elseif (!preg_match("/^[a-zA-Zа-яА-ЯёЁ\s]+$/u", $_POST['fio'])) {
+      setcookie('fio_error', '3', time() + 24 * 60 * 60);
+      $errors = TRUE;
+    }
   }
 
   if (empty($_POST['tel']) || !preg_match('/^\+7\d{10}$/', $_POST['tel']) ) {
