@@ -36,7 +36,7 @@ body{
   }
 
   .error_messages{
-    max-width: 80%;
+    max-width: 60%;
     margin-left: auto;
     margin-right: auto;
     align-content: center;
@@ -45,4 +45,6 @@ body{
     border-color: solid red;
     background-color: #cbeaed;
     color: solid red;
+    font-size: 15pt;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
