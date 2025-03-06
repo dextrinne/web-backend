@@ -6,16 +6,16 @@
   </head>
   <body>
 
-    <div class="error_messages" <?php if (empty($messages)) {print 'hidden';} ?>>
-        <?php
-        if (!empty($messages)) {
-          print('<div id="messages">');
-          foreach ($messages as $message) {
-            print($message);
-          }
-          print('</div>');
+    <div class="error_messages" <?php if (empty($messages)) {print 'display="none"';} else {print 'display="block"';} ?>>
+      <?php
+      if (!empty($messages)) {
+        print('<div id="messages">');
+        foreach ($messages as $message) {
+          print($message);
         }
-        ?>
+        print('</div>');
+      }
+      ?>
     </div>
     
 
