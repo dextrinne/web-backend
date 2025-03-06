@@ -1,18 +1,14 @@
 .error {
-    border: 3px solid rgb(206, 86, 122);
-    background-color: #febbcb;
+    border: 2px solid red;
+    background-color: #ffffff;
   }
 
 .error_messages{
     max-width: 60%;
-    margin-left: auto;
-    margin-right: auto;
     align-content: center;
-    border-style: dotted;
-    border-radius: 15px;
-    border-width: 5px;
-    border-color: #6f4d9f;
-    background-color: #a4afdb;
+    border-radius: 10px;
+    border-color: solid red;
+    background-color: #ffffff;
 }
 
 body {
@@ -23,8 +19,7 @@ body {
 h3 {
     font-size: 7pt;
     color: #9da1aa;
-    padding-top: none;
-    text-decoration: underline;
+    margin: none;
 }
 
 form {
