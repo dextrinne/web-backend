@@ -48,9 +48,7 @@
             } ?>/>Мужской
         </label>
       </div>
-      <?php if (!empty($errors['radio'])) { ?>
-          <div class="error-message"><?php echo htmlspecialchars($errors['radio']); ?></div>
-      <?php } ?>
+      
         
       Любимый язык программирования:
       <br>
