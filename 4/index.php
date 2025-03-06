@@ -141,12 +141,11 @@ else {
     $errors = TRUE;
   }
 
-  if (isset($_POST['abilities']) && is_array($_POST['abilities']) && !empty($_POST['abilities'])) {
-    setcookie('abilities_value', implode(',', $_POST['abilities']), time() + 30 * 24 * 60 * 60);
-  } else {
-    setcookie('abilities_error', '1', time() + 24 * 60 * 60);
-    $errors = TRUE;
-  }
+  if (isset($_POST['abilities'])) {
+      setcookie('abilities_value', implode(',', $_POST['abilities']), time() + 30 × 24 × 60 * 60);
+    } else {
+      setcookie('abilities_value', '', time() - 3600); // Удаляем куку, если $_POST['abilities'] не существует
+    }
 
   if (empty($_POST['bdate']) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['bdate'])) {
     setcookie('bdate_error', '1', time() + 24 * 60 * 60);
