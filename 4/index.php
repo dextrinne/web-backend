@@ -49,32 +49,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
 
   // Выдаем сообщения об ошибках.
-  if ($errors['fio']) {
-    $fioError = $_COOKIE['fio_error'];
-    switch ($fioError) {
+  if (!empty($_COOKIE['fio_error'])) {
+    switch ($_COOKIE['fio_error']) {
         case '1':
-            setcookie('fio_error', '1', 100000); 
-            setcookie('fio_value', '', 100000);
             $messages[] = '<div class="error">Пожалуйста, заполните поле "ФИО".</div>'; 
             break;
 
         case '2':
-            setcookie('fio_error', '2', 100000); 
-            setcookie('fio_value', '', 100000);
             $messages[] = '<div class="error">Имя слишком длинное (максимум 150 символов).</div>';
             break;
 
         case '3':
-            setcookie('fio_error', '3', 100000); 
-            setcookie('fio_value', '', 100000);
             $messages[] = '<div class="error">Имя должно содержать только буквы и пробелы.</div>'; 
             break;
-
-        default:
-            setcookie('fio_error', '', 100000); 
-            break;
     }
-}
+    setcookie('fio_error', '', 100000); 
+    setcookie('fio_value', '', 100000);
+  }
   
   if ($errors['tel']) {
     setcookie('tel_error', '', 100000);
