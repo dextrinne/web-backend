@@ -47,20 +47,3 @@ body{
     border-width: 5px;
     border-color: solid red;
   }
-
-  .error_messages{
-    color: solid red;
-    text-align: left;
-    padding-left: 30px;
-    padding-top: 10px;
-    padding-bottom: 20px;
-    font-size: 15pt;
-    border-radius: 10px;
-    width: 60%;
-    margin: auto;
-    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    background-color: #ffffff;
-    border-radius: 10px;
-    border-width: 5px;
-    border-color: solid red;
-}
