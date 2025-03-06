@@ -27,7 +27,7 @@
         
       Телефон:<br>
       <input name="tel" type="tel" placeholder="Номер телефона" <?php if ($errors['tel']) {print 'class="error"';} ?> value="<?php print $values['tel']; ?>" /><br>
-      <p class="numtext"> *используйте телефонный код +7</p>
+      <h3> *используйте телефонный код +7</h3>
       
       Почта:<br>
       <input name="email" type="email" placeholder="Email" <?php if ($errors['email']) {print 'class="error"';} ?> value="<?php print $values['email']; ?>" /><br>
