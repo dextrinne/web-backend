@@ -32,11 +32,13 @@ h2 {
 }
 
 .error {
-    color: red;
-    text-align: left;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    border: 1px solid red;
 }
-
-.error.hidden {
-    display: none;
+.error-message {
+    color: red;
+    font-size: smaller;
+    margin-top: 2px;
+}
+input.error, textarea.error, select.error {
+    border: 1px solid red;
 }
