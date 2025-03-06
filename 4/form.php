@@ -36,8 +36,15 @@
       <input name="bdate" type="date" <?php if ($errors['bdate']) {print 'class="error"';} ?> value="<?php print $values['bdate']; ?>" /><br>
 
       Пол:<br>
-      <label><input class="radio" name="radio" type="radio" value="Female" <?php if ($errors['radio']) {print 'class="error"';} ?> value="<?php print $values['radio']; ?>" />Женский</label>
-      <label><input class="radio" name="radio" type="radio" value="Male" <?php if ($errors['radio']) {print 'class="error"';} ?> value="<?php print $values['radio']; ?>" />Мужской</label><br> 
+      <label <?php if (!empty($errors['radio'])) { echo 'class="error"'; } ?>>
+        <input class="radio" name="radio" type="radio" value="Female" <?php if (isset($values['radio']) && $values['radio'] == 'Female') { print 'checked="checked"'; } ?>/>Женский
+      </label>
+      <label <?php if (!empty($errors['radio'])) { echo 'class="error"'; } ?>>
+        <input class="radio" name="radio" type="radio" value="Male" <?php if (isset($values['radio']) && $values['radio'] == 'Male') { print 'checked="checked"'; } ?>/>Мужской
+      </label><br>
+      <?php if (!empty($errors['radio'])) { ?>
+        <div class="error-message"><?php echo htmlspecialchars($errors['radio']); ?></div>
+      <?php } ?>
         
       Любимый язык программирования:
       <br>
