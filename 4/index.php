@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: text/html; charset=UTF-8');
-//echo "<link rel='stylesheet' href='style.css'>";
+echo "<link rel='stylesheet' href='style.css'>";
 
 // Сохранение в базу данных.
 $user = 'u68595'; 
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
   $values['fio'] = empty($_COOKIE['fio_value']) ? '' : $_COOKIE['fio_value'];
   $values['tel'] = empty($_COOKIE['tel_value']) ? '' : $_COOKIE['tel_value'];
   $values['email'] = empty($_COOKIE['email_value']) ? '' : $_COOKIE['email_value'];
-  $values['abilities'] = empty($_COOKIE['abilities_value']) ? '' : $_COOKIE['abilities_value'];
+  $values['abilities'] = isset($_COOKIE['abilities_value']) ? $_COOKIE['abilities_value'] : '';
   $values['bdate'] = empty($_COOKIE['bdate_value']) ? '' : $_COOKIE['bdate_value'];
   $values['radio'] = empty($_COOKIE['radio_value']) ? '' : $_COOKIE['radio_value'];
   $values['bio'] = empty($_COOKIE['bio_value']) ? '' : $_COOKIE['bio_value'];
@@ -141,17 +141,11 @@ else {
     $errors = TRUE;
   }
 
-  if (empty($_POST['abilities'])) {
+  if (isset($_POST['abilities']) && is_array($_POST['abilities'])) {
+    setcookie('abilities_value', implode(',', $_POST['abilities']), time() + 30 * 24 * 60 * 60);
+  } else {
     setcookie('abilities_error', '1', time() + 24 * 60 * 60);
     $errors = TRUE;
-  }
-  else{
-    foreach ($_POST['abilities'] as $ability) {
-      if (empty($abilities[$ability])){
-        setcookie('abilities_error', '1', time() + 24 * 60 * 60);
-        $errors = TRUE;
-      }
-    }
   }
 
   if (empty($_POST['bdate']) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['bdate'])) {
