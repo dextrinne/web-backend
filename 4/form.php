@@ -36,19 +36,17 @@
       <input name="bdate" type="date" <?php if ($errors['bdate']) {print 'class="error"';} ?> value="<?php print $values['bdate']; ?>" /><br>
 
       Пол:<br>
-      <div class="radio-group <?php if (!empty($errors['radio'])) {
-        echo 'radio-error';
-      } ?>">
+      <div class="radio-group <?php if (!empty($errors['radio'])) { echo 'radio-error'; } ?>">
         <label>
             <input class="radio" name="radio" type="radio" value="Female" <?php if (isset($values['radio']) && $values['radio'] == 'Female') {
                 print 'checked="checked"';
-          } ?>/>Женский
-          </label>
-          <label>
-              <input class="radio" name="radio" type="radio" value="Male" <?php if (isset($values['radio']) && $values['radio'] == 'Male') {
-                  print 'checked="checked"';
-              } ?>/>Мужской
-          </label>
+            } ?>/>Женский
+        </label>
+        <label>
+            <input class="radio" name="radio" type="radio" value="Male" <?php if (isset($values['radio']) && $values['radio'] == 'Male') {
+                print 'checked="checked"';
+            } ?>/>Мужской
+        </label>
       </div>
       <?php if (!empty($errors['radio'])) { ?>
           <div class="error-message"><?php echo htmlspecialchars($errors['radio']); ?></div>
