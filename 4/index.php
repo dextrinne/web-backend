@@ -175,7 +175,7 @@ else {
   setcookie('fio_value', $_POST['fio'], time() + 30 * 24 * 60 * 60);
   setcookie('tel_value', $_POST['tel'], time() + 30 * 24 * 60 * 60);
   setcookie('email_value', $_POST['email'], time() + 30 * 24 * 60 * 60);
-  setcookie('abilities_value', implode(',', $_POST['abilities']), time() + 30 * 24 * 60 * 60);
+  setcookie('abilities_value', $_POST['abilities'], time() + 30 * 24 * 60 * 60);
   setcookie('bdate_value', $_POST['bdate'], time() + 30 * 24 * 60 * 60);
   setcookie('radio_value', $_POST['radio'], time() + 30 * 24 * 60 * 60);
   setcookie('bio_value', $_POST['bio'], time() + 30 * 24 * 60 * 60);
