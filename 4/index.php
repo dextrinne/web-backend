@@ -142,7 +142,7 @@ else {
   }
 
   $fav_languages = $_POST["abilities"] ?? []; // Получаем массив из формы
-  if (empty($fav_languages) {
+  if (empty($fav_languages)) {
     setcookie('abilities_error', '1', time() + 24 * 60 * 60);
     $errors = TRUE;
   }
