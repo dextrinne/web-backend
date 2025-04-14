@@ -1,18 +1,22 @@
 <?php
 header('Content-Type: text/html; charset=UTF-8');
 
-$session_started = false;
-if (isset($_COOKIE[session_name()]) && session_start()) {  
-    $session_started = true;
-    if (!empty($_GET['exit'])) {
-        session_destroy();
-        header('Location: index.php');
-        exit();
-    }
-    if (!empty($_SESSION['login'])) { 
-        header('Location: ./');
-        exit();
-    }
+// Start the session if it's not already started
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Check for logout
+if (!empty($_GET['exit'])) {
+    session_destroy();  // Destroy the session
+    header('Location: index.php'); // Redirect to the main page
+    exit();
+}
+
+// Check if the user is already logged in
+if (isset($_SESSION['login'])) {
+    header('Location: index.php');  // Redirect to index.php if already logged in
+    exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
