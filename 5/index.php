@@ -225,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     try {
         // First, insert into the 'user' table
         $stmt = $db->prepare("INSERT INTO user (fio, tel, email, bdate, gender, bio, ccheck) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$_POST['fio'], $_POST['tel'], $_POST['email'], $_POST['bdate'], $_POST['radio'], $_POST['bio'], isset($_POST["ccheck"]) ? 1 : 0]);  // Ensure boolean value for ccheck
+        $stmt->execute([$_POST['fio'], $_POST['tel'], $_POST['email'], $_POST['bdate'], $_POST['radio'], $_POST['bio'], isset($_POST["ccheck"]) ? 1 : 0]);  
 
         $user_id = $db->lastInsertId();
 
