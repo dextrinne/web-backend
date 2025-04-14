@@ -5,11 +5,16 @@ echo "<link rel='stylesheet' href='style.css'>";
 // Сохранение в базу данных.
 $user = 'u68595';
 $pass = '6788124';
-$db = new PDO('mysql:host=localhost;dbname=u68595', $user, $pass,
-    [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$db = new PDO(
+    'mysql:host=localhost;dbname=u68595',
+    $user,
+    $pass,
+    [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+);
 
 // Вызываем языки программирования в форму
-function getAbilities($db) {
+function getAbilities($db)
+{
     try {
         $abilities = [];
         $data = $db->query("SELECT id, name FROM language")->fetchAll();
@@ -40,11 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         $messages[] = 'Спасибо, результаты сохранены.';
 
         // Если в куках есть пароль, то выводим сообщение.
-        if (!empty($_COOKIE['pass'])) {
-            $messages[] = sprintf('Вы можете <a href="login.php">войти</a> с логином <strong>%s</strong>
-        и паролем <strong>%s</strong> для изменения данных.',
-                strip_tags($_COOKIE['login']),
-                strip_tags($_COOKIE['pass']));
+        if (!empty($_COOKIE['login'])) {
+            $messages[] = sprintf(
+                'Вы можете <a href="login.php">войти</a> с логином <strong>%s</strong>.',
+                strip_tags($_COOKIE['login'])
+            );
         }
     }
 
@@ -118,55 +123,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $values['radio'] = empty($_COOKIE['radio_value']) ? '' : $_COOKIE['radio_value'];
     $values['bio'] = empty($_COOKIE['bio_value']) ? '' : $_COOKIE['bio_value'];
     $values['ccheck'] = empty($_COOKIE['ccheck_value']) ? '' : $_COOKIE['ccheck_value'];
-
-    // Если нет предыдущих ошибок ввода, есть кука сессии, начали сессию и
-    // ранее в сессию записан факт успешного логина.
-    if (empty($errors) && !empty($_COOKIE[session_name()]) &&
-        session_start() && !empty($_SESSION['login'])) {
-
-        $login = $_SESSION['login'];
-        $uid = $_SESSION['uid'];
-
-        try {
-            // Загружаем данные пользователя из БД
-            $stmt = $db->prepare("SELECT fio, tel, email, gender, bdate, bio, ccheck FROM user u INNER JOIN user_login ul ON u.id = ul.user_id WHERE ul.login = ?");
-            $stmt->execute([$login]);
-            $user_data = $stmt->fetch(PDO::FETCH_ASSOC); // Получаем ассоциативный массив
-
-            if ($user_data) {
-                // Санитизируем данные (пример, можно добавить больше)
-                $values['fio'] = htmlspecialchars($user_data['fio']);
-                $values['tel'] = htmlspecialchars($user_data['tel']);
-                $values['email'] = htmlspecialchars($user_data['email']);
-                $values['radio'] = htmlspecialchars($user_data['gender']); // Пол
-                $values['bdate'] = htmlspecialchars($user_data['bdate']);
-                $values['bio'] = htmlspecialchars($user_data['bio']);
-                $values['ccheck'] = htmlspecialchars($user_data['ccheck']); // или (int)$user_data['ccheck']
-
-                //Получаем умения пользователя
-                $stmt = $db->prepare("SELECT lang_id FROM user_language WHERE user_id = (SELECT id FROM user WHERE id = ?)");
-                $stmt->execute([$uid]);
-                $abilities = $stmt->fetchAll(PDO::FETCH_COLUMN);
-                $values['abilities'] = $abilities;
-
-
-                printf('Вход с логином %s, uid %d', $_SESSION['login'], $_SESSION['uid']);
-            } else {
-                // Обработка случая, если данные пользователя не найдены в БД (очень маловероятно, но необходимо)
-                $errors[] = 'Ошибка: Данные пользователя не найдены.';
-                session_destroy(); // Удаляем сессию
-                setcookie(session_name(), '', time() - 3600, '/'); // Удаляем куку сессии
-                // Можно перенаправить пользователя на страницу входа
-                // header("Location: login.php");
-                exit();
-            }
-
-        } catch (PDOException $e) {
-            print('Error loading data: ' . $e->getMessage());
-            exit();
-        }
-
-    }
 
     include('form.php');
 } else {
@@ -251,7 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         setcookie('ccheck_error', '', 100000);
     }
 
-    // Функция для генерации случайной строки
+    // Генерируем логин и пароль
     function generateRandomString($length = 10) {
         $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $charactersLength = strlen($characters);
@@ -261,59 +217,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         }
         return $randomString;
     }
-    // Блок регистрации нового пользователя
-    else {
-        $login = generateRandomString(8);
-        $pass = generateRandomString(20);
-        $hashed_password = password_hash($pass, PASSWORD_DEFAULT);
 
-        // Сохраняем в БД
-        try {
+    $login = generateRandomString(8);
+    $pass = generateRandomString(20);
+    $hashed_password = password_hash($pass, PASSWORD_DEFAULT);
 
-            // Начинаем транзакцию, чтобы обеспечить целостность данных
-            $db->beginTransaction();
+    try {
+        // First, insert into the 'user' table
+        $stmt = $db->prepare("INSERT INTO user (fio, tel, email, bdate, gender, bio, ccheck) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$_POST['fio'], $_POST['tel'], $_POST['email'], $_POST['bdate'], $_POST['radio'], $_POST['bio'], isset($_POST["ccheck"]) ? 1 : 0]);  // Ensure boolean value for ccheck
 
-            // Вставляем данные в таблицу user
-            $stmt = $db->prepare("INSERT INTO user (fio, tel, email, gender, bdate, bio, ccheck) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([
-                $_POST['fio'],
-                $_POST['tel'],
-                $_POST['email'],
-                $_POST['radio'],
-                $_POST['bdate'],
-                $_POST['bio'],
-                isset($_POST["ccheck"]) ? 1 : 0 // Преобразование boolean в int
-            ]);
+        $user_id = $db->lastInsertId();
 
-            // Получаем ID только что вставленного пользователя
-            $user_id = $db->lastInsertId();
-
-            // Вставляем логин и хеш пароля в таблицу user_login
-            $stmt = $db->prepare("INSERT INTO user_login (user_id, login, password) VALUES (?, ?, ?)");
-            $stmt->execute([$user_id, $login, $hashed_password]);
+        // Then, insert into the 'user_login' table
+        $stmt = $db->prepare("INSERT INTO user_login (user_id, login, password) VALUES (?, ?, ?)");
+        $stmt->execute([$user_id, $login, $hashed_password]);
 
 
-            // Insert user abilities
-            if (isset($_POST['abilities']) && is_array($_POST['abilities'])) {
-                $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (?, ?)");
-                foreach ($_POST['abilities'] as $ability) {
-                    $stmt->execute([$user_id, $ability]);
-                }
+        if (isset($_POST['abilities']) && is_array($_POST['abilities'])) {
+            $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (?, ?)");
+            foreach ($_POST['abilities'] as $ability) {
+                $stmt->execute([$user_id, $ability]);
             }
-
-            // Завершаем транзакцию
-            $db->commit();
-
-        } catch (PDOException $e) {
-            // Откатываем транзакцию в случае ошибки
-            $db->rollBack();
-            print('Error in DB: ' . $e->getMessage());
-            exit();
         }
 
-        $_SESSION['login'] = $login;
+    } catch (PDOException $e) {
+        print('Error in DB: ' . $e->getMessage());
+        exit();
     }
 
-    setcookie('save', '1');
-    header('Location: index.php'); //перезагрузка
+    setcookie('login', $login, time() + 3600); // Сохраняем логин
+    setcookie('save', '1', time() + 3600);    // Устанавливаем куку save
+
+    header('Location: index.php');
+    exit();
 }
