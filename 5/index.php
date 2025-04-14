@@ -32,11 +32,21 @@ function getAbilities($db)
 
 $abilities = getAbilities($db);
 
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $messages = array();
 
-    // В суперглобальном массиве $_COOKIE PHP хранит все имена и значения куки текущего запроса.
-    // Выдаем сообщение об успешном сохранении.
+    if (isset($_SESSION['login'])) {
+        $messages[] = 'Вы вошли как: ' . htmlspecialchars($_SESSION['login']); 
+        $logoutButton = '<a href="login.php?exit=1">Выйти</a>';
+    } else {
+        $logoutButton = '';  
+    }
+
+    // Сообщение об успешном сохранении.
     if (!empty($_COOKIE['save'])) {
         setcookie('save', '', 100000);
         setcookie('login', '', 100000);
@@ -49,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             $messages[] = sprintf(
                 'Вы можете <a href="login.php">войти</a> с логином <strong>%s</strong> и паролем <strong>%s</strong>.',
                 strip_tags($_COOKIE['login']),
-                strip_tags($_COOKIE['pass'])  // ***ОПАСНО!***
+                strip_tags($_COOKIE['pass'])  
             );
         }
     }
@@ -125,11 +135,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $values['bio'] = empty($_COOKIE['bio_value']) ? '' : $_COOKIE['bio_value'];
     $values['ccheck'] = empty($_COOKIE['ccheck_value']) ? '' : $_COOKIE['ccheck_value'];
 
+    echo $logoutButton; 
+
     include('form.php');
-} else {
+} else {  
     $errors = FALSE;
 
-    // Проверяем все ошибки
     if (empty($_POST['fio'])) {
         setcookie('fio_error', '1', time() + 24 * 60 * 60);
         $errors = TRUE;
@@ -221,7 +232,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     $login = generateRandomString(8);
     $pass = generateRandomString(20);
-   
+
     try {
         $stmt = $db->prepare("INSERT INTO user (fio, tel, email, bdate, gender, bio, ccheck) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$_POST['fio'], $_POST['tel'], $_POST['email'], $_POST['bdate'], $_POST['radio'], $_POST['bio'], isset($_POST["ccheck"]) ? 1 : 0]);
@@ -229,8 +240,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         $user_id = $db->lastInsertId();
 
         $stmt = $db->prepare("INSERT INTO user_login (user_id, login, password) VALUES (?, ?, ?)");
-        $stmt->execute([$user_id, $login, password_hash($pass, PASSWORD_DEFAULT)]); // Hash the password
-
+        $stmt->execute([$user_id, $login, password_hash($pass, PASSWORD_DEFAULT)]);
 
         if (isset($_POST['abilities']) && is_array($_POST['abilities'])) {
             $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (?, ?)");
@@ -245,10 +255,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     }
 
     setcookie('login', $login, time() + 3600);
-    setcookie('pass', $pass, time() + 3600); // Сохраняем пароль в cookie
+    setcookie('pass', $pass, time() + 3600); 
 
-    setcookie('save', '1', time() + 3600);    // Устанавливаем куку save
+    setcookie('save', '1', time() + 3600);  
 
     header('Location: index.php');
     exit();
 }
+?>
