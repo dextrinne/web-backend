@@ -44,11 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
         $messages[] = 'Спасибо, результаты сохранены.';
 
-        // Если в куках есть пароль, то выводим сообщение.
-        if (!empty($_COOKIE['login'])) {
+        // Если в куках есть логин и пароль, то выводим сообщение.
+        if (!empty($_COOKIE['login']) && !empty($_COOKIE['pass'])) {
             $messages[] = sprintf(
-                'Вы можете <a href="login.php">войти</a> с логином <strong>%s</strong>.',
-                strip_tags($_COOKIE['login'])
+                'Вы можете <a href="login.php">войти</a> с логином <strong>%s</strong> и паролем <strong>%s</strong>.',
+                strip_tags($_COOKIE['login']),
+                strip_tags($_COOKIE['pass'])  // ***ОПАСНО!***
             );
         }
     }
@@ -220,18 +221,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     $login = generateRandomString(8);
     $pass = generateRandomString(20);
-    $hashed_password = password_hash($pass, PASSWORD_DEFAULT);
-
+   
     try {
-        // First, insert into the 'user' table
         $stmt = $db->prepare("INSERT INTO user (fio, tel, email, bdate, gender, bio, ccheck) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$_POST['fio'], $_POST['tel'], $_POST['email'], $_POST['bdate'], $_POST['radio'], $_POST['bio'], isset($_POST["ccheck"]) ? 1 : 0]);  
+        $stmt->execute([$_POST['fio'], $_POST['tel'], $_POST['email'], $_POST['bdate'], $_POST['radio'], $_POST['bio'], isset($_POST["ccheck"]) ? 1 : 0]);
 
         $user_id = $db->lastInsertId();
 
-        // Then, insert into the 'user_login' table
         $stmt = $db->prepare("INSERT INTO user_login (user_id, login, password) VALUES (?, ?, ?)");
-        $stmt->execute([$user_id, $login, $hashed_password]);
+        $stmt->execute([$user_id, $login, password_hash($pass, PASSWORD_DEFAULT)]); // Hash the password
 
 
         if (isset($_POST['abilities']) && is_array($_POST['abilities'])) {
@@ -246,7 +244,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         exit();
     }
 
-    setcookie('login', $login, time() + 3600); // Сохраняем логин
+    setcookie('login', $login, time() + 3600);
+    setcookie('pass', $pass, time() + 3600); // Сохраняем пароль в cookie
+
     setcookie('save', '1', time() + 3600);    // Устанавливаем куку save
 
     header('Location: index.php');
