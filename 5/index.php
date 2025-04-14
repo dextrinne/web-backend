@@ -200,12 +200,13 @@ else {
     $errors = TRUE;
   }
 
-  if (empty($_POST['abilities'])) {
+  $fav_languages = $_POST["abilities"] ?? []; // Получаем массив из формы
+  if (empty($fav_languages)) {
     setcookie('abilities_error', '1', time() + 24 * 60 * 60);
     $errors = TRUE;
   }
   else{
-    foreach ($_POST['abilities'] as $ability) {
+    foreach ($fav_languages as $ability) {
       if (empty($abilities[$ability])){
         setcookie('abilities_error', '1', time() + 24 * 60 * 60);
         $errors = TRUE;
@@ -234,7 +235,7 @@ else {
   setcookie('fio_value', $_POST['fio'], time() + 30 * 24 * 60 * 60);
   setcookie('tel_value', $_POST['tel'], time() + 30 * 24 * 60 * 60);
   setcookie('email_value', $_POST['email'], time() + 30 * 24 * 60 * 60);
-  setcookie('abilities_value', $_POST['abilities'], time() + 30 * 24 * 60 * 60);
+  setcookie('abilities_value', implode(',', $fav_languages), time() + 30 * 24 * 60 * 60);
   setcookie('bdate_value', $_POST['bdate'], time() + 30 * 24 * 60 * 60);
   setcookie('radio_value', $_POST['radio'], time() + 30 * 24 * 60 * 60);
   setcookie('bio_value', $_POST['bio'], time() + 30 * 24 * 60 * 60);
