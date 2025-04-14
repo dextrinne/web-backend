@@ -368,23 +368,6 @@ if (!empty($_COOKIE[session_name()]) &&
   $_SESSION['login'] = $login;
 }
 
-  // Сохранение в БД.
-  try {
-    $stmt = $db->prepare("INSERT INTO user (fio, tel, email, gender, bdate, bio, ccheck) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$_POST['fio'], $_POST['tel'], $_POST['email'], $_POST['radio'], $_POST['bdate'], $_POST['bio'], isset($_POST["ccheck"])]);
-  
-    $a_id = $db->lastInsertId();
-  
-    $stmt = $db->prepare("INSERT INTO user_language (user_id , lang_id ) VALUES (?, ?)");
-    foreach ($_POST['abilities'] as $ability) {
-        $stmt->execute([$a_id, $ability]);
-    }
-  
-  } catch (PDOException $e) {
-    print('Ошибка БД : ' . $e->getMessage());
-    exit();
-  }
- 
   setcookie('save', '1');
   header('Location: index.php'); //перезагрузка
 }
