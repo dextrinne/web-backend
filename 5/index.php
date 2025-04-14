@@ -263,7 +263,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     }
     // Блок регистрации нового пользователя
     else {
-
         $login = generateRandomString(8);
         $pass = generateRandomString(20);
         $hashed_password = password_hash($pass, PASSWORD_DEFAULT);
