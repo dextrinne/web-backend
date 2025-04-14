@@ -164,11 +164,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         setcookie('radio_value', '', 100000);
         $messages[] = '<div class="error">Выберите пол.</div>';
     }
+
     if ($errors['bio']) {
+        if($_COOKIE['bio_error']=='1'){
+          $messages[] = '<div class="error">Заполните биографию.</div>';
+        }
+        elseif($_COOKIE['bio_error']=='2'){
+          $messages[] = '<div class="error">Количество символов в поле "биография" не должно превышать 512.</div>';
+        }
+        elseif($_COOKIE['bio_error']=='3'){
+          $messages[] = '<div class="error">Поле "биография" содержит недопустимые символы.</div>';
+        }
         setcookie('bio_error', '', 100000);
         setcookie('bio_value', '', 100000);
-        $messages[] = '<div class="error">Заполните биографию.</div>';
     }
+
     if ($errors['ccheck']) {
         setcookie('ccheck_error', '', 100000);
         setcookie('ccheck_value', '', 100000);
@@ -235,10 +245,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         setcookie('radio_error', '1', time() + 24 * 60 * 60);
         $errors = TRUE;
     }
+
     if (empty($_POST['bio'])) {
         setcookie('bio_error', '1', time() + 24 * 60 * 60);
         $errors = TRUE;
+    } elseif(strlen($_POST['bio']) > 512){
+        setcookie('bio_error', '2', time() + 24 * 60 * 60);
+        $errors = TRUE;
+    } elseif(preg_match('/[<>{}\[\]]|<script|<\?php/i', $_POST['bio'])){
+        setcookie('bio_error', '3', time() + 24 * 60 * 60);
+        $errors = TRUE;
     }
+
     if (empty($_POST['ccheck'])) {
         setcookie('ccheck_error', '1', time() + 24 * 60 * 60);
         $errors = TRUE;
