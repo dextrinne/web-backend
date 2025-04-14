@@ -51,12 +51,11 @@
         
       Любимый язык программирования:
       <br>
-      <select id="abilities" name="abilities[]" multiple="multiple" <?php if ($errors['abilities']) {print 'class="error"';} ?>>
-        <?php
+      <select id="abilities" name="abilities[]" multiple="multiple" <?php if ($errors['abilities']) {print 'class="error"';} ?> value="<?php print $values['abilities']; ?>">
+        <?php 
         foreach ($abilities as $key => $value) {
-            $selected = (isset($values['abilities']) && in_array($key, $values['abilities'])) ? 'selected="selected"' : '';
-            printf('<option value="%s" %s>%s</option>', $key, $selected, htmlspecialchars($value));
-        }
+          printf('<option value="%s">%s</option>', $key, $value);
+        } 
         ?>
       </select>
       <br>
