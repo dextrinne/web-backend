@@ -2,7 +2,7 @@
 header('Content-Type: text/html; charset=UTF-8');
 echo "<link rel='stylesheet' href='style.css'>";
 
-// Сохранение в базу данных.
+// Соединение с базой данных.
 $user = 'u68595';
 $pass = '6788124';
 $db = new PDO(
@@ -12,7 +12,7 @@ $db = new PDO(
     [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
 );
 
-// Вызываем языки программирования в форму
+// Функция для получения списка языков программирования.
 function getAbilities($db)
 {
     try {
@@ -36,21 +36,68 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+// Функция для получения данных пользователя из базы данных
+function getUserData($db, $login)
+{
+    try {
+        $stmt = $db->prepare("
+            SELECT 
+                u.fio, 
+                u.tel, 
+                u.email, 
+                u.bdate, 
+                u.gender, 
+                u.bio, 
+                u.ccheck,
+                GROUP_CONCAT(ul.lang_id) as abilities
+            FROM user u
+            INNER JOIN user_login ulg ON u.id = ulg.user_id
+            LEFT JOIN user_language ul ON u.id = ul.user_id
+            WHERE ulg.login = ?
+            GROUP BY u.id
+        ");
+        $stmt->execute([$login]);
+        $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $user_data;
+    } catch (PDOException $e) {
+        print('Error: ' . $e->getMessage());
+        exit();
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $messages = array();
+    $values = array();  // Инициализация массива $values
 
+    // Проверяем, авторизован ли пользователь.
     if (isset($_SESSION['login'])) {
-        $messages[] = 'Вы вошли как: ' . htmlspecialchars($_SESSION['login']); 
+        $messages[] = 'Вы вошли как: ' . htmlspecialchars($_SESSION['login']);
         $logoutButton = '<a href="login.php?exit=1">Выйти</a>';
+
+        // Получаем данные пользователя для заполнения формы.
+        $user_data = getUserData($db, $_SESSION['login']);
+
+        // Заполняем массив values данными из базы данных
+        if ($user_data) {
+            $values['fio'] = htmlspecialchars($user_data['fio']);
+            $values['tel'] = htmlspecialchars($user_data['tel']);
+            $values['email'] = htmlspecialchars($user_data['email']);
+            $values['bdate'] = htmlspecialchars($user_data['bdate']);
+            $values['radio'] = htmlspecialchars($user_data['gender']);
+            $values['bio'] = htmlspecialchars($user_data['bio']);
+            $values['ccheck'] = htmlspecialchars($user_data['ccheck']);
+
+            // Преобразуем строку abilities в массив, если она не пустая
+            $values['abilities'] = !empty($user_data['abilities']) ? explode(',', $user_data['abilities']) : array();
+        }
     } else {
-        $logoutButton = '';  
+        $logoutButton = '';
     }
+
 
     // Сообщение об успешном сохранении.
     if (!empty($_COOKIE['save'])) {
         setcookie('save', '', 100000);
-        setcookie('login', '', 100000);
-        setcookie('pass', '', 100000);
 
         $messages[] = 'Спасибо, результаты сохранены.';
 
@@ -59,10 +106,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             $messages[] = sprintf(
                 'Вы можете <a href="login.php">войти</a> с логином <strong>%s</strong> и паролем <strong>%s</strong>.',
                 strip_tags($_COOKIE['login']),
-                strip_tags($_COOKIE['pass'])  
+                strip_tags($_COOKIE['pass'])
             );
         }
     }
+
 
     // Складываем признак ошибок в массив.
     $errors = array();
@@ -74,6 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $errors['radio'] = !empty($_COOKIE['radio_error']);
     $errors['bio'] = !empty($_COOKIE['bio_error']);
     $errors['ccheck'] = !empty($_COOKIE['ccheck_error']);
+
 
     // Выдаем сообщения об ошибках.
     if ($errors['fio']) {
@@ -124,21 +173,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         $messages[] = '<div class="error">Подтвердите ознакомление с контрактом.</div>';
     }
 
-    // Складываем предыдущие значения полей в массив, если есть.
-    $values = array();
-    $values['fio'] = empty($_COOKIE['fio_value']) ? '' : $_COOKIE['fio_value'];
-    $values['tel'] = empty($_COOKIE['tel_value']) ? '' : $_COOKIE['tel_value'];
-    $values['email'] = empty($_COOKIE['email_value']) ? '' : $_COOKIE['email_value'];
-    $values['abilities'] = empty($_COOKIE['abilities_value']) ? '' : $_COOKIE['abilities_value'];
-    $values['bdate'] = empty($_COOKIE['bdate_value']) ? '' : $_COOKIE['bdate_value'];
-    $values['radio'] = empty($_COOKIE['radio_value']) ? '' : $_COOKIE['radio_value'];
-    $values['bio'] = empty($_COOKIE['bio_value']) ? '' : $_COOKIE['bio_value'];
-    $values['ccheck'] = empty($_COOKIE['ccheck_value']) ? '' : $_COOKIE['ccheck_value'];
 
-    echo $logoutButton; 
+    // Складываем предыдущие значения полей в массив, если есть (или берем из базы данных).
+    if (!isset($_SESSION['login'])) {
+      $values['fio'] = empty($_COOKIE['fio_value']) ? '' : $_COOKIE['fio_value'];
+      $values['tel'] = empty($_COOKIE['tel_value']) ? '' : $_COOKIE['tel_value'];
+      $values['email'] = empty($_COOKIE['email_value']) ? '' : $_COOKIE['email_value'];
+      $values['abilities'] = empty($_COOKIE['abilities_value']) ? '' : $_COOKIE['abilities_value'];
+      $values['bdate'] = empty($_COOKIE['bdate_value']) ? '' : $_COOKIE['bdate_value'];
+      $values['radio'] = empty($_COOKIE['radio_value']) ? '' : $_COOKIE['radio_value'];
+      $values['bio'] = empty($_COOKIE['bio_value']) ? '' : $_COOKIE['bio_value'];
+      $values['ccheck'] = empty($_COOKIE['ccheck_value']) ? '' : $_COOKIE['ccheck_value'];
+    }
+
+
+    echo $logoutButton;
 
     include('form.php');
-} else {  
+} else {
     $errors = FALSE;
 
     if (empty($_POST['fio'])) {
@@ -219,29 +271,45 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         setcookie('ccheck_error', '', 100000);
     }
 
-    // Генерируем логин и пароль
-    function generateRandomString($length = 10) {
-        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        $charactersLength = strlen($characters);
-        $randomString = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[rand(0, $charactersLength - 1)];
-        }
-        return $randomString;
-    }
-
-    $login = generateRandomString(8);
-    $pass = generateRandomString(20);
-
     try {
-        $stmt = $db->prepare("INSERT INTO user (fio, tel, email, bdate, gender, bio, ccheck) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$_POST['fio'], $_POST['tel'], $_POST['email'], $_POST['bdate'], $_POST['radio'], $_POST['bio'], isset($_POST["ccheck"]) ? 1 : 0]);
+        $login = $_SESSION['login'];
 
-        $user_id = $db->lastInsertId();
+        // Обновляем данные пользователя
+        $stmt = $db->prepare("
+            UPDATE user u
+            INNER JOIN user_login ul ON u.id = ul.user_id
+            SET u.fio = ?, 
+                u.tel = ?, 
+                u.email = ?, 
+                u.bdate = ?, 
+                u.gender = ?, 
+                u.bio = ?, 
+                u.ccheck = ?
+            WHERE ul.login = ?
+        ");
+        $stmt->execute([
+            $_POST['fio'],
+            $_POST['tel'],
+            $_POST['email'],
+            $_POST['bdate'],
+            $_POST['radio'],
+            $_POST['bio'],
+            isset($_POST["ccheck"]) ? 1 : 0,
+            $login
+        ]);
 
-        $stmt = $db->prepare("INSERT INTO user_login (user_id, login, password) VALUES (?, ?, ?)");
-        $stmt->execute([$user_id, $login, password_hash($pass, PASSWORD_DEFAULT)]);
+        // Получаем user_id
+        $stmt = $db->prepare("SELECT user_id FROM user_login WHERE login = ?");
+        $stmt->execute([$login]);
+        $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
+        $user_id = $user_data['user_id'];
 
+
+        // Удаляем старые значения языков программирования
+        $stmt = $db->prepare("DELETE FROM user_language WHERE user_id = ?");
+        $stmt->execute([$user_id]);
+
+        // Добавляем новые значения языков программирования
         if (isset($_POST['abilities']) && is_array($_POST['abilities'])) {
             $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (?, ?)");
             foreach ($_POST['abilities'] as $ability) {
@@ -254,10 +322,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         exit();
     }
 
-    setcookie('login', $login, time() + 3600);
-    setcookie('pass', $pass, time() + 3600); 
-
-    setcookie('save', '1', time() + 3600);  
+    setcookie('save', '1', time() + 3600);
 
     header('Location: index.php');
     exit();
