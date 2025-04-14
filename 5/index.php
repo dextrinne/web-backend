@@ -270,7 +270,6 @@ function generateRandomString($length = 10) {
 }
 
 // Проверяем меняются ли ранее сохраненные данные или отправляются новые.
-// Проверяем меняются ли ранее сохраненные данные или отправляются новые.
 if (!empty($_COOKIE[session_name()]) &&
   session_start() && !empty($_SESSION['login'])) {
 
@@ -328,19 +327,6 @@ if (!empty($_COOKIE[session_name()]) &&
 
       // Начинаем транзакцию, чтобы обеспечить целостность данных
       $db->beginTransaction();
-
-      // Вставляем данные в таблицу user
-      $stmt = $db->prepare("INSERT INTO user (fio, tel, email, gender, bdate, bio, ccheck) VALUES (?, ?, ?, ?, ?, ?, ?)");
-      $stmt->execute([
-          $_POST['fio'],
-          $_POST['tel'],
-          $_POST['email'],
-          $_POST['radio'],
-          $_POST['bdate'],
-          $_POST['bio'],
-          isset($_POST["ccheck"]) ? 1 : 0 // Преобразование boolean в int
-      ]);
-
       $user_id = $db->lastInsertId();
 
       // Вставляем логин и хеш пароля в таблицу user_login
@@ -369,6 +355,23 @@ if (!empty($_COOKIE[session_name()]) &&
   $_SESSION['login'] = $login;
 }
 
+  // Сохранение в БД.
+  try {
+    $stmt = $db->prepare("INSERT INTO user (fio, tel, email, gender, bdate, bio, ccheck) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$_POST['fio'], $_POST['tel'], $_POST['email'], $_POST['radio'], $_POST['bdate'], $_POST['bio'], isset($_POST["ccheck"])]);
+  
+    $a_id = $db->lastInsertId();
+  
+    $stmt = $db->prepare("INSERT INTO user_language (user_id , lang_id ) VALUES (?, ?)");
+    foreach ($_POST['abilities'] as $ability) {
+        $stmt->execute([$a_id, $ability]);
+    }
+  
+  } catch (PDOException $e) {
+    print('Ошибка БД : ' . $e->getMessage());
+    exit();
+  }
+ 
   setcookie('save', '1');
   header('Location: index.php'); //перезагрузка
 }
