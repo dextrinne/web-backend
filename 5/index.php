@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     // Проверяем, авторизован ли пользователь.
     if (isset($_SESSION['login'])) {
-        $messages[] = 'Вы вошли как: ' . htmlspecialchars($_SESSION['login']);
+        $messages[] = ' Вы вошли как: ' . htmlspecialchars($_SESSION['login']);
         $logoutButton = '<a href="login.php?exit=1">Выйти</a>';
 
         // Получаем данные пользователя для заполнения формы.
@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         setcookie('login', '', 100000);
         setcookie('pass', '', 100000);
 
-        $messages[] = 'Спасибо, результаты сохранены.';
+        $messages[] = ' Спасибо, результаты сохранены.';
 
         // Если в куках есть логин и пароль, то выводим сообщение.
         if (!empty($_COOKIE['login']) && !empty($_COOKIE['pass'])) {
