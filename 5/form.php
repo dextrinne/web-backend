@@ -92,7 +92,8 @@
     <input id="ccheck" name="ccheck" type="checkbox" value="1" <?php if ($errors['ccheck'] || (isset($values['ccheck']) && $values['ccheck'] == 1)) {
         print 'checked="checked"';
     } ?>/> С контрактом ознакомлен(а)<br>
-    <input id="submit" name="submit" type="submit" value="Сохранить">
+    <input id="submit" name="submit" type="submit" value="Сохранить"><br>
+    <a href="login.php">Уже есть аккаунт? Войдите здесь</a>
 </form>
 
 </body>
