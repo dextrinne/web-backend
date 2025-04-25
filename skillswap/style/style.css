@@ -263,12 +263,12 @@ p {
 .db_users {
   background-color: #588157;
   padding-bottom: 5%;
+  max-width: 60%;
 }
 
 .user-block {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: 588157;
+  box-shadow: 0 10px 20px #3a5a40c1;
   padding: 20px;
   margin-bottom: 20px;
   display: flex;
@@ -284,37 +284,36 @@ p {
 .user-name {
   font-size: 20px;
   font-weight: bold;
-  color: #333;
+  color: #2e1c0d;
 }
 
 .user-details {
-  color: #666;
+  color: #2e1c0d;
   margin-top: 5px;
 }
 
 .skill-info {
-  background-color: #f9f9f9;
+  background-color: #A3B18A;
   padding: 15px;
-  border-radius: 5px;
   margin-top: 10px;
 }
 
 .skill-name {
   font-weight: bold;
-  color: #2c3e50;
+  color: #2e1c0d;
 }
 
 .skill-description {
   margin-top: 5px;
-  color: #555;
+  color: #2e1c0d;
 }
 
 .gender-male {
-  color: #3498db;
+  color: #30688e;
 }
 
 .gender-female {
-  color: #e91e63;
+  color: #ab2753;
 }
 
 .error-message {
