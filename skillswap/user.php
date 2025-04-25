@@ -59,7 +59,7 @@ $user_skills = get_user_skills($conn, $user_id);
     .mainNav {
         width: 100%;
         height: 80px;
-        position: absolute;
+        position: flex;
         z-index: 1;
         display: flex;
         justify-content: space-between;
