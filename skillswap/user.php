@@ -35,7 +35,7 @@ $user_skills = get_user_skills($conn, $user_id);
         <div class="mainNav__logo">SkillSwap</div>
         <div class="mainNav__links">
             <a href="index.php" class="mainNav__link">Главная страница</a>
-            <a href="index.php" class="mainNav__link">Выход</a>
+            <a href="logout.php" class="mainNav__link">Выход</a>
         </div>
     </nav>
 
@@ -69,6 +69,20 @@ $user_skills = get_user_skills($conn, $user_id);
         <?php else: ?>
             <p>У вас пока нет добавленных навыков.</p>
         <?php endif; ?>
+
+        <!-- Форма для добавления навыка -->
+        <h3>Добавить новый навык:</h3>
+        <form action="actions/add_skill.php" method="post">
+            <div class="form-group">
+                <label for="skill_name">Название навыка:</label>
+                <input type="text" class="form-control" id="skill_name" name="skill_name" required>
+            </div>
+            <div class="form-group">
+                <label for="skill_description">Описание навыка:</label>
+                <textarea class="form-control" id="skill_description" name="skill_description" style="resize: vertical;"></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Добавить навык</button>
+        </form>
 
         <a href="edit_profile.php" class="btn btn-primary">Редактировать профиль</a>
     </div>
