@@ -28,23 +28,4 @@ function delete_user_skill($conn, $user_id, $skill_id) {
     return $stmt->execute([$user_id, $skill_id]);
 }
 
-function get_all_users_with_skills($conn) {
-    $stmt = $conn->prepare("
-        SELECT
-            u.first_name,
-            u.last_name,
-            u.email,
-            u.gender,
-            s.name AS skill_name,
-            s.description AS skill_description
-        FROM
-            users_p u
-        INNER JOIN
-            user_skills us ON u.user_id = us.user_id
-        INNER JOIN
-            skills s ON us.skill_id = s.skills_id
-    ");
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
 ?>
