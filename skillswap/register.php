@@ -1,4 +1,5 @@
-<?php
+
+<?
 session_start();
 ?>
 <!DOCTYPE html>
@@ -225,7 +226,7 @@ session_start();
                                 <div class="form-group">
                                     <label>Фамилия:</label>
                                     <input type="text" class="form-control" name="last_name" required>
-                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <label>Почта:</label>
                                     <input type="email" class="form-control" name="email" required>
@@ -245,15 +246,23 @@ session_start();
                                         </label>
                                     </div>
                                 </div>
-                                <!-- Добавление полей навыков -->
-                                <div class="form-group">
-                                    <label>Ваш навык:</label>
-                                    <input type="text" class="form-control" name="skill_name" required>
+
+                                <!-- Поля для навыков -->
+                                <div id="skill-fields">
+                                    <div class="skill-group">
+                                        <div class="form-group">
+                                            <label>Ваш навык:</label>
+                                            <input type="text" class="form-control" name="skill_names[]" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Опишите подробнее ваш навык:</label>
+                                            <textarea class="form-control" name="skill_descriptions[]" style="resize: vertical;"></textarea>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Опишите подробнее ваш навык:</label>
-                                    <textarea class="form-control" name="skill_description" style="resize: vertical;"></textarea>
-                                </div>
+
+                                <button type="button" id="add-skill" class="btn btn-default">Добавить навык</button>
+
                                 <div class="form-group">
                                     <button type="submit" class="btn btn-default">Зарегистрироваться</button>
                                 </div>
@@ -265,6 +274,25 @@ session_start();
 
         </div>
     </div>
+    <!-- Скрипт для добавления полей навыков -->
+    <script>
+        $(document).ready(function() {
+            $("#add-skill").click(function() {
+                $("#skill-fields").append(`
+                    <div class="skill-group">
+                        <div class="form-group">
+                            <label>Ваш навык:</label>
+                            <input type="text" class="form-control" name="skill_names[]" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Опишите подробнее ваш навык:</label>
+                            <textarea class="form-control" name="skill_descriptions[]" style="resize: vertical;"></textarea>
+                        </div>
+                    </div>
+                `);
+            });
+        });
+    </script>
 </body>
 
 </html>
