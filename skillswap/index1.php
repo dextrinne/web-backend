@@ -1,31 +1,40 @@
 <?php
-session_start();
-include('./includes/db.php');
-include('./includes/functions.php');
+// Подключение к базе данных
+$host = 'localhost';
+$dbname = 'u68595';
+$username = 'u68595';
+$password = '6788124';
 
-// Запрос для получения данных пользователей с их навыками
-$query = "
-    SELECT 
-        u.user_id,
-        u.first_name,
-        u.last_name,
-        u.gender,
-        u.email,
-        s.skills_id,
-        s.name AS skill_name,
-        s.description AS skill_description
-    FROM 
-        users_p u
-    JOIN 
-        user_skills us ON u.user_id = us.user_id
-    JOIN 
-        skills s ON us.skill_id = s.skills_id
-    ORDER BY 
-        u.last_name, u.first_name, s.name
-";
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    // Запрос для получения данных пользователей с их навыками
+    $query = "
+        SELECT 
+            u.user_id,
+            u.first_name,
+            u.last_name,
+            u.gender,
+            u.email,
+            s.skills_id,
+            s.name AS skill_name,
+            s.description AS skill_description
+        FROM 
+            users_p u
+        JOIN 
+            user_skills us ON u.user_id = us.user_id
+        JOIN 
+            skills s ON us.skill_id = s.skills_id
+        ORDER BY 
+            u.last_name, u.first_name, s.name
+    ";
 
-$stmt = $pdo->query($query);
-$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $pdo->query($query);
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Ошибка базы данных: " . $e->getMessage());
+}
 ?>
 
 <!DOCTYPE html>
@@ -89,49 +98,62 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .gender-female {
             color: #e91e63;
         }
+        .error-message {
+            color: #d9534f;
+            padding: 15px;
+            background-color: #f2dede;
+            border: 1px solid #ebccd1;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Пользователи и их навыки</h1>
         
-        <?php
-        $currentUserId = null;
-        foreach ($users as $user) {
-            // Если это новый пользователь, начинаем новый блок
-            if ($user['user_id'] !== $currentUserId) {
-                // Закрываем предыдущий блок пользователя, если он был
-                if ($currentUserId !== null) {
-                    echo '</div>'; // закрываем .user-block
+        <?php if (isset($users)): ?>
+            <?php
+            $currentUserId = null;
+            foreach ($users as $user) {
+                // Если это новый пользователь, начинаем новый блок
+                if ($user['user_id'] !== $currentUserId) {
+                    // Закрываем предыдущий блок пользователя, если он был
+                    if ($currentUserId !== null) {
+                        echo '</div>'; // закрываем .user-block
+                    }
+                    
+                    $currentUserId = $user['user_id'];
+                    $genderClass = strtolower($user['gender']) === 'male' ? 'gender-male' : 'gender-female';
+                    
+                    echo '<div class="user-block">';
+                    echo '<div class="user-info">';
+                    echo '<div class="user-name">' . htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) . '</div>';
+                    echo '<div class="user-details">';
+                    echo '<span class="' . $genderClass . '">' . htmlspecialchars($user['gender']) . '</span>';
+                    echo ' | ' . htmlspecialchars($user['email']);
+                    echo '</div>';
+                    echo '</div>'; // закрываем .user-info
                 }
                 
-                $currentUserId = $user['user_id'];
-                $genderClass = strtolower($user['gender']) === 'male' ? 'gender-male' : 'gender-female';
-                
-                echo '<div class="user-block">';
-                echo '<div class="user-info">';
-                echo '<div class="user-name">' . htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) . '</div>';
-                echo '<div class="user-details">';
-                echo '<span class="' . $genderClass . '">' . htmlspecialchars($user['gender']) . '</span>';
-                echo ' | ' . htmlspecialchars($user['email']);
-                echo '</div>';
-                echo '</div>'; // закрываем .user-info
+                // Выводим информацию о навыке
+                echo '<div class="skill-info">';
+                echo '<div class="skill-name">' . htmlspecialchars($user['skill_name']) . '</div>';
+                echo '<div class="skill-description">' . htmlspecialchars($user['skill_description']) . '</div>';
+                echo '</div>'; // закрываем .skill-info
             }
             
-            // Выводим информацию о навыке
-            echo '<div class="skill-info">';
-            echo '<div class="skill-name">' . htmlspecialchars($user['skill_name']) . '</div>';
-            echo '<div class="skill-description">' . htmlspecialchars($user['skill_description']) . '</div>';
-            echo '</div>'; // закрываем .skill-info
-        }
-        
-        // Закрываем последний блок пользователя, если есть пользователи
-        if (!empty($users)) {
-            echo '</div>'; // закрываем .user-block
-        } else {
-            echo '<p>Нет данных о пользователях и их навыках.</p>';
-        }
-        ?>
+            // Закрываем последний блок пользователя, если есть пользователи
+            if (!empty($users)) {
+                echo '</div>'; // закрываем .user-block
+            } else {
+                echo '<p>Нет данных о пользователях и их навыках.</p>';
+            }
+            ?>
+        <?php else: ?>
+            <div class="error-message">
+                Не удалось загрузить данные пользователей. Пожалуйста, проверьте подключение к базе данных.
+            </div>
+        <?php endif; ?>
     </div>
 </body>
 </html>
