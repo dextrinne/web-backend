@@ -1,4 +1,3 @@
-
 <?
 session_start();
 include('./includes/db.php'); // Подключение к БД
@@ -27,8 +26,6 @@ if ($users_with_skills) {
         ];
     }
 }
-
-
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -37,9 +34,10 @@ if ($users_with_skills) {
     <meta charset="UTF-8">
     <title>SkillSwap</title>
     <link rel="stylesheet" href="./style/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
     <script src='https://cdnjs.cloudflare.com/ajax/libs/parallax/3.1.0/parallax.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/parallax/3.1.0/parallax.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="./style/script.js"></script>
 </head>
 
@@ -50,13 +48,8 @@ if ($users_with_skills) {
         <div class="mainNav__links">
             <a href="#1" class="mainNav__link">О нас</a>
             <a href="#2" class="mainNav__link">Навыки пользователей</a>
-            <?php if (isset($_SESSION['user_id'])): ?>
-                <a href="user.php" class="mainNav__link">Профиль</a>
-                <a href="logout.php" class="mainNav__link">Выход</a>
-            <?php else: ?>
-                <a href="login.php" class="mainNav__link">Вход</a>
-                <a href="register.php" class="mainNav__link">Регистрация</a>
-            <?php endif; ?>
+            <a href="login.php" class="mainNav__link">Вход</a>
+            <a href="register.php" class="mainNav__link">Регистрация</a>
         </div>
     </nav>
     <header class="mainHeading">
@@ -145,7 +138,14 @@ if ($users_with_skills) {
         </div>
     </section>
 
-    <!-- Карусель с данными пользователей -->
+    <!-- Отображение пользователей из БД -->
+    <div class="db_users" id="2">
+        <h2>Навыки наших пользователей</h2>
+        <div class="futuristic-border"></div>
+        <p>
+            Выберете, к чему лежит Ваша душа, из множества вариантов!
+        </p>
+        <!-- Карусель с данными пользователей -->
     <div id="userCarousel" class="carousel slide" data-ride="carousel">
         <!-- Индикаторы (точки внизу карусели) -->
         <ol class="carousel-indicators">
@@ -200,20 +200,9 @@ if ($users_with_skills) {
             <span class="sr-only">Следующий</span>
         </a>
     </div>
-
-    <!-- Отображение пользователей из БД -->
-    <div class="db_users" id="2">
-        <h2>Навыки наших пользователей</h2>
-        <div class="futuristic-border"></div>
-        <p>
-            Выберете, к чему лежит Ваша душа, из множества вариантов!
-        </p>
     </div>
 
     <footer>© Copyright 2025 - SkillSwap. All rights reserved.</footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </body>
 
 </html>
