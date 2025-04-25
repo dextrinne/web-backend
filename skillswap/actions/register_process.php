@@ -4,7 +4,7 @@ include('../includes/db.php');
 include('../includes/functions.php');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Собираем и "санитизируем" данные из формы
+    // Собираем и "санитизируем" основные данные пользователя
     $login = sanitize_input($_POST['login']);
     $password = $_POST['password'];  // Пароль НЕ санитизируем перед хешированием
     $first_name = sanitize_input($_POST['first_name']);
@@ -12,8 +12,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = sanitize_input($_POST['email']);
     $birthdate = sanitize_input($_POST['birthdate']);
     $gender = sanitize_input($_POST['gender']);
-    $skill_name = sanitize_input($_POST['skill_name']);
-    $skill_description = sanitize_input($_POST['skill_description']);
+
+    // Получаем массивы навыков и описаний
+    $skill_names = $_POST['skill_names'];
+    $skill_descriptions = $_POST['skill_descriptions'];
 
     // Хешируем пароль
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
@@ -33,29 +35,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Получаем ID созданного пользователя
         $user_id = $conn->lastInsertId();
 
-        // 2. Создаем навык (если его еще нет) или получаем его ID
-        $stmt = $conn->prepare("SELECT skills_id FROM skills WHERE name = ?");
-        $stmt->execute([$skill_name]);
-        $skill = $stmt->fetch(PDO::FETCH_ASSOC);
+        // 2. Обрабатываем каждый навык
+        for ($i = 0; $i < count($skill_names); $i++) {
+            $skill_name = sanitize_input($skill_names[$i]);
+            $skill_description = sanitize_input($skill_descriptions[$i]);
 
-        if ($skill) {
-            // Навык уже существует
-            $skill_id = $skill['skills_id'];
-        } else {
-            // Создаем новый навык
-            $stmt = $conn->prepare("INSERT INTO skills (name, description) VALUES (?, ?)");
-            $stmt->execute([$skill_name, $skill_description]);
-            $skill_id = $conn->lastInsertId();
+            // Проверяем, существует ли навык с таким именем
+            $stmt = $conn->prepare("SELECT skills_id FROM skills WHERE name = ?");
+            $stmt->execute([$skill_name]);
+            $skill = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($skill) {
+                // Навык уже существует
+                $skill_id = $skill['skills_id'];
+            } else {
+                // Создаем новый навык
+                $stmt = $conn->prepare("INSERT INTO skills (name, description) VALUES (?, ?)");
+                $stmt->execute([$skill_name, $skill_description]);
+                $skill_id = $conn->lastInsertId();
+            }
+
+            // Связываем пользователя и навык
+            $stmt = $conn->prepare("INSERT INTO user_skills (user_id, skill_id) VALUES (?, ?)");
+            $stmt->execute([$user_id, $skill_id]);
         }
-
-        // 3. Связываем пользователя и навык
-        $stmt = $conn->prepare("INSERT INTO user_skills (user_id, skill_id) VALUES (?, ?)");
-        $stmt->execute([$user_id, $skill_id]);
 
         // Подтверждаем транзакцию
         $conn->commit();
 
-        // Устанавливаем сессию и перенаправляем на главную страницу
         $_SESSION['user_id'] = $user_id;
         header("Location: ../user.php");
         exit();
