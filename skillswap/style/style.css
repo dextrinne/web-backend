@@ -267,18 +267,20 @@ p {
 
 .user-block {
   max-width: 60%;
-  background-color: #A3B18A;
+  background: rgba(255, 255, 255, 0.2);
   box-shadow: 0 10px 20px #3a5a40c1;
   padding: 20px;
   margin-bottom: 20px;
   display: flex;
+  margin-left: auto;
+  margin-right: auto;
   flex-direction: column;
 }
 
 .user-info {
   margin-bottom: 15px;
   padding-bottom: 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #DAD7CD;
 }
 
 .user-name {
@@ -293,7 +295,6 @@ p {
 }
 
 .skill-info {
-  background-color: #588157ae;
   padding: 15px;
   margin-top: 10px;
 }
