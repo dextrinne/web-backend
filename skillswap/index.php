@@ -1,12 +1,6 @@
 
 <?
 session_start();
-include('./includes/db.php');
-include('./includes/functions.php');
-
-// Получаем данные всех пользователей с их навыками
-$users_with_skills = get_all_users_with_skills($conn);
-
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -15,25 +9,9 @@ $users_with_skills = get_all_users_with_skills($conn);
     <meta charset="UTF-8">
     <title>SkillSwap</title>
     <link rel="stylesheet" href="./style/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
     <script src='https://cdnjs.cloudflare.com/ajax/libs/parallax/3.1.0/parallax.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/parallax/3.1.0/parallax.js'></script>
     <script src="./style/script.js"></script>
-    <style>
-        .carousel-caption {
-            background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон для caption */
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        .carousel-caption h3 {
-            color: white;
-        }
-
-        .carousel-caption p {
-            color: white;
-        }
-    </style>
 </head>
 
 <body>
@@ -138,54 +116,6 @@ $users_with_skills = get_all_users_with_skills($conn);
         </div>
     </section>
 
-    <!-- Карусель с данными пользователей -->
-    <div id="userCarousel" class="carousel slide" data-ride="carousel">
-        <!-- Индикаторы (точки внизу карусели) -->
-        <ol class="carousel-indicators">
-            <?php if ($users_with_skills): ?>
-                <?php for ($i = 0; $i < count($users_with_skills); $i++): ?>
-                    <li data-target="#userCarousel" data-slide-to="<?php echo $i; ?>" <?php if ($i == 0) echo 'class="active"'; ?>></li>
-                <?php endfor; ?>
-            <?php endif; ?>
-        </ol>
-
-        <!-- Слайды -->
-        <div class="carousel-inner" role="listbox">
-            <?php if ($users_with_skills): ?>
-                <?php $i = 0; ?>
-                <?php foreach ($users_with_skills as $user): ?>
-                    <div class="item <?php if ($i == 0) echo 'active'; ?>">
-                        <div class="carousel-caption">
-                            <h3><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></h3>
-                            <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
-                            <p><strong>Пол:</strong> <?php echo htmlspecialchars($user['gender']); ?></p>
-                            <p><strong>Навык:</strong> <?php echo htmlspecialchars($user['skill_name']); ?></p>
-                            <p><strong>Описание навыка:</strong> <?php echo htmlspecialchars($user['skill_description']); ?></p>
-                        </div>
-                    </div>
-                    <?php $i++; ?>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <div class="item active">
-                    <div class="carousel-caption">
-                        <h3>Нет доступных навыков</h3>
-                        <p>Пожалуйста, добавьте пользователей и их навыки в базу данных.</p>
-                    </div>
-                </div>
-            <?php endif; ?>
-        </div>
-
-        <!-- Элементы управления (стрелки) -->
-        <a class="left carousel-control" href="#userCarousel" role="button" data-slide="prev">
-            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-            <span class="sr-only">Предыдущий</span>
-        </a>
-        <a class="right carousel-control" href="#userCarousel" role="button" data-slide="next">
-            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-            <span class="sr-only">Следующий</span>
-        </a>
-    </div>
-
     <!-- Отображение пользователей из БД -->
     <div class="db_users" id="2">
         <h2>Навыки наших пользователей</h2>
@@ -196,9 +126,6 @@ $users_with_skills = get_all_users_with_skills($conn);
     </div>
 
     <footer>© Copyright 2025 - SkillSwap. All rights reserved.</footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </body>
 
 </html>
