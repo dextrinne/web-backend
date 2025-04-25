@@ -1,21 +1,19 @@
 <?php
 header('Content-Type: text/html; charset=UTF-8');
 
-// Start the session if it's not already started
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Check for logout
+
 if (!empty($_GET['exit'])) {
-    session_destroy();  // Destroy the session
-    header('Location: index.php'); // Redirect to the main page
+    session_destroy();
+    header('Location: index.php'); 
     exit();
 }
 
-// Check if the user is already logged in
 if (isset($_SESSION['login'])) {
-    header('Location: index.php');  // Redirect to index.php if already logged in
+    header('Location: index.php'); 
     exit();
 }
 
