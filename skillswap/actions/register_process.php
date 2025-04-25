@@ -57,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Устанавливаем сессию и перенаправляем на главную страницу
         $_SESSION['user_id'] = $user_id;
-        header("Location: ../index.php");
+        header("Location: ../user.php");
         exit();
 
     } catch (Exception $e) {
