@@ -54,6 +54,9 @@ $user_skills = get_user_skills($conn, $user_id);
     }
 
     /* ----------- Шапка ----------- */
+    header{
+        margin-bottom: 10vh;
+    }
     .mainNav {
         width: 100%;
         height: 80px;
@@ -101,8 +104,7 @@ $user_skills = get_user_skills($conn, $user_id);
         max-width: 800px;
         margin: 100px auto 50px;
         padding: 30px;
-        background-color: rgba(255, 255, 255, 0.9);
-        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.2);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         animation: fadeIn 0.6s ease-out;
     }
@@ -142,9 +144,8 @@ $user_skills = get_user_skills($conn, $user_id);
     }
 
     .profile-info p {
-        background-color: #F8F9FA;
+        background-color: #2e1c0d;
         padding: 12px 15px;
-        border-radius: 8px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
@@ -168,7 +169,6 @@ $user_skills = get_user_skills($conn, $user_id);
     .skill-item {
         background-color: #F8F9FA;
         padding: 15px 20px;
-        border-radius: 8px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         display: flex;
         justify-content: space-between;
@@ -205,7 +205,6 @@ $user_skills = get_user_skills($conn, $user_id);
         width: 100%;
         padding: 12px 15px;
         border: 1px solid #DAD7CD;
-        border-radius: 8px;
         background-color: #F8F9FA;
         transition: all 0.3s ease;
         font-family: "Raleway", sans-serif;
@@ -224,7 +223,6 @@ $user_skills = get_user_skills($conn, $user_id);
     /* ----------- Кнопки ----------- */
     .btn {
         padding: 10px 20px;
-        border-radius: 8px;
         font-weight: 600;
         transition: all 0.3s ease;
         cursor: pointer;
@@ -272,11 +270,12 @@ $user_skills = get_user_skills($conn, $user_id);
         padding: 5px 10px;
         font-size: 13px;
     }
-    
+
 </style>
 
 <body>
     <!-- Шапка -->
+    <header>
     <nav class="mainNav">
         <div class="mainNav__logo">SkillSwap</div>
         <div class="mainNav__links">
@@ -284,6 +283,7 @@ $user_skills = get_user_skills($conn, $user_id);
             <a href="index.php" class="mainNav__link">Выход</a>
         </div>
     </nav>
+    </header>
 
     <div class="container">
         <h2>Профиль пользователя</h2>
