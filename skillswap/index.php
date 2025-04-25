@@ -20,13 +20,8 @@ session_start();
         <div class="mainNav__links">
             <a href="#1" class="mainNav__link">О нас</a>
             <a href="#2" class="mainNav__link">Навыки пользователей</a>
-            <?php if (isset($_SESSION['user_id'])): ?>
-                <a href="user.php" class="mainNav__link">Профиль</a>
-                <a href="index.php" class="mainNav__link">Выход</a>
-            <?php else: ?>
-                <a href="login.php" class="mainNav__link">Вход</a>
-                <a href="register.php" class="mainNav__link">Регистрация</a>
-            <?php endif; ?>
+            <a href="login.php" class="mainNav__link">Вход</a>
+            <a href="register.php" class="mainNav__link">Регистрация</a>
         </div>
     </nav>
     <header class="mainHeading">
