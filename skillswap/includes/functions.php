@@ -1,0 +1,31 @@
+<?php
+function sanitize_input($data) {
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
+    return $data;
+}
+
+function get_user_data($conn, $user_id) {
+    $stmt = $conn->prepare("SELECT user_id, login, first_name, last_name, email, birthdate, gender FROM users_p WHERE user_id = ?");
+    $stmt->execute([$user_id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+function get_user_skills($conn, $user_id) {
+    $stmt = $conn->prepare("
+        SELECT s.skills_id, s.name, s.description
+        FROM skills s
+        INNER JOIN user_skills us ON s.skills_id = us.skill_id
+        WHERE us.user_id = ?
+    ");
+    $stmt->execute([$user_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function delete_user_skill($conn, $user_id, $skill_id) {
+    $stmt = $conn->prepare("DELETE FROM user_skills WHERE user_id = ? AND skill_id = ?");
+    return $stmt->execute([$user_id, $skill_id]);
+}
+
+?>
