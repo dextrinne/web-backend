@@ -35,7 +35,7 @@ $user_skills = get_user_skills($conn, $user_id);
         <div class="mainNav__logo">SkillSwap</div>
         <div class="mainNav__links">
             <a href="index.php" class="mainNav__link">Главная страница</a>
-            <a href="logout.php" class="mainNav__link">Выход</a>
+            <a href="index.php" class="mainNav__link">Выход</a>
         </div>
     </nav>
 
