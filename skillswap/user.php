@@ -107,6 +107,7 @@ $user_skills = get_user_skills($conn, $user_id);
         background: rgba(255, 255, 255, 0.2);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         animation: fadeIn 0.6s ease-out;
+        color: #2e1c0d;
     }
 
     @keyframes fadeIn {
@@ -133,6 +134,10 @@ $user_skills = get_user_skills($conn, $user_id);
         color: #3A5A40;
         margin: 25px 0 15px;
         font-weight: 600;
+    }
+
+    p {
+        color: #2e1c0d;
     }
 
     /* ----------- Информация о пользователе ----------- */
@@ -204,8 +209,8 @@ $user_skills = get_user_skills($conn, $user_id);
     .form-control {
         width: 100%;
         padding: 12px 15px;
-        border: 1px solid #DAD7CD;
-        background-color: #F8F9FA;
+        border: 1px solid #588157;
+        background-color: #588157;
         transition: all 0.3s ease;
         font-family: "Raleway", sans-serif;
     }
