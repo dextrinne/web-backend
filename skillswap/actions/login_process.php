@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (password_verify($password, $user['password'])) {
             // Аутентификация успешна
             $_SESSION['user_id'] = $user['user_id'];
-            header("Location: ../index.php"); // Перенаправляем на главную страницу
+            header("Location: ../user.php"); // Перенаправляем на профиль
             exit();
         } else {
             // Неверный пароль
