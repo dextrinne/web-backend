@@ -1,3 +1,4 @@
+
 <?
 session_start();
 include('./includes/db.php'); // Подключение к БД
@@ -7,23 +8,27 @@ include('./includes/functions.php'); // Подключение функций
 $users_with_skills = get_all_users_with_skills($conn);
 
 // Организуем данные в массив, сгруппированный по пользователям
-$users = [];
-foreach ($users_with_skills as $row) {
-    $user_key = $row['first_name'] . ' ' . $row['last_name'] . ' (' . $row['email'] . ')'; // Уникальный ключ для каждого пользователя
-    if (!isset($users[$user_key])) {
-        $users[$user_key] = [
-            'first_name' => $row['first_name'],
-            'last_name' => $row['last_name'],
-            'email' => $row['email'],
-            'gender' => $row['gender'],
-            'skills' => []
+$users = []; // Инициализация массива users
+if ($users_with_skills) {
+    foreach ($users_with_skills as $row) {
+        $user_key = $row['first_name'] . ' ' . $row['last_name'] . ' (' . $row['email'] . ')'; // Уникальный ключ для каждого пользователя
+        if (!isset($users[$user_key])) {
+            $users[$user_key] = [
+                'first_name' => $row['first_name'],
+                'last_name' => $row['last_name'],
+                'email' => $row['email'],
+                'gender' => $row['gender'],
+                'skills' => []
+            ];
+        }
+        $users[$user_key]['skills'][] = [
+            'skill_name' => $row['skill_name'],
+            'skill_description' => $row['skill_description']
         ];
     }
-    $users[$user_key]['skills'][] = [
-        'skill_name' => $row['skill_name'],
-        'skill_description' => $row['skill_description']
-    ];
 }
+
+
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -32,6 +37,7 @@ foreach ($users_with_skills as $row) {
     <meta charset="UTF-8">
     <title>SkillSwap</title>
     <link rel="stylesheet" href="./style/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
     <script src='https://cdnjs.cloudflare.com/ajax/libs/parallax/3.1.0/parallax.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/parallax/3.1.0/parallax.js'></script>
     <script src="./style/script.js"></script>
@@ -44,8 +50,13 @@ foreach ($users_with_skills as $row) {
         <div class="mainNav__links">
             <a href="#1" class="mainNav__link">О нас</a>
             <a href="#2" class="mainNav__link">Навыки пользователей</a>
-            <a href="login.php" class="mainNav__link">Вход</a>
-            <a href="register.php" class="mainNav__link">Регистрация</a>
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <a href="user.php" class="mainNav__link">Профиль</a>
+                <a href="logout.php" class="mainNav__link">Выход</a>
+            <?php else: ?>
+                <a href="login.php" class="mainNav__link">Вход</a>
+                <a href="register.php" class="mainNav__link">Регистрация</a>
+            <?php endif; ?>
         </div>
     </nav>
     <header class="mainHeading">
@@ -134,39 +145,49 @@ foreach ($users_with_skills as $row) {
         </div>
     </section>
 
-    <!-- Отображение пользователей из БД -->
-    <div class="db_users" id="2">
-        <h2>Навыки наших пользователей</h2>
-        <div class="futuristic-border"></div>
-        <p>
-            Выберете, к чему лежит Ваша душа, из множества вариантов!
-        </p>
+    <!-- Карусель с данными пользователей -->
+    <div id="userCarousel" class="carousel slide" data-ride="carousel">
+        <!-- Индикаторы (точки внизу карусели) -->
+        <ol class="carousel-indicators">
+            <?php
+            $i = 0;
+            if(!empty($users)):
+                foreach ($users as $user_key => $user): ?>
+                    <li data-target="#userCarousel" data-slide-to="<?php echo $i; ?>" <?php if ($i == 0) echo 'class="active"'; ?>></li>
+                    <?php $i++; ?>
+                <?php endforeach;
+            endif; ?>
+        </ol>
+
+        <!-- Слайды -->
         <div class="carousel-inner" role="listbox">
             <?php
             $i = 0;
-            foreach ($users as $user_key => $user): ?>
-                <div class="item <?php if ($i == 0) echo 'active'; ?>">
-                    <div class="carousel-caption">
-                        <h3><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></h3>
-                        <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
-                        <p><strong>Пол:</strong> <?php echo htmlspecialchars($user['gender']); ?></p>
-                        <h4>Навыки:</h4>
-                        <?php if (!empty($user['skills'])): ?>
-                            <ul>
-                                <?php foreach ($user['skills'] as $skill): ?>
-                                    <li>
-                                        <strong><?php echo htmlspecialchars($skill['skill_name']); ?>:</strong>
-                                        <?php echo htmlspecialchars($skill['skill_description']); ?>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ul>
-                        <?php else: ?>
-                            <p>Нет навыков.</p>
-                        <?php endif; ?>
+            if(!empty($users)):
+                foreach ($users as $user_key => $user): ?>
+                    <div class="item <?php if ($i == 0) echo 'active'; ?>">
+                        <div class="carousel-caption">
+                            <h3><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></h3>
+                            <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
+                            <p><strong>Пол:</strong> <?php echo htmlspecialchars($user['gender']); ?></p>
+                            <h4>Навыки:</h4>
+                            <?php if (!empty($user['skills'])): ?>
+                                <ul>
+                                    <?php foreach ($user['skills'] as $skill): ?>
+                                        <li>
+                                            <strong><?php echo htmlspecialchars($skill['skill_name']); ?>:</strong>
+                                            <?php echo htmlspecialchars($skill['skill_description']); ?>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php else: ?>
+                                <p>Нет навыков.</p>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                </div>
-                <?php $i++; ?>
-            <?php endforeach; ?>
+                    <?php $i++; ?>
+                <?php endforeach;
+            endif; ?>
         </div>
 
         <!-- Элементы управления (стрелки) -->
@@ -179,9 +200,20 @@ foreach ($users_with_skills as $row) {
             <span class="sr-only">Следующий</span>
         </a>
     </div>
+
+    <!-- Отображение пользователей из БД -->
+    <div class="db_users" id="2">
+        <h2>Навыки наших пользователей</h2>
+        <div class="futuristic-border"></div>
+        <p>
+            Выберете, к чему лежит Ваша душа, из множества вариантов!
+        </p>
     </div>
 
     <footer>© Copyright 2025 - SkillSwap. All rights reserved.</footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </body>
 
 </html>
