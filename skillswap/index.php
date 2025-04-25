@@ -117,6 +117,44 @@ session_start();
         <p>
             Выберете, к чему лежит Ваша душа, из множества вариантов!
         </p>
+        <div class="carousel-inner" role="listbox">
+            <?php
+            $i = 0;
+            foreach ($users as $user_key => $user): ?>
+                <div class="item <?php if ($i == 0) echo 'active'; ?>">
+                    <div class="carousel-caption">
+                        <h3><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></h3>
+                        <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
+                        <p><strong>Пол:</strong> <?php echo htmlspecialchars($user['gender']); ?></p>
+                        <h4>Навыки:</h4>
+                        <?php if (!empty($user['skills'])): ?>
+                            <ul>
+                                <?php foreach ($user['skills'] as $skill): ?>
+                                    <li>
+                                        <strong><?php echo htmlspecialchars($skill['skill_name']); ?>:</strong>
+                                        <?php echo htmlspecialchars($skill['skill_description']); ?>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php else: ?>
+                            <p>Нет навыков.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php $i++; ?>
+            <?php endforeach; ?>
+        </div>
+
+        <!-- Элементы управления (стрелки) -->
+        <a class="left carousel-control" href="#userCarousel" role="button" data-slide="prev">
+            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+            <span class="sr-only">Предыдущий</span>
+        </a>
+        <a class="right carousel-control" href="#userCarousel" role="button" data-slide="next">
+            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+            <span class="sr-only">Следующий</span>
+        </a>
+    </div>
     </div>
 
     <footer>© Copyright 2025 - SkillSwap. All rights reserved.</footer>
