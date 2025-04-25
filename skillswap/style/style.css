@@ -264,23 +264,65 @@ p {
   background-color: #588157;
   padding-bottom: 5%;
 }
-#userCarousel {
-    width: 80%; /* Задайте нужную ширину */
-    margin: 20px auto; /* Центрирование карусели */
+
+.user-block {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
-.carousel-inner > .item > .carousel-caption {
-    background-color: rgba(0, 0, 0, 0.5); /* Добавляем фон для лучшей читаемости текста */
-    padding: 20px;
-    color: white;
+.user-info {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
 }
 
-.carousel-indicators li {
-    border-color: #337ab7; /* Цвет индикаторов */
+.user-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
 }
 
-.carousel-indicators .active {
-    background-color: #337ab7; /* Цвет активного индикатора */
+.user-details {
+  color: #666;
+  margin-top: 5px;
+}
+
+.skill-info {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+.skill-name {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.skill-description {
+  margin-top: 5px;
+  color: #555;
+}
+
+.gender-male {
+  color: #3498db;
+}
+
+.gender-female {
+  color: #e91e63;
+}
+
+.error-message {
+  color: #d9534f;
+  padding: 15px;
+  background-color: #f2dede;
+  border: 1px solid #ebccd1;
+  border-radius: 4px;
 }
 
 /* ----------- Подвал ----------- */
