@@ -1,5 +1,29 @@
 <?
 session_start();
+include('./includes/db.php'); // Подключение к БД
+include('./includes/functions.php'); // Подключение функций
+
+// Получаем данные всех пользователей с их навыками
+$users_with_skills = get_all_users_with_skills($conn);
+
+// Организуем данные в массив, сгруппированный по пользователям
+$users = [];
+foreach ($users_with_skills as $row) {
+    $user_key = $row['first_name'] . ' ' . $row['last_name'] . ' (' . $row['email'] . ')'; // Уникальный ключ для каждого пользователя
+    if (!isset($users[$user_key])) {
+        $users[$user_key] = [
+            'first_name' => $row['first_name'],
+            'last_name' => $row['last_name'],
+            'email' => $row['email'],
+            'gender' => $row['gender'],
+            'skills' => []
+        ];
+    }
+    $users[$user_key]['skills'][] = [
+        'skill_name' => $row['skill_name'],
+        'skill_description' => $row['skill_description']
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">
