@@ -263,11 +263,11 @@ p {
 .db_users {
   background-color: #588157;
   padding-bottom: 5%;
-  max-width: 60%;
 }
 
 .user-block {
-  background-color: 588157;
+  max-width: 60%;
+  background-color: #A3B18A;
   box-shadow: 0 10px 20px #3a5a40c1;
   padding: 20px;
   margin-bottom: 20px;
@@ -293,7 +293,7 @@ p {
 }
 
 .skill-info {
-  background-color: #A3B18A;
+  background-color: #588157ae;
   padding: 15px;
   margin-top: 10px;
 }
