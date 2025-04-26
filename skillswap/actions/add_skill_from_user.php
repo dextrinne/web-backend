@@ -24,22 +24,24 @@ try {
         exit();
     }
 
-    $stmt = $conn->prepare("INSERT INTO user_skills (user_id, skill_id, added_from_user_id, is_learning, status) 
-                           VALUES (?, ?, ?, TRUE, 'LEARNING')
-                           ON DUPLICATE KEY UPDATE is_learning = TRUE, status = 'LEARNING'");
+    $stmt = $conn->prepare("
+        INSERT INTO user_learning_skills (user_id, skill_id, from_user_id)
+        VALUES (?, ?, ?)
+        ON DUPLICATE KEY UPDATE from_user_id = VALUES(from_user_id)
+    ");
     $stmt->execute([$current_user_id, $skill_id, $from_user_id]);
 
     if ($add_all) {
         $query = "
-            INSERT INTO user_skills (user_id, skill_id, added_from_user_id, is_learning, status)
-            SELECT ?, us.skill_id, ?, TRUE, 'LEARNING'
+            INSERT INTO user_learning_skills (user_id, skill_id, from_user_id)
+            SELECT ?, us.skill_id, ?
             FROM user_skills us
-            WHERE us.user_id = ? AND (us.is_learning = FALSE OR us.is_learning IS NULL)
+            WHERE us.user_id = ?
             AND NOT EXISTS (
-                SELECT 1 FROM user_skills 
-                WHERE user_id = ? AND skill_id = us.skill_id AND status = 'LEARNING'
+                SELECT 1 FROM user_learning_skills 
+                WHERE user_id = ? AND skill_id = us.skill_id
             )
-            ON DUPLICATE KEY UPDATE is_learning = TRUE, status = 'LEARNING'
+            ON DUPLICATE KEY UPDATE from_user_id = VALUES(from_user_id)
         ";
         $stmt = $conn->prepare($query);
         $stmt->execute([$current_user_id, $from_user_id, $from_user_id, $current_user_id]);
