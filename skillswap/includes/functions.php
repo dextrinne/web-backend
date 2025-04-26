@@ -28,13 +28,6 @@ function delete_user_skill($conn, $user_id, $skill_id) {
     return $stmt->execute([$user_id, $skill_id]);
 }
 
-function sanitize_input($data) {
-       $data = trim($data);
-       $data = stripslashes($data);
-       $data = htmlspecialchars($data);
-       return $data;
-   }
-
 function get_all_users_with_skills($conn) {
     $stmt = $conn->prepare("
         SELECT
