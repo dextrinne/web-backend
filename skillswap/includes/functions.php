@@ -14,9 +14,9 @@ function get_user_data($conn, $user_id) {
 
 function get_user_skills($conn, $user_id) {
     $stmt = $conn->prepare("
-        SELECT s.skills_id, s.name, s.description
-        FROM skills s
-        INNER JOIN user_skills us ON s.skills_id = us.skill_id
+        SELECT s.skills_id, s.name, s.description, us.added_from_user_id
+        FROM user_skills us
+        JOIN skills s ON us.skill_id = s.skills_id
         WHERE us.user_id = ?
     ");
     $stmt->execute([$user_id]);
