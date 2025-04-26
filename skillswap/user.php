@@ -292,9 +292,6 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
         padding: 20px;
     }
 
-    .carousel-item {
-        padding: 0 15px;
-    }
 
     .skill-card {
         background: white;
@@ -345,6 +342,19 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
         display: inline-block;
         margin-right: 10px;
     }
+
+    .carousel-item {
+    display: none;
+    float: left;
+    width: 100%;
+    margin-right: -100%;
+    backface-visibility: hidden;
+    transition: transform 0.6s ease-in-out;
+}
+
+.carousel-item.active {
+    display: block;
+}
 
     /* Стили для отображения добавленных навыков */
     .added-skills {
