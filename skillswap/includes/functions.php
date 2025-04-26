@@ -84,10 +84,7 @@ function get_other_users_skills($conn, $current_user_id) {
     ";
     
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("ii", $current_user_id, $current_user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    return $result->fetch_all(MYSQLI_ASSOC);
+    $stmt->execute([$current_user_id, $current_user_id]); // Используем execute с массивом параметров
+    return $stmt->fetchAll(PDO::FETCH_ASSOC); // Получаем результаты через fetchAll
 }
 ?>
