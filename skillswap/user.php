@@ -445,8 +445,8 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
         </div>
 
         <!-- Отображение добавленных навыков -->
+        <h2>Ваши добавленные навыки:</h2>
         <div class="added-skills">
-            <h3>Ваши добавленные навыки:</h3>
             <?php if ($user_skills): ?>
                 <?php foreach ($user_skills as $skill): ?>
                     <div class="added-skill-item">
@@ -474,7 +474,7 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
 
 
         <!-- Форма для добавления навыка -->
-        <h3>Добавить новый навык:</h3>
+        <h2>Добавить новый навык:</h2>
         <form action="actions/add_skill.php" method="post">
             <div class="form-group">
                 <label for="skill_name">Название навыка:</label>
