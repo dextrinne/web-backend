@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 include('./includes/db.php'); // Подключение к БД
@@ -29,10 +28,10 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
 <head>
     <meta charset="UTF-8">
     <title>Профиль пользователя</title>
-     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-   
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+
 
 </head>
 
@@ -283,65 +282,65 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
 
     /* ----------- Карусель навыков ----------- */
     .carousel {
-    position: relative;
-}
+        position: relative;
+    }
 
-.carousel-inner {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-}
+    .carousel-inner {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+    }
 
-.carousel-item {
-    display: none;
-    position: relative;
-    width: 100%;
-    transition: transform 0.6s ease;
-    backface-visibility: hidden;
-    perspective: 1000px;
-}
+    .carousel-item {
+        display: none;
+        position: relative;
+        width: 100%;
+        transition: transform 0.6s ease;
+        backface-visibility: hidden;
+        perspective: 1000px;
+    }
 
-.carousel-item.active {
-    display: block;
-}
+    .carousel-item.active {
+        display: block;
+    }
 
-.carousel-control-prev,
-.carousel-control-next {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 15%;
-    color: #fff;
-    text-align: center;
-    opacity: 0.5;
-}
+    .carousel-control-prev,
+    .carousel-control-next {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 15%;
+        color: #fff;
+        text-align: center;
+        opacity: 0.5;
+    }
 
-.carousel-control-prev {
-    left: 0;
-}
+    .carousel-control-prev {
+        left: 0;
+    }
 
-.carousel-control-next {
-    right: 0;
-}
+    .carousel-control-next {
+        right: 0;
+    }
 
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    background: no-repeat 50%/100% 100%;
-}
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background: no-repeat 50%/100% 100%;
+    }
 
-.carousel-control-prev-icon {
-    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%233A5A40' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E");
-}
+    .carousel-control-prev-icon {
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%233A5A40' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E");
+    }
 
-.carousel-control-next-icon {
-    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%233A5A40' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E");
-}
+    .carousel-control-next-icon {
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%233A5A40' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E");
+    }
 
     /* Стили для отображения добавленных навыков */
     .added-skills {
@@ -395,109 +394,54 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
         <?php endif; ?>
 
         <!-- Карусель навыков других пользователей -->
-        <div class="skills-carousel">
-            <h3>Каталог навыков других пользователей:</h3>
-            <?php if ($other_users_skills): ?>
-                <div id="skillsCarousel" class="carousel slide" data-ride="carousel">
-                    <!-- Индикаторы -->
-                    <ol class="carousel-indicators">
-                        <?php for ($i = 0; $i < count($other_users_skills); $i++): ?>
-                            <li data-target="#skillsCarousel" data-slide-to="<?= $i ?>" <?= $i === 0 ? 'class="active"' : '' ?>></li>
-                        <?php endfor; ?>
-                    </ol>
-
-                    <div class="carousel-inner" role="listbox">
-                        <?php foreach ($other_users_skills as $index => $skill): ?>
-                            <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
-                                <div class="skill-card">
-                                    <h4><?= htmlspecialchars($skill['name']) ?></h4>
-                                    <p class="skill-meta">
-                                        <?= htmlspecialchars($skill['first_name'] . ' ' . $skill['last_name']) ?><br>
-                                        <?= htmlspecialchars($skill['gender']) ?><br>
-                                        <?= htmlspecialchars($skill['email']) ?>
-                                    </p>
-                                    <p><?= htmlspecialchars($skill['description']) ?></p>
-                                    <form action="actions/add_skill_from_user.php" method="post" style="margin-top: 15px;">
-                                        <input type="hidden" name="skill_id" value="<?= $skill['skills_id'] ?>">
-                                        <input type="hidden" name="from_user_id" value="<?= $skill['user_id'] ?>">
-                                        <button type="submit" class="btn btn-success">Добавить себе</button>
-                                    </form>
-                                    <?php if ($skill['has_multiple']): ?>
-                                        <form action="actions/add_skill_from_user.php" method="post" style="margin-top: 10px;">
-                                            <input type="hidden" name="skill_id" value="<?= $skill['skills_id'] ?>">
-                                            <input type="hidden" name="from_user_id" value="<?= $skill['user_id'] ?>">
-                                            <input type="hidden" name="add_all" value="1">
-                                            <button type="submit" class="btn btn-info">Добавить все навыки</button>
-                                        </form>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-
-                    <!-- Элементы управления -->
-                    <a class="carousel-control left" href="#skillsCarousel" data-slide="prev">
-                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-                        <span class="sr-only">Предыдущий</span>
-                    </a>
-                    <a class="carousel-control right" href="#skillsCarousel" data-slide="next">
-                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-                        <span class="sr-only">Следующий</span>
-                    </a>
-                </div>
-            <?php else: ?>
-                <p>Нет доступных навыков других пользователей.</p>
-            <?php endif; ?>
-        </div>
-
         <div id="skillsCarousel" class="carousel slide" data-ride="carousel">
-    <!-- Индикаторы -->
-    <ol class="carousel-indicators">
-        <?php for ($i = 0; $i < count($other_users_skills); $i++): ?>
-            <li data-target="#skillsCarousel" data-slide-to="<?= $i ?>" <?= $i === 0 ? 'class="active"' : '' ?>></li>
-        <?php endfor; ?>
-    </ol>
+            <!-- Индикаторы -->
+            <ol class="carousel-indicators">
+                <?php for ($i = 0; $i < count($other_users_skills); $i++): ?>
+                    <li data-target="#skillsCarousel" data-slide-to="<?= $i ?>" <?= $i === 0 ? 'class="active"' : '' ?>></li>
+                <?php endfor; ?>
+            </ol>
 
-    <!-- Слайды -->
-    <div class="carousel-inner">
-        <?php foreach ($other_users_skills as $index => $skill): ?>
-            <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
-                <div class="skill-card">
-                    <h4><?= htmlspecialchars($skill['name']) ?></h4>
-                                    <p class="skill-meta">
-                                        <?= htmlspecialchars($skill['first_name'] . ' ' . $skill['last_name']) ?><br>
-                                        <?= htmlspecialchars($skill['gender']) ?><br>
-                                        <?= htmlspecialchars($skill['email']) ?>
-                                    </p>
-                                    <p><?= htmlspecialchars($skill['description']) ?></p>
-                                    <form action="actions/add_skill_from_user.php" method="post" style="margin-top: 15px;">
-                                        <input type="hidden" name="skill_id" value="<?= $skill['skills_id'] ?>">
-                                        <input type="hidden" name="from_user_id" value="<?= $skill['user_id'] ?>">
-                                        <button type="submit" class="btn btn-success">Добавить себе</button>
-                                    </form>
-                                    <?php if ($skill['has_multiple']): ?>
-                                        <form action="actions/add_skill_from_user.php" method="post" style="margin-top: 10px;">
-                                            <input type="hidden" name="skill_id" value="<?= $skill['skills_id'] ?>">
-                                            <input type="hidden" name="from_user_id" value="<?= $skill['user_id'] ?>">
-                                            <input type="hidden" name="add_all" value="1">
-                                            <button type="submit" class="btn btn-info">Добавить все навыки</button>
-                                        </form>
-                                    <?php endif; ?>
-                </div>
+            <!-- Слайды -->
+            <div class="carousel-inner">
+                <?php foreach ($other_users_skills as $index => $skill): ?>
+                    <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
+                        <div class="skill-card">
+                            <h4><?= htmlspecialchars($skill['name']) ?></h4>
+                            <p class="skill-meta">
+                                <?= htmlspecialchars($skill['first_name'] . ' ' . $skill['last_name']) ?><br>
+                                <?= htmlspecialchars($skill['gender']) ?><br>
+                                <?= htmlspecialchars($skill['email']) ?>
+                            </p>
+                            <p><?= htmlspecialchars($skill['description']) ?></p>
+                            <form action="actions/add_skill_from_user.php" method="post" style="margin-top: 15px;">
+                                <input type="hidden" name="skill_id" value="<?= $skill['skills_id'] ?>">
+                                <input type="hidden" name="from_user_id" value="<?= $skill['user_id'] ?>">
+                                <button type="submit" class="btn btn-success">Добавить себе</button>
+                            </form>
+                            <?php if ($skill['has_multiple']): ?>
+                                <form action="actions/add_skill_from_user.php" method="post" style="margin-top: 10px;">
+                                    <input type="hidden" name="skill_id" value="<?= $skill['skills_id'] ?>">
+                                    <input type="hidden" name="from_user_id" value="<?= $skill['user_id'] ?>">
+                                    <input type="hidden" name="add_all" value="1">
+                                    <button type="submit" class="btn btn-info">Добавить все навыки</button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
-        <?php endforeach; ?>
-    </div>
 
-    <!-- Элементы управления -->
-    <a class="carousel-control-prev" href="#skillsCarousel" role="button" data-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-    </a>
-    <a class="carousel-control-next" href="#skillsCarousel" role="button" data-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-    </a>
-</div>
+            <!-- Элементы управления -->
+            <a class="carousel-control-prev" href="#skillsCarousel" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Предыдущий</span>
+            </a>
+            <a class="carousel-control-next" href="#skillsCarousel" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Следующий</span>
+            </a>
+        </div>
 
         <!-- Отображение добавленных навыков -->
         <div class="added-skills">
@@ -546,23 +490,23 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
         <a href="edit_profile.php" class="btn btn-primary">Редактировать профиль</a>
     </div>
     <script>
-$(document).ready(function(){
-    // Инициализация карусели
-    $('#skillsCarousel').carousel({
-        interval: false, // Отключаем автоматическое перелистывание
-        wrap: true // Позволяем бесконечное перелистывание
-    });
-    
-    // Обработчики для кнопок
-    $('.carousel-control-prev').click(function() {
-        $('#skillsCarousel').carousel('prev');
-    });
-    
-    $('.carousel-control-next').click(function() {
-        $('#skillsCarousel').carousel('next');
-    });
-});
-</script>
+        $(document).ready(function () {
+            // Инициализация карусели
+            $('#skillsCarousel').carousel({
+                interval: false, // Отключаем автоматическое перелистывание
+                wrap: true // Позволяем бесконечное перелистывание
+            });
+
+            // Обработчики для кнопок
+            $('.carousel-control-prev').click(function () {
+                $('#skillsCarousel').carousel('prev');
+            });
+
+            $('.carousel-control-next').click(function () {
+                $('#skillsCarousel').carousel('next');
+            });
+        });
+    </script>
 </body>
 
 </html>
