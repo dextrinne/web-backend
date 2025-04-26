@@ -290,6 +290,8 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
         position: relative;
         width: 100%;
         overflow: hidden;
+        background: rgba(255, 255, 255, 0.2);
+        text-align: center
     }
 
     .carousel-item {
