@@ -428,31 +428,31 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
 
         <!-- Отображение добавленных навыков -->
         <div class="added-skills">
-    <h3>Ваши добавленные навыки:</h3>
-    <?php if ($user_skills): ?>
-        <?php foreach ($user_skills as $skill): ?>
-            <div class="added-skill-item">
-                <div class="skill-name"><?php echo htmlspecialchars($skill['name']); ?></div>
-                <div class="skill-description"><?php echo htmlspecialchars($skill['description']); ?></div>
-                <?php if (isset($skill['added_from_user_id'])): ?>  <!-- Проверяем, существует ли ключ -->
-                    <?php
-                    $added_from_user = get_user_data($conn, $skill['added_from_user_id']);
-                    if ($added_from_user): ?>
-                        <div class="added-from">Добавлено от:
-                            <?php echo htmlspecialchars($added_from_user['first_name'] . ' ' . $added_from_user['last_name']); ?>
-                        </div>
-                    <?php endif; ?>
-                <?php endif; ?>
-                <form action="actions/delete_skill.php" method="post" style="display: inline-block; margin-top: 10px;">
-                    <input type="hidden" name="skill_id" value="<?php echo $skill['skills_id']; ?>">
-                    <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
-                </form>
-            </div>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <p>У вас пока нет добавленных навыков.</p>
-    <?php endif; ?>
-</div>
+            <h3>Ваши добавленные навыки:</h3>
+            <?php if ($user_skills): ?>
+                <?php foreach ($user_skills as $skill): ?>
+                    <div class="added-skill-item">
+                        <div class="skill-name"><?php echo htmlspecialchars($skill['name']); ?></div>
+                        <div class="skill-description"><?php echo htmlspecialchars($skill['description']); ?></div>
+                        <?php if (isset($skill['added_from_user_id'])): ?> <!-- Проверяем, существует ли ключ -->
+                            <?php
+                            $added_from_user = get_user_data($conn, $skill['added_from_user_id']);
+                            if ($added_from_user): ?>
+                                <div class="added-from">Добавлено от:
+                                    <?php echo htmlspecialchars($added_from_user['first_name'] . ' ' . $added_from_user['last_name']); ?>
+                                </div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                        <form action="actions/delete_skill.php" method="post" style="display: inline-block; margin-top: 10px;">
+                            <input type="hidden" name="skill_id" value="<?php echo $skill['skills_id']; ?>">
+                            <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                        </form>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>У вас пока нет добавленных навыков.</p>
+            <?php endif; ?>
+        </div>
 
 
         <!-- Форма для добавления навыка -->
