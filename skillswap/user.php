@@ -1,5 +1,4 @@
-
-<?
+<?php
 session_start();
 include('./includes/db.php'); // Подключение к БД
 include('./includes/functions.php');
