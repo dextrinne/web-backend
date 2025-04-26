@@ -13,15 +13,8 @@ $skill_id = $_POST['skill_id'];
 
 try {
     $stmt = $conn->prepare("
-        UPDATE user_skills 
-        SET is_learning = FALSE, status = 'OWNED' 
+        DELETE FROM user_learning_skills 
         WHERE user_id = ? AND skill_id = ?
-    ");
-    $stmt->execute([$current_user_id, $skill_id]);
-
-    $stmt = $conn->prepare("
-        DELETE FROM user_skills 
-        WHERE user_id = ? AND skill_id = ? AND added_from_user_id IS NOT NULL
     ");
     $stmt->execute([$current_user_id, $skill_id]);
 
