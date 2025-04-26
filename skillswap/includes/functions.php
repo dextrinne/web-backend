@@ -87,4 +87,15 @@ function get_other_users_skills($conn, $current_user_id) {
     $stmt->execute([$current_user_id, $current_user_id]); // Используем execute с массивом параметров
     return $stmt->fetchAll(PDO::FETCH_ASSOC); // Получаем результаты через fetchAll
 }
+
+function get_learning_skills($conn, $user_id) {
+    $stmt = $conn->prepare("
+        SELECT s.skills_id, s.name, s.description, us.added_from_user_id
+        FROM user_skills us
+        JOIN skills s ON us.skill_id = s.skills_id
+        WHERE us.user_id = ? AND us.is_learning = TRUE
+    ");
+    $stmt->execute([$user_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 ?>
