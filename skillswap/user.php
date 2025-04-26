@@ -519,15 +519,17 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
 
         <a href="edit_profile.php" class="btn btn-primary">Редактировать профиль</a>
     </div>
-    <script>
-$(document).ready(function(){
-    $('#skillsCarousel').carousel({
-        interval: 5000,
-        wrap: true,
-        keyboard: true
-    });
-});
-</script>
+<script>
+        $(document).ready(function () {
+            // Инициализация карусели
+            $('#skillsCarousel').carousel();
+
+            // Остановка автоматического перелистывания
+            $('#skillsCarousel').carousel({
+                interval: false
+            });
+        });
+    </script>
 </body>
 
 </html>
