@@ -497,15 +497,24 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
         <a href="edit_profile.php" class="btn btn-primary">Редактировать профиль</a>
     </div>
     <script>
-        $(document).ready(function () {
-            // Инициализация карусели
-            $('#skillsCarousel').carousel({
-                interval: false // Отключаем автоматическую смену слайдов
-            });
+           $(document).ready(function () {
+       $('#skillsCarousel').carousel({
+           interval: false // Отключаем автоматическую смену слайдов
+       });
 
-            // Дополнительная проверка: вывод в консоль для отладки
-            console.log("Carousel initialized");
-        });
+       // Обработчики кликов для стрелок
+       $('.carousel-control.left').click(function (e) {
+           e.preventDefault();
+           $('#skillsCarousel').carousel('prev');
+       });
+
+       $('.carousel-control.right').click(function (e) {
+           e.preventDefault();
+           $('#skillsCarousel').carousel('next');
+       });
+   });
+   
+
     </script>
 </body>
 
