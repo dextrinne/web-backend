@@ -471,7 +471,7 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
                     <div class="added-skill-item">
                         <div class="skill-name"><?php echo htmlspecialchars($skill['name']); ?></div>
                         <div class="skill-description"><?php echo htmlspecialchars($skill['description']); ?></div>
-                        <?php if ($skill['added_from_user_id']): ?>
+                        <?php if (isset($skill['added_from_user_id'])): ?> <!-- Проверяем, существует ли ключ -->
                             <?php
                             $added_from_user = get_user_data($conn, $skill['added_from_user_id']);
                             if ($added_from_user): ?>
@@ -490,6 +490,7 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
                 <p>У вас пока нет добавленных навыков.</p>
             <?php endif; ?>
         </div>
+
 
         <!-- Форма для добавления навыка -->
         <h3>Добавить новый навык:</h3>
