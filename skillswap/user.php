@@ -130,6 +130,7 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
         color: #3A5A40;
         margin-bottom: 25px;
         padding-bottom: 10px;
+        margin-top: 15pt;
         border-bottom: 2px solid #A3B18A;
         font-weight: 700;
     }
