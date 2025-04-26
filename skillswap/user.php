@@ -17,6 +17,9 @@ $user = get_user_data($conn, $user_id);
 // Получение навыков пользователя
 $user_skills = get_user_skills($conn, $user_id);
 
+// Получение навыков других пользователей для карусели
+$other_users_skills = get_other_users_skills($conn, $user_id);
+
 ?>
 
 <!DOCTYPE html>
@@ -29,6 +32,7 @@ $user_skills = get_user_skills($conn, $user_id);
         href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <style>
@@ -53,9 +57,10 @@ $user_skills = get_user_skills($conn, $user_id);
     }
 
     /* ----------- Шапка ----------- */
-    header{
+    header {
         margin-bottom: 10vh;
     }
+
     .mainNav {
         width: 100%;
         height: 80px;
@@ -275,50 +280,216 @@ $user_skills = get_user_skills($conn, $user_id);
         font-size: 13px;
     }
 
+    /* ----------- Карусель навыков ----------- */
+    .skills-carousel {
+        margin: 40px 0;
+        padding: 20px 0;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+
+    .carousel-inner {
+        padding: 20px;
+    }
+
+    .carousel-item {
+        padding: 0 15px;
+    }
+
+    .skill-card {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        height: 100%;
+    }
+
+    .skill-card h4 {
+        color: #3A5A40;
+        margin-top: 0;
+    }
+
+    .skill-card p {
+        margin-bottom: 15px;
+    }
+
+    .skill-meta {
+        font-size: 14px;
+        color: #6C757D;
+        margin-bottom: 10px;
+    }
+
+    .carousel-control {
+        width: 5%;
+        color: #3A5A40;
+        text-shadow: none;
+    }
+
+    .carousel-control:hover {
+        color: #344E41;
+    }
+
+    .carousel-indicators {
+        bottom: -10px;
+    }
+
+    .carousel-indicators li {
+        background-color: #A3B18A;
+    }
+
+    .carousel-indicators .active {
+        background-color: #3A5A40;
+    }
+
+    .add-skill-btn {
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+    /* Стили для отображения добавленных навыков */
+    .added-skills {
+        margin-top: 30px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+
+    .added-skill-item {
+        background: white;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .added-from {
+        font-size: 12px;
+        color: #6C757D;
+        font-style: italic;
+    }
 </style>
 
 <body>
     <!-- Шапка -->
     <header>
-    <nav class="mainNav">
-        <div class="mainNav__logo">SkillSwap</div>
-        <div class="mainNav__links">
-            <a href="index.php" class="mainNav__link">Главная страница</a>
-            <a href="index.php" class="mainNav__link">Выход</a>
-        </div>
-    </nav>
+        <nav class="mainNav">
+            <div class="mainNav__logo">SkillSwap</div>
+            <div class="mainNav__links">
+                <a href="index.php" class="mainNav__link">Главная страница</a>
+                <a href="index.php" class="mainNav__link">Выход</a>
+            </div>
+        </nav>
     </header>
 
     <div class="container">
         <h2>Профиль пользователя</h2>
 
         <?php if ($user): ?>
-            <p><strong>Логин:</strong> <?php echo htmlspecialchars($user['login']); ?></p>
-            <p><strong>Имя:</strong> <?php echo htmlspecialchars($user['first_name']); ?></p>
-            <p><strong>Фамилия:</strong> <?php echo htmlspecialchars($user['last_name']); ?></p>
-            <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
-            <p><strong>Дата рождения:</strong> <?php echo htmlspecialchars($user['birthdate']); ?></p>
-            <p><strong>Пол:</strong> <?php echo htmlspecialchars($user['gender']); ?></p>
+            <div class="profile-info">
+                <p><strong>Логин:</strong> <?php echo htmlspecialchars($user['login']); ?></p>
+                <p><strong>Имя:</strong> <?php echo htmlspecialchars($user['first_name']); ?></p>
+                <p><strong>Фамилия:</strong> <?php echo htmlspecialchars($user['last_name']); ?></p>
+                <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
+                <p><strong>Дата рождения:</strong> <?php echo htmlspecialchars($user['birthdate']); ?></p>
+                <p><strong>Пол:</strong> <?php echo htmlspecialchars($user['gender']); ?></p>
+            </div>
         <?php else: ?>
             <p>Ошибка: Не удалось получить информацию о пользователе.</p>
         <?php endif; ?>
 
-        <h3>Ваши навыки:</h3>
-        <?php if ($user_skills): ?>
-            <ul>
+        <!-- Карусель навыков других пользователей -->
+        <div class="skills-carousel">
+            <h3>Каталог навыков других пользователей:</h3>
+            <?php if ($other_users_skills): ?>
+                <div id="skillsCarousel" class="carousel slide" data-ride="carousel">
+
+                    <ol class="carousel-indicators">
+                        <?php for ($i = 0; $i < ceil(count($other_users_skills) / 3); $i++): ?>
+                            <li data-target="#skillsCarousel" data-slide-to="<?php echo $i; ?>" <?php echo $i === 0 ? 'class="active"' : ''; ?>></li>
+                        <?php endfor; ?>
+                    </ol>
+
+                    <div class="carousel-inner">
+                        <?php
+                        $chunks = array_chunk($other_users_skills, 3);
+                        foreach ($chunks as $index => $chunk):
+                            ?>
+                            <div class="carousel-item <?php echo $index === 0 ? 'active' : ''; ?>">
+                                <div class="row">
+                                    <?php foreach ($chunk as $skill): ?>
+                                        <div class="col-md-4">
+                                            <div class="skill-card">
+                                                <h4><?php echo htmlspecialchars($skill['name']); ?></h4>
+                                                <p class="skill-meta">
+                                                    <?php echo htmlspecialchars($skill['first_name'] . ' ' . $skill['last_name']); ?><br>
+                                                    <?php echo htmlspecialchars($skill['gender']); ?><br>
+                                                    <?php echo htmlspecialchars($skill['email']); ?>
+                                                </p>
+                                                <p><?php echo htmlspecialchars($skill['description']); ?></p>
+                                                <form action="actions/add_skill_from_user.php" method="post" class="add-skill-btn">
+                                                    <input type="hidden" name="skill_id" value="<?php echo $skill['skills_id']; ?>">
+                                                    <input type="hidden" name="from_user_id"
+                                                        value="<?php echo $skill['user_id']; ?>">
+                                                    <button type="submit" class="btn btn-success btn-sm">Добавить себе</button>
+                                                </form>
+                                                <?php if ($skill['has_multiple']): ?>
+                                                    <form action="actions/add_skill_from_user.php" method="post">
+                                                        <input type="hidden" name="skill_id" value="<?php echo $skill['skills_id']; ?>">
+                                                        <input type="hidden" name="from_user_id"
+                                                            value="<?php echo $skill['user_id']; ?>">
+                                                        <input type="hidden" name="add_all" value="1">
+                                                        <button type="submit" class="btn btn-info btn-sm">Добавить все навыки</button>
+                                                    </form>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <a class="left carousel-control" href="#skillsCarousel" role="button" data-slide="prev">
+                        <span class="fa fa-chevron-left" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="right carousel-control" href="#skillsCarousel" role="button" data-slide="next">
+                        <span class="fa fa-chevron-right" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+            <?php else: ?>
+                <p>Нет доступных навыков других пользователей.</p>
+            <?php endif; ?>
+        </div>
+
+        <!-- Отображение добавленных навыков -->
+        <div class="added-skills">
+            <h3>Ваши добавленные навыки:</h3>
+            <?php if ($user_skills): ?>
                 <?php foreach ($user_skills as $skill): ?>
-                    <li>
-                        <?php echo htmlspecialchars($skill['name']); ?> - <?php echo htmlspecialchars($skill['description']); ?>
-                        <form action="actions/delete_skill.php" method="post" style="display: inline;">
+                    <div class="added-skill-item">
+                        <div class="skill-name"><?php echo htmlspecialchars($skill['name']); ?></div>
+                        <div class="skill-description"><?php echo htmlspecialchars($skill['description']); ?></div>
+                        <?php if ($skill['added_from_user_id']): ?>
+                            <?php
+                            $added_from_user = get_user_data($conn, $skill['added_from_user_id']);
+                            if ($added_from_user): ?>
+                                <div class="added-from">Добавлено от:
+                                    <?php echo htmlspecialchars($added_from_user['first_name'] . ' ' . $added_from_user['last_name']); ?>
+                                </div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                        <form action="actions/delete_skill.php" method="post" style="display: inline-block; margin-top: 10px;">
                             <input type="hidden" name="skill_id" value="<?php echo $skill['skills_id']; ?>">
                             <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
                         </form>
-                    </li>
+                    </div>
                 <?php endforeach; ?>
-            </ul>
-        <?php else: ?>
-            <p>У вас пока нет добавленных навыков.</p>
-        <?php endif; ?>
+            <?php else: ?>
+                <p>У вас пока нет добавленных навыков.</p>
+            <?php endif; ?>
+        </div>
 
         <!-- Форма для добавления навыка -->
         <h3>Добавить новый навык:</h3>
