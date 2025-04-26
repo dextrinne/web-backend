@@ -29,9 +29,9 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
 <head>
     <meta charset="UTF-8">
     <title>Профиль пользователя</title>
-      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-   <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
    
 
 </head>
@@ -495,25 +495,23 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
         <a href="edit_profile.php" class="btn btn-primary">Редактировать профиль</a>
     </div>
     <script>
-           $(document).ready(function () {
-       $('#skillsCarousel').carousel({
-           interval: false // Отключаем автоматическую смену слайдов
-       });
-
-       // Обработчики кликов для стрелок
-       $('.carousel-control.left').click(function (e) {
-           e.preventDefault();
-           $('#skillsCarousel').carousel('prev');
-       });
-
-       $('.carousel-control.right').click(function (e) {
-           e.preventDefault();
-           $('#skillsCarousel').carousel('next');
-       });
-   });
-   
-
-    </script>
+$(document).ready(function(){
+    // Инициализация карусели
+    $('#skillsCarousel').carousel({
+        interval: false, // Отключаем автоматическое перелистывание
+        wrap: true // Позволяем бесконечное перелистывание
+    });
+    
+    // Обработчики для кнопок
+    $('.carousel-control-prev').click(function() {
+        $('#skillsCarousel').carousel('prev');
+    });
+    
+    $('.carousel-control-next').click(function() {
+        $('#skillsCarousel').carousel('next');
+    });
+});
+</script>
 </body>
 
 </html>
