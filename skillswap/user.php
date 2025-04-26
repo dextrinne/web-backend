@@ -282,64 +282,66 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
     }
 
     /* ----------- Карусель навыков ----------- */
-    .skills-carousel {
-        margin: 40px 0;
-        padding: 20px 0;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-        position: relative; /*  Относительное позиционирование для стрелок */
-    }
+    .carousel {
+    position: relative;
+}
 
-    .carousel-inner {
-        padding: 20px;
-        overflow: hidden;  /* Скрываем элементы, выходящие за границы */
-    }
+.carousel-inner {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
 
-    .carousel-item {
-        display: none;  /* Скрываем все слайды по умолчанию */
-        width: 100%;      /* Занимает всю ширину контейнера */
-    }
+.carousel-item {
+    display: none;
+    position: relative;
+    width: 100%;
+    transition: transform 0.6s ease;
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
 
-    .carousel-item.active {
-        display: block;  /* Отображаем активный слайд */
-    }
+.carousel-item.active {
+    display: block;
+}
 
-    .skill-card {
-        background: white;
-        border-radius: 8px;
-        padding: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        max-width: 500px;  /* Ограничиваем ширину карточки */
-        margin: 0 auto;   /* Центрируем карточку по горизонтали */
-    }
+.carousel-control-prev,
+.carousel-control-next {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 15%;
+    color: #fff;
+    text-align: center;
+    opacity: 0.5;
+}
 
-    .carousel-control {
-        position: absolute;  /* Абсолютное позиционирование стрелок */
-        top: 50%;            /*  Выравнивание по вертикали */
-        transform: translateY(-50%); /* Центрируем по вертикали */
-        width: auto;           /*  Автоматическая ширина */
-        background: none;      /*  Прозрачный фон */
-        border: 0;
-        font-size: 24px;       /* Увеличиваем размер стрелок */
-        color: #3A5A40;
-        cursor: pointer;
-        text-shadow: none;      /* Убираем тень */
-        opacity: 0.5;          /* Полупрозрачность */
-        transition: opacity 0.3s ease; /*  Плавное появление */
-    }
+.carousel-control-prev {
+    left: 0;
+}
 
-    .carousel-control:hover {
-        color: #344E41;
-        opacity: 1; /* Делаем стрелки видимыми при наведении */
-    }
+.carousel-control-next {
+    right: 0;
+}
 
-    .carousel-control.left {
-        left: 10px; /*  Позиционируем левую стрелку */
-    }
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: no-repeat 50%/100% 100%;
+}
 
-    .carousel-control.right {
-        right: 10px; /* Позиционируем правую стрелку */
-    }
+.carousel-control-prev-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%233A5A40' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E");
+}
+
+.carousel-control-next-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%233A5A40' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E");
+}
 
     /* Стили для отображения добавленных навыков */
     .added-skills {
