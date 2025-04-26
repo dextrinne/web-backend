@@ -394,6 +394,7 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
         <?php endif; ?>
 
         <!-- Карусель навыков других пользователей -->
+        <h2>Каталог навыков других пользователей:</h2>
         <div id="skillsCarousel" class="carousel slide" data-ride="carousel">
             <!-- Индикаторы -->
             <ol class="carousel-indicators">
