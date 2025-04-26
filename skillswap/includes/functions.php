@@ -12,17 +12,6 @@ function get_user_data($conn, $user_id) {
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
-function get_user_skills($conn, $user_id) {
-    $stmt = $conn->prepare("
-        SELECT s.skills_id, s.name, s.description, us.added_from_user_id
-        FROM user_skills us
-        JOIN skills s ON us.skill_id = s.skills_id
-        WHERE us.user_id = ?
-    ");
-    $stmt->execute([$user_id]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
 function delete_user_skill($conn, $user_id, $skill_id) {
     $stmt = $conn->prepare("DELETE FROM user_skills WHERE user_id = ? AND skill_id = ?");
     return $stmt->execute([$user_id, $skill_id]);
@@ -49,53 +38,51 @@ function get_all_users_with_skills($conn) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function get_other_users_skills($conn, $current_user_id) {
-    $query = "
-        SELECT 
-            u.user_id,
-            u.first_name,
-            u.last_name,
-            u.gender,
-            u.email,
-            s.skills_id,
-            s.name,
-            s.description,
-            COUNT(s2.skills_id) > 1 as has_multiple
-        FROM 
-            users_p u
-        JOIN 
-            user_skills us ON u.user_id = us.user_id
-        JOIN 
-            skills s ON us.skill_id = s.skills_id
-        LEFT JOIN
-            user_skills us2 ON u.user_id = us2.user_id
-        LEFT JOIN
-            skills s2 ON us2.skill_id = s2.skills_id
-        WHERE 
-            u.user_id != ?
-            AND NOT EXISTS (
-                SELECT 1 FROM user_skills 
-                WHERE user_id = ? AND skill_id = s.skills_id
-            )
-        GROUP BY
-            u.user_id, s.skills_id
-        ORDER BY 
-            u.last_name, u.first_name, s.name
-    ";
-    
-    $stmt = $conn->prepare($query);
-    $stmt->execute([$current_user_id, $current_user_id]); // Используем execute с массивом параметров
-    return $stmt->fetchAll(PDO::FETCH_ASSOC); // Получаем результаты через fetchAll
-}
-
-function get_learning_skills($conn, $user_id) {
+function get_user_skills($conn, $user_id) {
     $stmt = $conn->prepare("
         SELECT s.skills_id, s.name, s.description, us.added_from_user_id
         FROM user_skills us
         JOIN skills s ON us.skill_id = s.skills_id
-        WHERE us.user_id = ? AND us.is_learning = TRUE
+        WHERE us.user_id = ?
     ");
     $stmt->execute([$user_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function get_learning_skills($conn, $user_id) {
+    $stmt = $conn->prepare("
+        SELECT s.skills_id, s.name, s.description, uls.from_user_id,
+               u.first_name, u.last_name, u.email
+        FROM user_learning_skills uls
+        JOIN skills s ON uls.skill_id = s.skills_id
+        LEFT JOIN users_p u ON uls.from_user_id = u.user_id
+        WHERE uls.user_id = ?
+        ORDER BY uls.added_at DESC
+    ");
+    $stmt->execute([$user_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function get_other_users_skills($conn, $user_id) {
+    $stmt = $conn->prepare("
+        SELECT s.skills_id, s.name, s.description, 
+               u.user_id, u.first_name, u.last_name, u.email, u.gender,
+               EXISTS(
+                   SELECT 1 FROM user_skills us2 
+                   WHERE us2.user_id = ? AND us2.skill_id = s.skills_id
+               ) as already_has_skill,
+               EXISTS(
+                   SELECT 1 FROM user_learning_skills uls 
+                   WHERE uls.user_id = ? AND uls.skill_id = s.skills_id
+               ) as already_learning,
+               (SELECT COUNT(*) FROM user_skills us3 WHERE us3.user_id = u.user_id) > 1 as has_multiple
+        FROM user_skills us
+        JOIN skills s ON us.skill_id = s.skills_id
+        JOIN users_p u ON us.user_id = u.user_id
+        WHERE us.user_id != ?
+        ORDER BY u.last_name, u.first_name, s.name
+    ");
+    $stmt->execute([$user_id, $user_id, $user_id]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 ?>
