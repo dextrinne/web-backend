@@ -283,7 +283,7 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
 
     /* ----------- Карусель навыков ----------- */
     .carousel {
-        position: relative;
+        position: static;
     }
 
     .carousel-inner {
