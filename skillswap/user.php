@@ -540,12 +540,13 @@ $learning_skills = get_learning_skills($conn, $user_id);
                     <div class="learning-skill-item">
                         <div class="skill-name"><?php echo htmlspecialchars($skill['name']); ?></div>
                         <div class="skill-description"><?php echo htmlspecialchars($skill['description']); ?></div>
-                        <?php if (isset($skill['added_from_user_id'])): ?>
+                        <?php if (isset($skill['from_user_id'])): ?>
                             <?php
-                            $added_from_user = get_user_data($conn, $skill['added_from_user_id']);
-                            if ($added_from_user): ?>
-                                <div class="added-from">Можно научиться у: 
-                                    <?php echo htmlspecialchars($added_from_user['first_name'] . ' ' . $added_from_user['last_name']); ?>
+                            $teacher = get_user_data($conn, $skill['from_user_id']);
+                            if ($teacher): ?>
+                                <div class="teacher-info">Можно научиться у: 
+                                    <?php echo htmlspecialchars($teacher['first_name'] . ' ' . $teacher['last_name']); ?>
+                                    (<?php echo htmlspecialchars($teacher['email']); ?>)
                                 </div>
                             <?php endif; ?>
                         <?php endif; ?>
