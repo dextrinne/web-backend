@@ -286,17 +286,14 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
         padding: 20px 0;
         background: rgba(255, 255, 255, 0.1);
         border-radius: 10px;
-        position: relative;
     }
 
     .carousel-inner {
         padding: 20px;
-        min-height: 300px;
     }
 
     .carousel-item {
-        padding: 0 15%;
-        transition: transform 0.6s ease-in-out;
+        padding: 0 15px;
     }
 
     .skill-card {
@@ -305,37 +302,48 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
         padding: 20px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         height: 100%;
-        margin: 0 auto;
-        max-width: 500px;
+    }
+
+    .skill-card h4 {
+        color: #3A5A40;
+        margin-top: 0;
+    }
+
+    .skill-card p {
+        margin-bottom: 15px;
+    }
+
+    .skill-meta {
+        font-size: 14px;
+        color: #6C757D;
+        margin-bottom: 10px;
     }
 
     .carousel-control {
         width: 5%;
         color: #3A5A40;
         text-shadow: none;
-        opacity: 1;
-        background: rgba(255, 255, 255, 0.3);
-        height: 50px;
-        top: 50%;
-        transform: translateY(-50%);
-        border-radius: 5px;
     }
 
     .carousel-control:hover {
         color: #344E41;
-        background: rgba(255, 255, 255, 0.5);
-    }
-
-    .carousel-control .fa {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 24px;
     }
 
     .carousel-indicators {
-        display: none;
+        bottom: -10px;
+    }
+
+    .carousel-indicators li {
+        background-color: #A3B18A;
+    }
+
+    .carousel-indicators .active {
+        background-color: #3A5A40;
+    }
+
+    .add-skill-btn {
+        display: inline-block;
+        margin-right: 10px;
     }
 
     /* Стили для отображения добавленных навыков */
@@ -393,50 +401,53 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
         <div class="skills-carousel">
             <h3>Каталог навыков других пользователей:</h3>
             <?php if ($other_users_skills): ?>
-                <div id="skillsCarousel" class="carousel slide" data-ride="carousel" data-interval="false">
+                <div id="skillsCarousel" class="carousel slide" data-ride="carousel">
+
+                    <ol class="carousel-indicators">
+                        <?php for ($i = 0; $i < ceil(count($other_users_skills) / 3); $i++): ?>
+                            <li data-target="#skillsCarousel" data-slide-to="<?php echo $i; ?>" <?php echo $i === 0 ? 'class="active"' : ''; ?>></li>
+                        <?php endfor; ?>
+                    </ol>
+
                     <div class="carousel-inner">
-                        <?php foreach ($other_users_skills as $index => $skill): ?>
+                        <?php
+                        $chunks = array_chunk($other_users_skills, 3);
+                        foreach ($chunks as $index => $chunk):
+                            ?>
                             <div class="carousel-item <?php echo $index === 0 ? 'active' : ''; ?>">
-                                <div class="skill-card">
-                                    <h4><?php echo htmlspecialchars($skill['name']); ?></h4>
-                                    <p class="skill-meta">
-                                        <?php echo htmlspecialchars($skill['first_name'] . ' ' . $skill['last_name']); ?><br>
-                                        <?php echo htmlspecialchars($skill['gender']); ?><br>
-                                        <?php echo htmlspecialchars($skill['email']); ?>
-                                    </p>
-                                    <p><?php echo htmlspecialchars($skill['description']); ?></p>
-                                    <form action="actions/add_skill_from_user.php" method="post" class="add-skill-btn">
-                                        <input type="hidden" name="skill_id" value="<?php echo $skill['skills_id']; ?>">
-                                        <input type="hidden" name="from_user_id" value="<?php echo $skill['user_id']; ?>">
-                                        <button type="submit" class="btn btn-success btn-sm">Добавить себе</button>
-                                    </form>
-                                    <?php if ($skill['has_multiple']): ?>
-                                        <form action="actions/add_skill_from_user.php" method="post">
-                                            <input type="hidden" name="skill_id" value="<?php echo $skill['skills_id']; ?>">
-                                            <input type="hidden" name="from_user_id" value="<?php echo $skill['user_id']; ?>">
-                                            <input type="hidden" name="add_all" value="1">
-                                            <button type="submit" class="btn btn-info btn-sm">Добавить все навыки</button>
-                                        </form>
-                                    <?php endif; ?>
+                                <div class="row">
+                                    <?php foreach ($chunk as $skill): ?>
+                                        <div class="col-md-4">
+                                            <div class="skill-card">
+                                                <h4><?php echo htmlspecialchars($skill['name']); ?></h4>
+                                                <p class="skill-meta">
+                                                    <?php echo htmlspecialchars($skill['first_name'] . ' ' . $skill['last_name']); ?><br>
+                                                    <?php echo htmlspecialchars($skill['gender']); ?><br>
+                                                    <?php echo htmlspecialchars($skill['email']); ?>
+                                                </p>
+                                                <p><?php echo htmlspecialchars($skill['description']); ?></p>
+                                                <form action="actions/add_skill_from_user.php" method="post" class="add-skill-btn">
+                                                    <input type="hidden" name="skill_id" value="<?php echo $skill['skills_id']; ?>">
+                                                    <input type="hidden" name="from_user_id"
+                                                        value="<?php echo $skill['user_id']; ?>">
+                                                    <button type="submit" class="btn btn-success btn-sm">Добавить себе</button>
+                                                </form>
+                                                <?php if ($skill['has_multiple']): ?>
+                                                    <form action="actions/add_skill_from_user.php" method="post">
+                                                        <input type="hidden" name="skill_id" value="<?php echo $skill['skills_id']; ?>">
+                                                        <input type="hidden" name="from_user_id"
+                                                            value="<?php echo $skill['user_id']; ?>">
+                                                        <input type="hidden" name="add_all" value="1">
+                                                        <button type="submit" class="btn btn-info btn-sm">Добавить все навыки</button>
+                                                    </form>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
-        
-                    <a class="left carousel-control" href="#skillsCarousel" role="button" data-slide="prev">
-                        <span class="fa fa-chevron-left" aria-hidden="true"></span>
-                        <span class="sr-only">Previous</span>
-                    </a>
-                    <a class="right carousel-control" href="#skillsCarousel" role="button" data-slide="next">
-                        <span class="fa fa-chevron-right" aria-hidden="true"></span>
-                        <span class="sr-only">Next</span>
-                    </a>
-                </div>
-            <?php else: ?>
-                <p>Нет доступных навыков других пользователей.</p>
-            <?php endif; ?>
-        </div>
-
 
                     <a class="left carousel-control" href="#skillsCarousel" role="button" data-slide="prev">
                         <span class="fa fa-chevron-left" aria-hidden="true"></span>
@@ -454,32 +465,31 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
 
         <!-- Отображение добавленных навыков -->
         <div class="added-skills">
-        <h3>Ваши добавленные навыки:</h3>
-        <?php if ($user_skills): ?>
-            <?php foreach ($user_skills as $skill): ?>
-                <div class="added-skill-item">
-                    <div class="skill-name"><?php echo htmlspecialchars($skill['name']); ?></div>
-                    <div class="skill-description"><?php echo htmlspecialchars($skill['description']); ?></div>
-                    <?php if (isset($skill['added_from_user_id'])): ?>  <!-- Проверяем, существует ли ключ -->
-                        <?php
-                        $added_from_user = get_user_data($conn, $skill['added_from_user_id']);
-                        if ($added_from_user): ?>
-                            <div class="added-from">Добавлено от:
-                                <?php echo htmlspecialchars($added_from_user['first_name'] . ' ' . $added_from_user['last_name']); ?>
-                            </div>
+            <h3>Ваши добавленные навыки:</h3>
+            <?php if ($user_skills): ?>
+                <?php foreach ($user_skills as $skill): ?>
+                    <div class="added-skill-item">
+                        <div class="skill-name"><?php echo htmlspecialchars($skill['name']); ?></div>
+                        <div class="skill-description"><?php echo htmlspecialchars($skill['description']); ?></div>
+                        <?php if ($skill['added_from_user_id']): ?>
+                            <?php
+                            $added_from_user = get_user_data($conn, $skill['added_from_user_id']);
+                            if ($added_from_user): ?>
+                                <div class="added-from">Добавлено от:
+                                    <?php echo htmlspecialchars($added_from_user['first_name'] . ' ' . $added_from_user['last_name']); ?>
+                                </div>
+                            <?php endif; ?>
                         <?php endif; ?>
-                    <?php endif; ?>
-                    <form action="actions/delete_skill.php" method="post" style="display: inline-block; margin-top: 10px;">
-                        <input type="hidden" name="skill_id" value="<?php echo $skill['skills_id']; ?>">
-                        <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
-                    </form>
-                </div>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <p>У вас пока нет добавленных навыков.</p>
-        <?php endif; ?>
-    </div>
-
+                        <form action="actions/delete_skill.php" method="post" style="display: inline-block; margin-top: 10px;">
+                            <input type="hidden" name="skill_id" value="<?php echo $skill['skills_id']; ?>">
+                            <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                        </form>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>У вас пока нет добавленных навыков.</p>
+            <?php endif; ?>
+        </div>
 
         <!-- Форма для добавления навыка -->
         <h3>Добавить новый навык:</h3>
@@ -498,24 +508,6 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
 
         <a href="edit_profile.php" class="btn btn-primary">Редактировать профиль</a>
     </div>
-    
-    <script>
-        $(document).ready(function() {
-            // Initialize carousel with single item
-            $('#skillsCarousel').carousel({
-                interval: false
-            });
-            
-            // Custom carousel controls
-            $('.carousel-control.left').click(function() {
-                $('#skillsCarousel').carousel('prev');
-            });
-            
-            $('.carousel-control.right').click(function() {
-                $('#skillsCarousel').carousel('next');
-            });
-        });
-    </script>
 </body>
 
 </html>
