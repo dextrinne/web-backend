@@ -153,7 +153,7 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
     }
 
     .profile-info p {
-        background-color: #2e1c0d;
+        background: rgba(255, 255, 255, 0.2);
         padding: 12px 15px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
