@@ -283,95 +283,95 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
 
     /* ----------- Карусель навыков ----------- */
     .carousel {
-    max-width: 60%;
-    margin: 0 auto;
-    background: transparent;
-    box-shadow: none;
-}
+        max-width: 60%;
+        margin: 0 auto;
+        background: transparent;
+        box-shadow: none;
+    }
 
-.carousel-inner {
-    background: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 10px 20px #3a5a40c1;
-    padding: 20px;
-    border-radius: 0;
-}
+    .carousel-inner {
+        background: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 20px #3a5a40c1;
+        padding: 20px;
+        border-radius: 0;
+    }
 
-.carousel-item {
-    padding: 15px;
-}
+    .carousel-item {
+        padding: 15px;
+    }
 
-.skill-card {
-    text-align: left;
-}
+    .skill-card {
+        text-align: left;
+    }
 
-.skill-card h4 {
-    font-size: 20px;
-    font-weight: bold;
-    color: #2e1c0d;
-    margin-bottom: 10px;
-}
+    .skill-card h4 {
+        font-size: 20px;
+        font-weight: bold;
+        color: #2e1c0d;
+        margin-bottom: 10px;
+    }
 
-.skill-card p {
-    color: #2e1c0d;
-    text-align: left;
-    margin: 10px 0;
-}
+    .skill-card p {
+        color: #2e1c0d;
+        text-align: left;
+        margin: 10px 0;
+    }
 
-.skill-meta {
-    color: #2e1c0d;
-    font-size: 14px;
-    margin-bottom: 15px;
-}
+    .skill-meta {
+        color: #2e1c0d;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
 
-.carousel-indicators {
-    bottom: -40px;
-}
+    .carousel-indicators {
+        bottom: -40px;
+    }
 
-.carousel-indicators li {
-    background-color: #2e1c0d;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin: 0 5px;
-}
+    .carousel-indicators li {
+        background-color: #2e1c0d;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin: 0 5px;
+    }
 
-.carousel-indicators .active {
-    background-color: #3A5A40;
-}
+    .carousel-indicators .active {
+        background-color: #3A5A40;
+    }
 
-.carousel-control-prev,
-.carousel-control-next {
-    width: 5%;
-    color: #2e1c0d;
-    opacity: 1;
-}
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 5%;
+        color: #2e1c0d;
+        opacity: 1;
+    }
 
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-    filter: invert(15%) sepia(15%) saturate(1313%) hue-rotate(58deg) brightness(90%) contrast(90%);
-}
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        filter: invert(15%) sepia(15%) saturate(1313%) hue-rotate(58deg) brightness(90%) contrast(90%);
+    }
 
-.carousel-control-prev:hover,
-.carousel-control-next:hover {
-    opacity: 0.8;
-}
+    .carousel-control-prev:hover,
+    .carousel-control-next:hover {
+        opacity: 0.8;
+    }
 
-/* Кнопки в карусели */
-.skill-card .btn {
-    margin-top: 15px;
-    width: auto;
-    display: inline-block;
-}
+    /* Кнопки в карусели */
+    .skill-card .btn {
+        margin-top: 15px;
+        width: auto;
+        display: inline-block;
+    }
 
-.skill-card .btn-success {
-    background-color: #3A5A40;
-    border-color: #3A5A40;
-}
+    .skill-card .btn-success {
+        background-color: #3A5A40;
+        border-color: #3A5A40;
+    }
 
-.skill-card .btn-info {
-    background-color: #588157;
-    border-color: #588157;
-}
+    .skill-card .btn-info {
+        background-color: #588157;
+        border-color: #588157;
+    }
 
     /* Стили для отображения добавленных навыков */
     .added-skills {
