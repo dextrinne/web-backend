@@ -283,67 +283,95 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
 
     /* ----------- Карусель навыков ----------- */
     .carousel {
-        position: relative;
-    }
+    max-width: 60%;
+    margin: 0 auto;
+    background: transparent;
+    box-shadow: none;
+}
 
-    .carousel-inner {
-        position: relative;
-        width: 100%;
-        overflow: hidden;
-        background: rgba(255, 255, 255, 0.2);
-        text-align: center
-    }
+.carousel-inner {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 20px #3a5a40c1;
+    padding: 20px;
+    border-radius: 0;
+}
 
-    .carousel-item {
-        display: none;
-        position: relative;
-        width: 100%;
-        transition: transform 0.6s ease;
-        backface-visibility: hidden;
-        perspective: 1000px;
-    }
+.carousel-item {
+    padding: 15px;
+}
 
-    .carousel-item.active {
-        display: block;
-    }
+.skill-card {
+    text-align: left;
+}
 
-    .carousel-control-prev,
-    .carousel-control-next {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 15%;
-        color: #fff;
-        text-align: center;
-        opacity: 0.5;
-    }
+.skill-card h4 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2e1c0d;
+    margin-bottom: 10px;
+}
 
-    .carousel-control-prev {
-        left: 0;
-    }
+.skill-card p {
+    color: #2e1c0d;
+    text-align: left;
+    margin: 10px 0;
+}
 
-    .carousel-control-next {
-        right: 0;
-    }
+.skill-meta {
+    color: #2e1c0d;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
 
-    .carousel-control-prev-icon,
-    .carousel-control-next-icon {
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        background: no-repeat 50%/100% 100%;
-    }
+.carousel-indicators {
+    bottom: -40px;
+}
 
-    .carousel-control-prev-icon {
-        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%233A5A40' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E");
-    }
+.carousel-indicators li {
+    background-color: #2e1c0d;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin: 0 5px;
+}
 
-    .carousel-control-next-icon {
-        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%233A5A40' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E");
-    }
+.carousel-indicators .active {
+    background-color: #3A5A40;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    width: 5%;
+    color: #2e1c0d;
+    opacity: 1;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    filter: invert(15%) sepia(15%) saturate(1313%) hue-rotate(58deg) brightness(90%) contrast(90%);
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    opacity: 0.8;
+}
+
+/* Кнопки в карусели */
+.skill-card .btn {
+    margin-top: 15px;
+    width: auto;
+    display: inline-block;
+}
+
+.skill-card .btn-success {
+    background-color: #3A5A40;
+    border-color: #3A5A40;
+}
+
+.skill-card .btn-info {
+    background-color: #588157;
+    border-color: #588157;
+}
 
     /* Стили для отображения добавленных навыков */
     .added-skills {
