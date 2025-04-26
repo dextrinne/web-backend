@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 include('./includes/db.php'); // Подключение к БД
@@ -30,7 +31,6 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
     <title>Профиль пользователя</title>
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
-    <!-- Заменена версия jQuery на 1.12.4 -->
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -497,9 +497,12 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
     <script>
         $(document).ready(function () {
             // Инициализация карусели
-            $('.carousel').carousel({
+            $('#skillsCarousel').carousel({
                 interval: false // Отключаем автоматическую смену слайдов
             });
+
+            // Дополнительная проверка: вывод в консоль для отладки
+            console.log("Carousel initialized");
         });
     </script>
 </body>
