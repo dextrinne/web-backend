@@ -20,6 +20,7 @@ $user_skills = get_user_skills($conn, $user_id);
 // Получение навыков других пользователей для карусели
 $other_users_skills = get_other_users_skills($conn, $user_id);
 
+$learning_skills = get_learning_skills($conn, $user_id);
 ?>
 
 <!DOCTYPE html>
@@ -394,6 +395,35 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
         color: #6C757D;
         font-style: italic;
     }
+
+
+    .learning-skills {
+    margin-top: 30px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    }
+    
+    .learning-skill-item {
+        background: #FFF8E1;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #FFC107;
+    }
+    
+    .btn-warning {
+        background-color: #FFC107;
+        color: #2e1c0d;
+        border: 2px solid #FFC107;
+    }
+    
+    .btn-warning:hover {
+        background-color: #FFA000;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
+    }
 </style>
 
 <body>
@@ -500,6 +530,33 @@ $other_users_skills = get_other_users_skills($conn, $user_id);
                 <?php endforeach; ?>
             <?php else: ?>
                 <p>У вас пока нет добавленных навыков.</p>
+            <?php endif; ?>
+        </div>
+
+        <h2>Навыки, которым вы хотите научиться:</h2>
+        <div class="learning-skills">
+            <?php if ($learning_skills): ?>
+                <?php foreach ($learning_skills as $skill): ?>
+                    <div class="learning-skill-item">
+                        <div class="skill-name"><?php echo htmlspecialchars($skill['name']); ?></div>
+                        <div class="skill-description"><?php echo htmlspecialchars($skill['description']); ?></div>
+                        <?php if (isset($skill['added_from_user_id'])): ?>
+                            <?php
+                            $added_from_user = get_user_data($conn, $skill['added_from_user_id']);
+                            if ($added_from_user): ?>
+                                <div class="added-from">Можно научиться у: 
+                                    <?php echo htmlspecialchars($added_from_user['first_name'] . ' ' . $added_from_user['last_name']); ?>
+                                </div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                        <form action="actions/remove_learning_skill.php" method="post" style="display: inline-block; margin-top: 10px;">
+                            <input type="hidden" name="skill_id" value="<?php echo $skill['skills_id']; ?>">
+                            <button type="submit" class="btn btn-warning btn-sm">Удалить из списка</button>
+                        </form>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>Вы пока не добавили навыки для обучения.</p>
             <?php endif; ?>
         </div>
 
