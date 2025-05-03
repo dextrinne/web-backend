@@ -38,7 +38,7 @@ if (isset($_SESSION['login'])) {
     }
 } else {
     $logoutButton = '';
-    
+}
 
     // Сообщение об успешном сохранении.
     if (!empty($_COOKIE['save'])) {
