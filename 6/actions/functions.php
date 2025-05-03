@@ -81,3 +81,31 @@ function getLanguageStats($db) {
         die('Ошибка получения статистики: ' . $e->getMessage());
     }
 }
+
+function checkAdminAuth($db) {
+    if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])) {
+        header('WWW-Authenticate: Basic realm="Admin Panel"');
+        header('HTTP/1.0 401 Unauthorized');
+        echo 'Требуется авторизация';
+        exit();
+    }
+
+    $admin_login = $_SERVER['PHP_AUTH_USER'];
+    $admin_pass = $_SERVER['PHP_AUTH_PW'];
+
+    try {
+        $stmt = $db->prepare("SELECT password FROM admin WHERE login = ?");
+        $stmt->execute([$admin_login]);
+        $admin_data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$admin_data || hash('sha256', $admin_pass) !== $admin_data['password']) {
+            header('WWW-Authenticate: Basic realm="Admin Panel"');
+            header('HTTP/1.0 401 Unauthorized');
+            echo 'Неверные учетные данные';
+            exit();
+        }
+    } catch (PDOException $e) {
+        die('Ошибка проверки учетных данных: ' . $e->getMessage());
+    }
+}
+?>
