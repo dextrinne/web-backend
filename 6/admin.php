@@ -171,7 +171,10 @@ $all_languages = $db->query("SELECT id, name FROM language")->fetchAll(PDO::FETC
             background-color: #cbeaed;
         }
         tbody {
-            background-color: #f5f5f5;
+            background-color: #f0f6f6;
+        }
+        thead {
+            background-color: #F5FFFA;
         }
         h1, h2 {
             color: #006a71;
