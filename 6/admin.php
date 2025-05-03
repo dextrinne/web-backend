@@ -168,7 +168,10 @@ $all_languages = $db->query("SELECT id, name FROM language")->fetchAll(PDO::FETC
             font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color:rgb(227, 253, 255);
+            background-color: #cbeaed;
+        }
+        tbody {
+            background-color: #f5f5f5;
         }
         h1, h2 {
             color: #006a71;
