@@ -371,22 +371,5 @@ $all_languages = $db->query("SELECT id, name FROM language")->fetchAll(PDO::FETC
             <?php endforeach; ?>
         </div>
     </div>
-    
-    <script>
-        function showEditForm(userId) {
-            // Скрываем все формы редактирования
-            document.querySelectorAll('.edit-form').forEach(form => {
-                form.style.display = 'none';
-            });
-            // Показываем нужную форму
-            document.getElementById('edit-form-' + userId).style.display = 'table-row';
-            // Прокручиваем к форме
-            document.getElementById('edit-form-' + userId).scrollIntoView({behavior: 'smooth'});
-        }
-        
-        function hideEditForm(userId) {
-            document.getElementById('edit-form-' + userId).style.display = 'none';
-        }
-    </script>
 </body>
 </html>
