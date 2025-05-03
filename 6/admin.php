@@ -3,54 +3,15 @@ header('Content-Type: text/html; charset=UTF-8');
 session_start();
 include('./actions/db.php');
 include('./actions/functions.php');
+include('./actions/validation.php');
 
-// Проверка HTTP-авторизации
-if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])) {
-    header('WWW-Authenticate: Basic realm="Admin Panel"');
-    header('HTTP/1.0 401 Unauthorized');
-    echo 'Требуется авторизация';
-    exit();
-}
+checkAdminAuth($db);
 
-// Проверка учетных данных администратора
-$admin_login = $_SERVER['PHP_AUTH_USER'];
-$admin_pass = $_SERVER['PHP_AUTH_PW'];
-
-try {
-    // Получаем хеш пароля из базы данных
-    $stmt = $db->prepare("SELECT password FROM admin WHERE login = ?");
-    $stmt->execute([$admin_login]);
-    $admin_data = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$admin_data) {
-        // Администратор с таким логином не найден
-        header('WWW-Authenticate: Basic realm="Admin Panel"');
-        header('HTTP/1.0 401 Unauthorized');
-        echo 'Неверные учетные данные';
-        exit();
-    }
-
-    // Сравниваем хеши паролей
-    $hashed_input = hash('sha256', $admin_pass);
-    if ($hashed_input !== $admin_data['password']) {
-        header('WWW-Authenticate: Basic realm="Admin Panel"');
-        header('HTTP/1.0 401 Unauthorized');
-        echo 'Неверные учетные данные';
-        exit();
-    }
-} catch (PDOException $e) {
-    die('Ошибка проверки учетных данных: ' . $e->getMessage());
-}
-
-// Генерация CSRF-токена
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Обработка действий администратора
-// Обработка действий администратора
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Проверка CSRF-токена
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         $_SESSION['admin_error'] = 'Неверный CSRF-токен';
         header("Location: admin.php");
@@ -59,13 +20,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     try {
         if (isset($_POST['delete_user'])) {
-            // Удаление пользователя
             $stmt = $db->prepare("DELETE FROM user WHERE id = ?");
             $stmt->execute([intval($_POST['user_id'])]);
-            
         } elseif (isset($_POST['update_user'])) {
             include('./actions/validation.php');
-          
             $_POST['radio'] = $_POST['gender'];
             $_POST['abilities'] = $_POST['languages'] ?? [];
             
@@ -83,33 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 exit();
             }
             
-            $user_id = intval($_POST['user_id']);
-            
-            $stmt = $db->prepare("
-                UPDATE user 
-                SET fio = ?, tel = ?, email = ?, bdate = ?, gender = ?, bio = ?, ccheck = ?
-                WHERE id = ?
-            ");
-            $stmt->execute([
-                $_POST['fio'],
-                $_POST['tel'],
-                $_POST['email'],
-                $_POST['bdate'],
-                $_POST['gender'],
-                $_POST['bio'],
-                isset($_POST["ccheck"]) ? 1 : 0,
-                $user_id
-            ]);
-            
-            $stmt = $db->prepare("DELETE FROM user_language WHERE user_id = ?");
-            $stmt->execute([$user_id]);
-            
-            if (!empty($_POST['languages']) && is_array($_POST['languages'])) {
-                $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (?, ?)");
-                foreach ($_POST['languages'] as $lang_id) {
-                    $stmt->execute([$user_id, intval($lang_id)]);
-                }
-            }
+            updateUserData($db, intval($_POST['user_id']), $_POST, $_POST['languages']);
         }
     } catch (PDOException $e) {
         $_SESSION['admin_error'] = 'Ошибка выполнения операции: ' . $e->getMessage();
@@ -122,12 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     exit();
 }
 
-// Получение данных для отображения
 $users = getAllUsers($db);
 $language_stats = getLanguageStats($db);
 $all_languages = $db->query("SELECT id, name FROM language")->fetchAll(PDO::FETCH_ASSOC);
-
 ?>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
