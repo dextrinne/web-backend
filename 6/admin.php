@@ -29,11 +29,22 @@ $admin_login = $_SERVER['PHP_AUTH_USER'];
 $admin_pass = $_SERVER['PHP_AUTH_PW'];
 
 try {
+    // Получаем хеш пароля из базы данных
     $stmt = $db->prepare("SELECT password FROM admin WHERE login = ?");
     $stmt->execute([$admin_login]);
     $admin_data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$admin_data || SHA2($admin_pass, 256) != $admin_data['password']) {
+    if (!$admin_data) {
+        // Администратор с таким логином не найден
+        header('WWW-Authenticate: Basic realm="Admin Panel"');
+        header('HTTP/1.0 401 Unauthorized');
+        echo 'Неверные учетные данные';
+        exit();
+    }
+
+    // Сравниваем хеши паролей
+    $hashed_input = hash('sha256', $admin_pass);
+    if ($hashed_input !== $admin_data['password']) {
         header('WWW-Authenticate: Basic realm="Admin Panel"');
         header('HTTP/1.0 401 Unauthorized');
         echo 'Неверные учетные данные';
@@ -42,7 +53,6 @@ try {
 } catch (PDOException $e) {
     die('Ошибка проверки учетных данных: ' . $e->getMessage());
 }
-
 // Генерация CSRF-токена
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
