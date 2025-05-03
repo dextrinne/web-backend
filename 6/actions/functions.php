@@ -144,4 +144,48 @@ function fillUserValues($db, $login = null) {
         'abilities' => isset($_COOKIE['abilities_value']) ? explode(',', $_COOKIE['abilities_value']) : []
     ];
 }
+
+function handleValidationErrors(&$messages) {
+   
+    $error_messages = [
+        'fio_error' => [
+            '1' => 'Укажите ФИО',
+            '2' => 'ФИО должно быть не длиннее 150 символов',
+            '3' => 'ФИО может содержать только буквы и пробелы'
+        ],
+        'tel_error' => [
+            '1' => 'Укажите телефон в формате +7XXXXXXXXXX'
+        ],
+        'email_error' => [
+            '1' => 'Укажите корректный email'
+        ],
+        'abilities_error' => [
+            '1' => 'Выберите хотя бы один язык программирования'
+        ],
+        'bdate_error' => [
+            '1' => 'Укажите дату рождения в формате ГГГГ-ММ-ДД'
+        ],
+        'radio_error' => [
+            '1' => 'Укажите пол'
+        ],
+        'bio_error' => [
+            '1' => 'Напишите что-нибудь о себе',
+            '2' => 'Биография должна быть не длиннее 512 символов',
+            '3' => 'Биография содержит недопустимые символы'
+        ],
+        'ccheck_error' => [
+            '1' => 'Необходимо ознакомиться с контрактом'
+        ]
+    ];
+
+    foreach ($error_messages as $field => $errors) {
+        if (!empty($_COOKIE[$field])) {
+            $error_code = $_COOKIE[$field];
+            if (isset($errors[$error_code])) {
+                $messages[] = $errors[$error_code];
+            }
+            setcookie($field, '', time() - 3600);
+        }
+    }
+}
 ?>
