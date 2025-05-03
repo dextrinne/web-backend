@@ -165,13 +165,14 @@ $all_languages = $db->query("SELECT id, name FROM language")->fetchAll(PDO::FETC
     <title>Административная панель</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f5f5f5;
+            background-color: #cbeaed;
         }
         h1, h2 {
-            color: #333;
+            color: #006a71;
+            text-align: center;
         }
         table {
             width: 100%;
@@ -213,13 +214,6 @@ $all_languages = $db->query("SELECT id, name FROM language")->fetchAll(PDO::FETC
         }
         .stats {
             margin-top: 30px;
-        }
-        .bar {
-            background-color: #4CAF50;
-            color: white;
-            text-align: center;
-            padding: 5px;
-            margin-right: 5px;
         }
         label {
             display: inline-block;
