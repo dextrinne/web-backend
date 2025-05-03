@@ -1,9 +1,34 @@
 <?php
 header('Content-Type: text/html; charset=UTF-8');
 echo "<link rel='stylesheet' href='style.css'>";
-include('./actions/db.php');
-include('./actions/functions.php');
-include('./actions/validation.php');
+
+// Соединение с базой данных.
+$user = 'u68595';
+$pass = '6788124';
+$db = new PDO(
+    'mysql:host=localhost;dbname=u68595',
+    $user,
+    $pass,
+    [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+);
+
+// Функция для получения списка языков программирования.
+function getAbilities($db)
+{
+    try {
+        $abilities = [];
+        $data = $db->query("SELECT id, name FROM language")->fetchAll();
+        foreach ($data as $ability) {
+            $name = $ability['name'];
+            $lang_id = $ability['id'];
+            $abilities[$lang_id] = $name;
+        }
+        return $abilities;
+    } catch (PDOException $e) {
+        print('Error: ' . $e->getMessage());
+        exit();
+    }
+}
 
 $abilities = getAbilities($db);
 
@@ -11,34 +36,64 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+// Функция для получения данных пользователя из базы данных
+function getUserData($db, $login)
+{
+    try {
+        $stmt = $db->prepare("
+            SELECT 
+                u.fio, 
+                u.tel, 
+                u.email, 
+                u.bdate, 
+                u.gender, 
+                u.bio, 
+                u.ccheck,
+                GROUP_CONCAT(ul.lang_id) as abilities
+            FROM user u
+            INNER JOIN user_login ulg ON u.id = ulg.user_id
+            LEFT JOIN user_language ul ON u.id = ul.user_id
+            WHERE ulg.login = ?
+            GROUP BY u.id
+        ");
+        $stmt->execute([$login]);
+        $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $user_data;
+    } catch (PDOException $e) {
+        print('Error: ' . $e->getMessage());
+        exit();
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $messages = array();
-    $values = array();
+    $values = array();  // Инициализация массива $values
 
-// Проверяем, авторизован ли пользователь.
-if (isset($_SESSION['login'])) {
-    $messages[] = ' Вы вошли как: ' . htmlspecialchars($_SESSION['login']);
-    $logoutButton = '<a href="login.php?exit=1">Выйти</a>';
+    // Проверяем, авторизован ли пользователь.
+    if (isset($_SESSION['login'])) {
+        $messages[] = ' Вы вошли как: ' . htmlspecialchars($_SESSION['login']);
+        $logoutButton = '<a href="login.php?exit=1">Выйти</a>';
 
-    // Получаем данные пользователя для заполнения формы.
-    $user_data = getUserData($db, $_SESSION['login']);
+        // Получаем данные пользователя для заполнения формы.
+        $user_data = getUserData($db, $_SESSION['login']);
 
-    // Заполняем массив values данными из базы данных
-    if ($user_data) {
-        $values['fio'] = htmlspecialchars($user_data['fio']);
-        $values['tel'] = htmlspecialchars($user_data['tel']);
-        $values['email'] = htmlspecialchars($user_data['email']);
-        $values['bdate'] = htmlspecialchars($user_data['bdate']);
-        $values['radio'] = htmlspecialchars($user_data['gender']);
-        $values['bio'] = htmlspecialchars($user_data['bio']);
-        $values['ccheck'] = htmlspecialchars($user_data['ccheck']);
+        // Заполняем массив values данными из базы данных
+        if ($user_data) {
+            $values['fio'] = htmlspecialchars($user_data['fio']);
+            $values['tel'] = htmlspecialchars($user_data['tel']);
+            $values['email'] = htmlspecialchars($user_data['email']);
+            $values['bdate'] = htmlspecialchars($user_data['bdate']);
+            $values['radio'] = htmlspecialchars($user_data['gender']);
+            $values['bio'] = htmlspecialchars($user_data['bio']);
+            $values['ccheck'] = htmlspecialchars($user_data['ccheck']);
 
-        // Преобразуем строку abilities в массив
-        $values['abilities'] = !empty($user_data['abilities']) ? explode(',', $user_data['abilities']) : array();
+            // Преобразуем строку abilities в массив, если она не пустая
+            $values['abilities'] = !empty($user_data['abilities']) ? explode(',', $user_data['abilities']) : array();
+        }
+    } else {
+        $logoutButton = '';
     }
-} else {
-    $logoutButton = '';
-}
+
 
     // Сообщение об успешном сохранении.
     if (!empty($_COOKIE['save'])) {
@@ -58,6 +113,7 @@ if (isset($_SESSION['login'])) {
         }
     }
 
+
     // Складываем признак ошибок в массив.
     $errors = array();
     $errors['fio'] = !empty($_COOKIE['fio_error']);
@@ -68,6 +124,7 @@ if (isset($_SESSION['login'])) {
     $errors['radio'] = !empty($_COOKIE['radio_error']);
     $errors['bio'] = !empty($_COOKIE['bio_error']);
     $errors['ccheck'] = !empty($_COOKIE['ccheck_error']);
+
 
     // Выдаем сообщения об ошибках.
     if ($errors['fio']) {
@@ -143,10 +200,77 @@ if (isset($_SESSION['login'])) {
 
     include('form.php');
 } else {  
-    if (!validateFormData($db, $errors, $values, $abilities)) {
-        header('Location: index.php');
-        exit();
+    $errors = FALSE;
+
+    if (empty($_POST['fio'])) {
+        setcookie('fio_error', '1', time() + 24 * 60 * 60);
+        $errors = TRUE;
+    } else {
+        if (strlen($_POST['fio']) > 150) {
+            setcookie('fio_error', '2', time() + 24 * 60 * 60);
+            $errors = TRUE;
+        } elseif (!preg_match("/^[a-zA-Zа-яА-ЯёЁ\s]+$/u", $_POST['fio'])) {
+            setcookie('fio_error', '3', time() + 24 * 60 * 60);
+            $errors = TRUE;
+        }
     }
+
+    if (empty($_POST['tel']) || !preg_match('/^\+7\d{10}$/', $_POST['tel'])) {
+        setcookie('tel_error', '1', time() + 24 * 60 * 60);
+        $errors = TRUE;
+    }
+    if (empty($_POST["email"]) || !filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)) {
+        setcookie('email_error', '1', time() + 24 * 60 * 60);
+        $errors = TRUE;
+    }
+
+    $fav_languages = $_POST["abilities"] ?? []; // Получаем массив из формы
+    if (empty($fav_languages)) {
+        setcookie('abilities_error', '1', time() + 24 * 60 * 60);
+        $errors = TRUE;
+    } else {
+        foreach ($fav_languages as $ability) {
+            if (empty($abilities[$ability])) {
+                setcookie('abilities_error', '1', time() + 24 * 60 * 60);
+                $errors = TRUE;
+            }
+        }
+    }
+
+    if (empty($_POST['bdate']) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['bdate'])) {
+        setcookie('bdate_error', '1', time() + 24 * 60 * 60);
+        $errors = TRUE;
+    }
+    if (empty($_POST['radio'])) {
+        setcookie('radio_error', '1', time() + 24 * 60 * 60);
+        $errors = TRUE;
+    }
+
+    if (empty($_POST['bio'])) {
+        setcookie('bio_error', '1', time() + 24 * 60 * 60);
+        $errors = TRUE;
+    } elseif(strlen($_POST['bio']) > 512){
+        setcookie('bio_error', '2', time() + 24 * 60 * 60);
+        $errors = TRUE;
+    } elseif(preg_match('/[<>{}\[\]]|<script|<\?php/i', $_POST['bio'])){
+        setcookie('bio_error', '3', time() + 24 * 60 * 60);
+        $errors = TRUE;
+    }
+
+    if (empty($_POST['ccheck'])) {
+        setcookie('ccheck_error', '1', time() + 24 * 60 * 60);
+        $errors = TRUE;
+    }
+
+    // Сохраняем ранее введенное в форму значение на месяц.
+    setcookie('fio_value', $_POST['fio'], time() + 30 * 24 * 60 * 60);
+    setcookie('tel_value', $_POST['tel'], time() + 30 * 24 * 60 * 60);
+    setcookie('email_value', $_POST['email'], time() + 30 * 24 * 60 * 60);
+    setcookie('abilities_value', !empty($fav_languages) ? implode(',', $fav_languages) : '', time() + 30 * 24 * 60 * 60);
+    setcookie('bdate_value', $_POST['bdate'], time() + 30 * 24 * 60 * 60);
+    setcookie('radio_value', $_POST['radio'], time() + 30 * 24 * 60 * 60);
+    setcookie('bio_value', $_POST['bio'], time() + 30 * 24 * 60 * 60);
+    setcookie('ccheck_value', $_POST['ccheck'], time() + 30 * 24 * 60 * 60);
 
     if ($errors) {
         // При наличии ошибок перезагружаем страницу и завершаем работу скрипта.
@@ -162,6 +286,17 @@ if (isset($_SESSION['login'])) {
         setcookie('radio_error', '', 100000);
         setcookie('bio_error', '', 100000);
         setcookie('ccheck_error', '', 100000);
+    }
+
+    // Генерируем логин и пароль
+    function generateRandomString($length = 10) {
+        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
     }
 
     $login = generateRandomString(8);
