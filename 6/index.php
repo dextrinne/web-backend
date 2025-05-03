@@ -31,6 +31,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         }
     } else {
         $logoutButton = '';
+        // Загружаем значения из cookies только для неавторизованных пользователей
+        $values['fio'] = empty($_COOKIE['fio_value']) ? '' : $_COOKIE['fio_value'];
+        $values['tel'] = empty($_COOKIE['tel_value']) ? '' : $_COOKIE['tel_value'];
+        $values['email'] = empty($_COOKIE['email_value']) ? '' : $_COOKIE['email_value'];
+        $values['abilities'] = empty($_COOKIE['abilities_value']) ? [] : explode(',', $_COOKIE['abilities_value']);
+        $values['bdate'] = empty($_COOKIE['bdate_value']) ? '' : $_COOKIE['bdate_value'];
+        $values['radio'] = empty($_COOKIE['radio_value']) ? '' : $_COOKIE['radio_value'];
+        $values['bio'] = empty($_COOKIE['bio_value']) ? '' : $_COOKIE['bio_value'];
+        $values['ccheck'] = empty($_COOKIE['ccheck_value']) ? '' : $_COOKIE['ccheck_value'];
     }
 
     // Сообщение об успешном сохранении.
@@ -102,21 +111,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         setcookie('ccheck_error', '', 100000);
     }
 
-    $values['fio'] = empty($_COOKIE['fio_value']) ? '' : $_COOKIE['fio_value'];
-    $values['tel'] = empty($_COOKIE['tel_value']) ? '' : $_COOKIE['tel_value'];
-    $values['email'] = empty($_COOKIE['email_value']) ? '' : $_COOKIE['email_value'];
-    $values['abilities'] = empty($_COOKIE['abilities_value']) ? '' : $_COOKIE['abilities_value'];
-    $values['bdate'] = empty($_COOKIE['bdate_value']) ? '' : $_COOKIE['bdate_value'];
-    $values['radio'] = empty($_COOKIE['radio_value']) ? '' : $_COOKIE['radio_value'];
-    $values['bio'] = empty($_COOKIE['bio_value']) ? '' : $_COOKIE['bio_value'];
-    $values['ccheck'] = empty($_COOKIE['ccheck_value']) ? '' : $_COOKIE['ccheck_value'];
-
     echo $logoutButton;
-
     include('form.php');
-}
-
-else {
+} else {
     $errors = [];
     $values = [];
 
@@ -140,19 +137,17 @@ else {
             setcookie($cookie, '', time() - 3600, $cookieParams['path'], $domain, $secure, $httponly);
         }
 
-        $cookieParams = session_get_cookie_params();
-        $domain = !empty($cookieParams['domain']) ? $cookieParams['domain'] : '';
-        $secure = !empty($cookieParams['secure']) ? $cookieParams['secure'] : false;
-        $httponly = !empty($cookieParams['httponly']) ? $cookieParams['httponly'] : false;
-
-        setcookie('fio_value', $_POST['fio'], time() + 30 * 24 * 60 * 60, $cookieParams['path'], $domain, $secure, $httponly);
-        setcookie('tel_value', $_POST['tel'], time() + 30 * 24 * 60 * 60, $cookieParams['path'], $domain, $secure, $httponly);
-        setcookie('email_value', $_POST['email'], time() + 30 * 24 * 60 * 60, $cookieParams['path'], $domain, $secure, $httponly);
-        setcookie('abilities_value', !empty($_POST["abilities"]) ? implode(',', $_POST["abilities"]) : '', time() + 30 * 24 * 60 * 60, $cookieParams['path'], $domain, $secure, $httponly);
-        setcookie('bdate_value', $_POST['bdate'], time() + 30 * 24 * 60 * 60, $cookieParams['path'], $domain, $secure, $httponly);
-        setcookie('radio_value', $_POST['radio'], time() + 30 * 24 * 60 * 60, $cookieParams['path'], $domain, $secure, $httponly);
-        setcookie('bio_value', $_POST['bio'], time() + 30 * 24 * 60 * 60, $cookieParams['path'], $domain, $secure, $httponly);
-        setcookie('ccheck_value', $_POST['ccheck'], time() + 30 * 24 * 60 * 60, $cookieParams['path'], $domain, $secure, $httponly);
+        // Сохраняем значения только для неавторизованных пользователей
+        if (!isset($_SESSION['login'])) {
+            setcookie('fio_value', $_POST['fio'], time() + 30 * 24 * 60 * 60, $cookieParams['path'], $domain, $secure, $httponly);
+            setcookie('tel_value', $_POST['tel'], time() + 30 * 24 * 60 * 60, $cookieParams['path'], $domain, $secure, $httponly);
+            setcookie('email_value', $_POST['email'], time() + 30 * 24 * 60 * 60, $cookieParams['path'], $domain, $secure, $httponly);
+            setcookie('abilities_value', !empty($_POST["abilities"]) ? implode(',', $_POST["abilities"]) : '', time() + 30 * 24 * 60 * 60, $cookieParams['path'], $domain, $secure, $httponly);
+            setcookie('bdate_value', $_POST['bdate'], time() + 30 * 24 * 60 * 60, $cookieParams['path'], $domain, $secure, $httponly);
+            setcookie('radio_value', $_POST['radio'], time() + 30 * 24 * 60 * 60, $cookieParams['path'], $domain, $secure, $httponly);
+            setcookie('bio_value', $_POST['bio'], time() + 30 * 24 * 60 * 60, $cookieParams['path'], $domain, $secure, $httponly);
+            setcookie('ccheck_value', $_POST['ccheck'], time() + 30 * 24 * 60 * 60, $cookieParams['path'], $domain, $secure, $httponly);
+        }
     }
 
     $login = generateRandomString(8);
@@ -224,7 +219,6 @@ else {
     }
 
     setcookie('save', '1', time() + 3600);
-
     header('Location: index.php');
     exit();
 }
