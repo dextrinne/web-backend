@@ -67,4 +67,17 @@ function validateFormData($db, &$errors, &$values, $abilities) {
 
     return !$errors;
 }
+
+function setFormValueCookies($values, $expire = 30 * 24 * 60 * 60) {
+    setcookie('fio_value', $values['fio'], time() + $expire);
+    setcookie('tel_value', $values['tel'], time() + $expire);
+    setcookie('email_value', $values['email'], time() + $expire);
+    setcookie('abilities_value', !empty($values['abilities']) ? implode(',', $values['abilities']) : '', time() + $expire);
+    setcookie('bdate_value', $values['bdate'], time() + $expire);
+    setcookie('radio_value', $values['radio'], time() + $expire);
+    setcookie('bio_value', $values['bio'], time() + $expire);
+    setcookie('ccheck_value', $values['ccheck'], time() + $expire);
+}
 ?>
+
+
