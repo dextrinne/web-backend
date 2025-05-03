@@ -65,49 +65,49 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             $_POST['radio'] = $_POST['gender'];
             $_POST['abilities'] = $_POST['languages'] ?? [];
-            
+   
             $dummy_errors = false;
             $dummy_values = array();
             if (!validateFormData($db, $dummy_errors, $dummy_values, $all_languages)) {
                 die('Ошибка валидации данных');
             }
+
+            $user_id = intval($_POST['user_id']);
             
-            try {
-                $stmt = $db->prepare("
-                    UPDATE user 
-                    SET fio = ?, tel = ?, email = ?, bdate = ?, gender = ?, bio = ?, ccheck = ?
-                    WHERE id = ?
-                ");
-                $stmt->execute([
-                    $_POST['fio'],
-                    $_POST['tel'],
-                    $_POST['email'],
-                    $_POST['bdate'],
-                    $_POST['gender'],
-                    $_POST['bio'],
-                    isset($_POST["ccheck"]) ? 1 : 0,
-                    $user_id
-                ]);
-                
-                $stmt = $db->prepare("DELETE FROM user_language WHERE user_id = ?");
-                $stmt->execute([$user_id]);
-                
-                if (!empty($_POST['languages']) && is_array($_POST['languages'])) {
-                    $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (?, ?)");
-                    foreach ($_POST['languages'] as $lang_id) {
-                        $stmt->execute([$user_id, intval($lang_id)]);
-                    }
+            $stmt = $db->prepare("
+                UPDATE user 
+                SET fio = ?, tel = ?, email = ?, bdate = ?, gender = ?, bio = ?, ccheck = ?
+                WHERE id = ?
+            ");
+            $stmt->execute([
+                $_POST['fio'],
+                $_POST['tel'],
+                $_POST['email'],
+                $_POST['bdate'],
+                $_POST['gender'],
+                $_POST['bio'],
+                isset($_POST["ccheck"]) ? 1 : 0,
+                $user_id
+            ]);
+            
+            $stmt = $db->prepare("DELETE FROM user_language WHERE user_id = ?");
+            $stmt->execute([$user_id]);
+            
+            if (!empty($_POST['languages']) && is_array($_POST['languages'])) {
+                $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (?, ?)");
+                foreach ($_POST['languages'] as $lang_id) {
+                    $stmt->execute([$user_id, intval($lang_id)]);
                 }
-            } catch (PDOException $e) {
-                die('Ошибка выполнения операции: ' . $e->getMessage());
             }
         }
+    } catch (PDOException $e) {
+        die('Ошибка выполнения операции: ' . $e->getMessage());
     }
+    
     // Перенаправляем, чтобы избежать повторной отправки формы
     header("Location: admin.php");
     exit();
 }
-
 // Получение данных для отображения
 $users = getAllUsers($db);
 $language_stats = getLanguageStats($db);
