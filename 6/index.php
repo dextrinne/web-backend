@@ -164,17 +164,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         setcookie('ccheck_error', '', 100000);
     }
 
-    // Генерируем логин и пароль
-    function generateRandomString($length = 10) {
-        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        $charactersLength = strlen($characters);
-        $randomString = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[rand(0, $charactersLength - 1)];
-        }
-        return $randomString;
-    }
-
     $login = generateRandomString(8);
     $pass = generateRandomString(20);
 
