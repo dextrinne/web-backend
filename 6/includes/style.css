@@ -1,0 +1,102 @@
+/* Ошибки и радио-кнопки */
+.error {
+    border: 2px solid red;
+    border-radius: 2pt;
+    margin-bottom: 2pt;
+    color: red;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.error_messages {
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+    align-content: center;
+    color: red;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.radio-group {
+    display: flex;
+    align-items: center;
+}
+
+.radio-group label {
+    margin-right: 15px;
+}
+
+.radio-group input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #006a71;
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+}
+
+.radio-group input[type="radio"]:checked {
+    background-color: #cbeaed;
+}
+
+.radio-group.radio-error input[type="radio"] {
+    border-color: red;
+}
+
+.radio-group input[type="radio"]:checked::after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background-color: #006a71;
+    border-radius: 50%;
+}
+
+/* Основное */
+body {
+    background-color: #cbeaed;
+    margin-top: 20px;
+}
+
+h3 {
+    font-size: 8pt;
+    color: #9da1aa;
+    margin-top: 0pt;
+    padding-top: 0pt;
+}
+
+form {
+    color: #006a71;
+    text-align: left;
+    padding-left: 30px;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    font-size: 15pt;
+    border-radius: 10px;
+    width: 60%;
+    margin: auto;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    background-color: #ffffff;
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+}
+
+select {
+    color: #006a71;
+}
+
+input {
+    color: #006a71;
+}
+
+h2 {
+    color: #006a71;
+    text-align: center;
+    font-size: 30pt;
+}
