@@ -48,10 +48,13 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 // Обработка действий администратора
+// Обработка действий администратора
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Проверка CSRF-токена
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        die('Неверный CSRF-токен');
+        $_SESSION['admin_error'] = 'Неверный CSRF-токен';
+        header("Location: admin.php");
+        exit();
     }
 
     try {
@@ -62,16 +65,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
         } elseif (isset($_POST['update_user'])) {
             include('./actions/validation.php');
-            
+          
             $_POST['radio'] = $_POST['gender'];
             $_POST['abilities'] = $_POST['languages'] ?? [];
-   
+            
+            $all_languages = $db->query("SELECT id, name FROM language")->fetchAll(PDO::FETCH_ASSOC);
+            $abilities = [];
+            foreach ($all_languages as $lang) {
+                $abilities[$lang['id']] = $lang['name'];
+            }
+            
             $dummy_errors = false;
             $dummy_values = array();
-            if (!validateFormData($db, $dummy_errors, $dummy_values, $all_languages)) {
-                die('Ошибка валидации данных');
+            if (!validateFormData($db, $dummy_errors, $dummy_values, $abilities)) {
+                $_SESSION['admin_error'] = 'Ошибка валидации данных. Проверьте введенные значения.';
+                header("Location: admin.php");
+                exit();
             }
-
+            
             $user_id = intval($_POST['user_id']);
             
             $stmt = $db->prepare("
@@ -101,13 +112,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
     } catch (PDOException $e) {
-        die('Ошибка выполнения операции: ' . $e->getMessage());
+        $_SESSION['admin_error'] = 'Ошибка выполнения операции: ' . $e->getMessage();
+        header("Location: admin.php");
+        exit();
     }
     
-    // Перенаправляем, чтобы избежать повторной отправки формы
+    $_SESSION['admin_success'] = 'Изменения успешно сохранены';
     header("Location: admin.php");
     exit();
 }
+
 // Получение данных для отображения
 $users = getAllUsers($db);
 $language_stats = getLanguageStats($db);
@@ -195,6 +209,20 @@ $all_languages = $db->query("SELECT id, name FROM language")->fetchAll(PDO::FETC
     </style>
 </head>
 <body>
+    <?php if (!empty($_SESSION['admin_error'])): ?>
+        <div class="admin-error" style="color: red; padding: 10px; background: #ffebeb; border: 1px solid red; margin-bottom: 20px;">
+            <?= htmlspecialchars($_SESSION['admin_error']) ?>
+        </div>
+        <?php unset($_SESSION['admin_error']); ?>
+    <?php endif; ?>
+    
+    <?php if (!empty($_SESSION['admin_success'])): ?>
+        <div class="admin-success" style="color: green; padding: 10px; background: #ebffeb; border: 1px solid green; margin-bottom: 20px;">
+            <?= htmlspecialchars($_SESSION['admin_success']) ?>
+        </div>
+        <?php unset($_SESSION['admin_success']); ?>
+    <?php endif; ?>
+    
     <h1>Административная панель</h1>
     
     <h2>Пользователи</h2>
