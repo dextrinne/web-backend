@@ -1,7 +1,7 @@
 <?php
 function validateFormData($db, &$errors, &$values, $abilities) {
-    $errors = FALSE;
-
+    $errors = false;
+    
     if (empty($_POST['fio'])) {
         setcookie('fio_error', '1', time() + 24 * 60 * 60);
         $errors = TRUE;
@@ -64,144 +64,93 @@ function validateFormData($db, &$errors, &$values, $abilities) {
         $errors = TRUE;
     }
 
-    setcookie('fio_value', $_POST['fio'], time() + 30 * 24 * 60 * 60);
-    setcookie('tel_value', $_POST['tel'], time() + 30 * 24 * 60 * 60);
-    setcookie('email_value', $_POST['email'], time() + 30 * 24 * 60 * 60);
-    setcookie('abilities_value', !empty($fav_languages) ? implode(',', $fav_languages) : '', time() + 30 * 24 * 60 * 60);
-    setcookie('bdate_value', $_POST['bdate'], time() + 30 * 24 * 60 * 60);
-    setcookie('radio_value', $_POST['radio'], time() + 30 * 24 * 60 * 60);
-    setcookie('bio_value', $_POST['bio'], time() + 30 * 24 * 60 * 60);
-    setcookie('ccheck_value', $_POST['ccheck'], time() + 30 * 24 * 60 * 60);
-
     return !$errors;
 }
 
-function generateRandomString($length = 10) {
-    $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    $charactersLength = strlen($characters);
-    $randomString = '';
-    for ($i = 0; $i < $length; $i++) {
-        $randomString .= $characters[rand(0, $charactersLength - 1)];
-    }
-    return $randomString;
-}
-
 function handleValidationErrors(&$messages) {
-    $errors = array();
-    $errors['fio'] = !empty($_COOKIE['fio_error']);
-    $errors['tel'] = !empty($_COOKIE['tel_error']);
-    $errors['email'] = !empty($_COOKIE['email_error']);
-    $errors['abilities'] = !empty($_COOKIE['abilities_error']);
-    $errors['bdate'] = !empty($_COOKIE['bdate_error']);
-    $errors['radio'] = !empty($_COOKIE['radio_error']);
-    $errors['bio'] = !empty($_COOKIE['bio_error']);
-    $errors['ccheck'] = !empty($_COOKIE['ccheck_error']);
+    $errorsMap = [
+        'fio' => [
+            '1' => 'Введите ФИО.',
+            '2' => 'ФИО не должно превышать 150 символов.',
+            '3' => 'ФИО должно содержать только буквы и пробелы.'
+        ],
+        'tel' => ['1' => 'Введите корректный номер телефона.'],
+        'email' => ['1' => 'Введите корректный email.'],
+        'abilities' => ['1' => 'Выберите любимый язык программирования.'],
+        'bdate' => ['1' => 'Введите корректную дату рождения.'],
+        'radio' => ['1' => 'Выберите пол.'],
+        'bio' => [
+            '1' => 'Заполните биографию.',
+            '2' => 'Количество символов в поле "биография" не должно превышать 512.',
+            '3' => 'Поле "биография" содержит недопустимые символы.'
+        ],
+        'ccheck' => ['1' => 'Подтвердите ознакомление с контрактом.']
+    ];
 
-    if ($errors['fio']) {
-        if ($_COOKIE['fio_error'] == '1') {
-            $messages[] = '<div class="error">Введите ФИО.</div>';
-        } elseif ($_COOKIE['fio_error'] == '2') {
-            $messages[] = '<div class="error">ФИО не должно превышать 150 символов.</div>';
-        } else {
-            $messages[] = '<div class="error">ФИО должно содержать только буквы и пробелы.</div>';
+    foreach ($errorsMap as $field => $errorTypes) {
+        if (!empty($_COOKIE["{$field}_error"])) {
+            $errorCode = $_COOKIE["{$field}_error"];
+            if (isset($errorTypes[$errorCode])) {
+                $messages[] = '<div class="error">' . $errorTypes[$errorCode] . '</div>';
+            }
+            setcookie("{$field}_error", '', time() - 3600);
         }
-        setcookie('fio_error', '', 100000);
-    }
-
-    if ($errors['tel']) {
-        setcookie('tel_error', '', 100000);
-        $messages[] = '<div class="error">Введите корректный номер телефона.</div>';
-    }
-    if ($errors['email']) {
-        setcookie('email_error', '', 100000);
-        $messages[] = '<div class="error">Введите корректный email.</div>';
-    }
-    if ($errors['abilities']) {
-        setcookie('abilities_error', '', 100000);
-        $messages[] = '<div class="error">Выберите любимый язык программирования.</div>';
-    }
-    if ($errors['bdate']) {
-        setcookie('bdate_error', '', 100000);
-        $messages[] = '<div class="error">Введите корректную дату рождения.</div>';
-    }
-    if ($errors['radio']) {
-        setcookie('radio_error', '', 100000);
-        $messages[] = '<div class="error">Выберите пол.</div>';
-    }
-    if ($errors['bio']) {
-        if($_COOKIE['bio_error']=='1'){
-          $messages[] = '<div class="error">Заполните биографию.</div>';
-        }
-        elseif($_COOKIE['bio_error']=='2'){
-          $messages[] = '<div class="error">Количество символов в поле "биография" не должно превышать 512.</div>';
-        }
-        elseif($_COOKIE['bio_error']=='3'){
-          $messages[] = '<div class="error">Поле "биография" содержит недопустимые символы.</div>';
-        }
-        setcookie('bio_error', '', 100000);
-    }
-    if ($errors['ccheck']) {
-        setcookie('ccheck_error', '', 100000);
-        $messages[] = '<div class="error">Подтвердите ознакомление с контрактом.</div>';
     }
 }
 
 function fillUserValues($db, $login = null) {
-    $values = array();
+    $values = [];
+    
     if ($login) {
-        $user_data = getUserData($db, $login);
-        if ($user_data) {
-            $values['fio'] = htmlspecialchars($user_data['fio']);
-            $values['tel'] = htmlspecialchars($user_data['tel']);
-            $values['email'] = htmlspecialchars($user_data['email']);
-            $values['bdate'] = htmlspecialchars($user_data['bdate']);
-            $values['radio'] = htmlspecialchars($user_data['gender']);
-            $values['bio'] = htmlspecialchars($user_data['bio']);
-            $values['ccheck'] = htmlspecialchars($user_data['ccheck']);
-            $values['abilities'] = !empty($user_data['abilities']) ? explode(',', $user_data['abilities']) : array();
+        if ($userData = getUserData($db, $login)) {
+            foreach (['fio', 'tel', 'email', 'bdate', 'bio', 'ccheck'] as $field) {
+                $values[$field] = htmlspecialchars($userData[$field] ?? '');
+            }
+            $values['radio'] = htmlspecialchars($userData['gender'] ?? '');
+            $values['abilities'] = !empty($userData['abilities']) ? explode(',', $userData['abilities']) : [];
         }
     } else {
-        $values['fio'] = empty($_COOKIE['fio_value']) ? '' : $_COOKIE['fio_value'];
-        $values['tel'] = empty($_COOKIE['tel_value']) ? '' : $_COOKIE['tel_value'];
-        $values['email'] = empty($_COOKIE['email_value']) ? '' : $_COOKIE['email_value'];
-        $values['abilities'] = empty($_COOKIE['abilities_value']) ? '' : $_COOKIE['abilities_value'];
-        $values['bdate'] = empty($_COOKIE['bdate_value']) ? '' : $_COOKIE['bdate_value'];
-        $values['radio'] = empty($_COOKIE['radio_value']) ? '' : $_COOKIE['radio_value'];
-        $values['bio'] = empty($_COOKIE['bio_value']) ? '' : $_COOKIE['bio_value'];
-        $values['ccheck'] = empty($_COOKIE['ccheck_value']) ? '' : $_COOKIE['ccheck_value'];
+        foreach (['fio', 'tel', 'email', 'bdate', 'radio', 'bio', 'ccheck'] as $field) {
+            $values[$field] = $_COOKIE["{$field}_value"] ?? '';
+        }
+        $values['abilities'] = !empty($_COOKIE['abilities_value']) ? explode(',', $_COOKIE['abilities_value']) : [];
     }
+    
     return $values;
 }
 
-function updateUserData($db, $user_id, $post_data, $abilities = array()) {
+function updateUserData($db, $user_id, $post_data, $abilities = []) {
     try {
+        $db->beginTransaction();
+        
+        // Обновляем основные данные пользователя
         $stmt = $db->prepare("
-            UPDATE user 
-            SET fio = ?, tel = ?, email = ?, bdate = ?, gender = ?, bio = ?, ccheck = ?
+            UPDATE user SET 
+                fio = ?, tel = ?, email = ?, bdate = ?, 
+                gender = ?, bio = ?, ccheck = ?
             WHERE id = ?
         ");
         $stmt->execute([
-            $post_data['fio'],
-            $post_data['tel'],
-            $post_data['email'],
-            $post_data['bdate'],
-            $post_data['gender'],
-            $post_data['bio'],
-            isset($post_data["ccheck"]) ? 1 : 0,
+            $post_data['fio'], $post_data['tel'], $post_data['email'], $post_data['bdate'],
+            $post_data['gender'], $post_data['bio'], isset($post_data['ccheck']) ? 1 : 0,
             $user_id
         ]);
-
+        
+        // Обновляем языки программирования
         $stmt = $db->prepare("DELETE FROM user_language WHERE user_id = ?");
         $stmt->execute([$user_id]);
-
-        if (!empty($abilities) && is_array($abilities)) {
+        
+        if (!empty($abilities)) {
             $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (?, ?)");
-            foreach ($abilities as $ability) {
-                $stmt->execute([$user_id, $ability]);
+            foreach ($abilities as $lang_id) {
+                $stmt->execute([$user_id, $lang_id]);
             }
         }
+        
+        $db->commit();
         return true;
     } catch (PDOException $e) {
+        $db->rollBack();
         return false;
     }
 }
