@@ -3,6 +3,7 @@ header('Content-Type: text/html; charset=UTF-8');
 echo "<link rel='stylesheet' href='style.css'>";
 include('./actions/db.php');
 include('./actions/functions.php');
+include('./actions/validation.php');
 
 $abilities = getAbilities($db);
 
@@ -142,77 +143,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     include('form.php');
 } else {  
-    $errors = FALSE;
-
-    if (empty($_POST['fio'])) {
-        setcookie('fio_error', '1', time() + 24 * 60 * 60);
-        $errors = TRUE;
-    } else {
-        if (strlen($_POST['fio']) > 150) {
-            setcookie('fio_error', '2', time() + 24 * 60 * 60);
-            $errors = TRUE;
-        } elseif (!preg_match("/^[a-zA-Zа-яА-ЯёЁ\s]+$/u", $_POST['fio'])) {
-            setcookie('fio_error', '3', time() + 24 * 60 * 60);
-            $errors = TRUE;
-        }
+    if (!validateFormData($db, $errors, $values, $abilities)) {
+        header('Location: index.php');
+        exit();
     }
-
-    if (empty($_POST['tel']) || !preg_match('/^\+7\d{10}$/', $_POST['tel'])) {
-        setcookie('tel_error', '1', time() + 24 * 60 * 60);
-        $errors = TRUE;
-    }
-    if (empty($_POST["email"]) || !filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)) {
-        setcookie('email_error', '1', time() + 24 * 60 * 60);
-        $errors = TRUE;
-    }
-
-    $fav_languages = $_POST["abilities"] ?? []; // Получаем массив из формы
-    if (empty($fav_languages)) {
-        setcookie('abilities_error', '1', time() + 24 * 60 * 60);
-        $errors = TRUE;
-    } else {
-        foreach ($fav_languages as $ability) {
-            if (empty($abilities[$ability])) {
-                setcookie('abilities_error', '1', time() + 24 * 60 * 60);
-                $errors = TRUE;
-            }
-        }
-    }
-
-    if (empty($_POST['bdate']) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['bdate'])) {
-        setcookie('bdate_error', '1', time() + 24 * 60 * 60);
-        $errors = TRUE;
-    }
-    if (empty($_POST['radio'])) {
-        setcookie('radio_error', '1', time() + 24 * 60 * 60);
-        $errors = TRUE;
-    }
-
-    if (empty($_POST['bio'])) {
-        setcookie('bio_error', '1', time() + 24 * 60 * 60);
-        $errors = TRUE;
-    } elseif(strlen($_POST['bio']) > 512){
-        setcookie('bio_error', '2', time() + 24 * 60 * 60);
-        $errors = TRUE;
-    } elseif(preg_match('/[<>{}\[\]]|<script|<\?php/i', $_POST['bio'])){
-        setcookie('bio_error', '3', time() + 24 * 60 * 60);
-        $errors = TRUE;
-    }
-
-    if (empty($_POST['ccheck'])) {
-        setcookie('ccheck_error', '1', time() + 24 * 60 * 60);
-        $errors = TRUE;
-    }
-
-    // Сохраняем ранее введенное в форму значение на месяц.
-    setcookie('fio_value', $_POST['fio'], time() + 30 * 24 * 60 * 60);
-    setcookie('tel_value', $_POST['tel'], time() + 30 * 24 * 60 * 60);
-    setcookie('email_value', $_POST['email'], time() + 30 * 24 * 60 * 60);
-    setcookie('abilities_value', !empty($fav_languages) ? implode(',', $fav_languages) : '', time() + 30 * 24 * 60 * 60);
-    setcookie('bdate_value', $_POST['bdate'], time() + 30 * 24 * 60 * 60);
-    setcookie('radio_value', $_POST['radio'], time() + 30 * 24 * 60 * 60);
-    setcookie('bio_value', $_POST['bio'], time() + 30 * 24 * 60 * 60);
-    setcookie('ccheck_value', $_POST['ccheck'], time() + 30 * 24 * 60 * 60);
 
     if ($errors) {
         // При наличии ошибок перезагружаем страницу и завершаем работу скрипта.
