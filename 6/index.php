@@ -38,15 +38,7 @@ if (isset($_SESSION['login'])) {
     }
 } else {
     $logoutButton = '';
-    // Для неавторизованных пользователей заполняем из cookies
-    $values['fio'] = empty($_COOKIE['fio_value']) ? '' : $_COOKIE['fio_value'];
-    $values['tel'] = empty($_COOKIE['tel_value']) ? '' : $_COOKIE['tel_value'];
-    $values['email'] = empty($_COOKIE['email_value']) ? '' : $_COOKIE['email_value'];
-    $values['bdate'] = empty($_COOKIE['bdate_value']) ? '' : $_COOKIE['bdate_value'];
-    $values['radio'] = empty($_COOKIE['radio_value']) ? '' : $_COOKIE['radio_value'];
-    $values['bio'] = empty($_COOKIE['bio_value']) ? '' : $_COOKIE['bio_value'];
-    $values['ccheck'] = empty($_COOKIE['ccheck_value']) ? '' : $_COOKIE['ccheck_value'];
-    }
+    
 
     // Сообщение об успешном сохранении.
     if (!empty($_COOKIE['save'])) {
