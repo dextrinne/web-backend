@@ -29,22 +29,11 @@ $admin_login = $_SERVER['PHP_AUTH_USER'];
 $admin_pass = $_SERVER['PHP_AUTH_PW'];
 
 try {
-    // Получаем хеш пароля из базы данных
     $stmt = $db->prepare("SELECT password FROM admin WHERE login = ?");
     $stmt->execute([$admin_login]);
     $admin_data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$admin_data) {
-        // Администратор с таким логином не найден
-        header('WWW-Authenticate: Basic realm="Admin Panel"');
-        header('HTTP/1.0 401 Unauthorized');
-        echo 'Неверные учетные данные';
-        exit();
-    }
-
-    // Сравниваем хеши паролей
-    $hashed_input = hash('sha256', $admin_pass);
-    if ($hashed_input !== $admin_data['password']) {
+    if (!$admin_data || SHA2($admin_pass, 256) != $admin_data['password']) {
         header('WWW-Authenticate: Basic realm="Admin Panel"');
         header('HTTP/1.0 401 Unauthorized');
         echo 'Неверные учетные данные';
@@ -53,6 +42,7 @@ try {
 } catch (PDOException $e) {
     die('Ошибка проверки учетных данных: ' . $e->getMessage());
 }
+
 // Генерация CSRF-токена
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -213,10 +203,6 @@ $all_languages = $db->query("SELECT id, name FROM language")->fetchAll(PDO::FETC
         .stats {
             margin-top: 30px;
         }
-        .chart {
-            display: flex;
-            margin-top: 20px;
-        }
         .bar {
             background-color: #4CAF50;
             color: white;
@@ -361,15 +347,23 @@ $all_languages = $db->query("SELECT id, name FROM language")->fetchAll(PDO::FETC
                 <?php endforeach; ?>
             </tbody>
         </table>
-        
-        <div class="chart">
-            <?php foreach ($language_stats as $stat): ?>
-            <div class="bar" style="height: <?= $stat['user_count'] * 20 ?>px; width: 50px;" 
-                 title="<?= htmlspecialchars($stat['name']) ?>: <?= $stat['user_count'] ?>">
-                <?= $stat['user_count'] ?>
-            </div>
-            <?php endforeach; ?>
-        </div>
     </div>
+    
+    <script>
+        function showEditForm(userId) {
+            // Скрываем все формы редактирования
+            document.querySelectorAll('.edit-form').forEach(form => {
+                form.style.display = 'none';
+            });
+            // Показываем нужную форму
+            document.getElementById('edit-form-' + userId).style.display = 'table-row';
+            // Прокручиваем к форме
+            document.getElementById('edit-form-' + userId).scrollIntoView({behavior: 'smooth'});
+        }
+        
+        function hideEditForm(userId) {
+            document.getElementById('edit-form-' + userId).style.display = 'none';
+        }
+    </script>
 </body>
 </html>
