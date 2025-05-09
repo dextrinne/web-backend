@@ -54,8 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         if (!empty($_COOKIE['login']) && !empty($_COOKIE['pass'])) {
             $messages[] = sprintf(
                 'Вы можете <a href="login.php">войти</a> с логином <strong>%s</strong> и паролем <strong>%s</strong>.',
-                strip_tags($_COOKIE['login']),
-                strip_tags($_COOKIE['pass'])
+                htmlspecialchars($_COOKIE['login'], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+                htmlspecialchars($_COOKIE['pass'], ENT_QUOTES | ENT_HTML5, 'UTF-8')
             );
         }
     }
