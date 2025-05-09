@@ -54,7 +54,7 @@ if (empty($_SESSION['csrf_token'])) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Проверка CSRF-токена
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        htmlspecialchars($_SESSION['admin_error']) = 'Неверный CSRF-токен';
+        $_SESSION['admin_error'] = htmlspecialchars('Неверный CSRF-токен');
         header("Location: admin.php");
         exit();
     }
@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $dummy_errors = false;
             $dummy_values = array();
             if (!validateFormData($db, $dummy_errors, $dummy_values, $abilities)) {
-                htmlspecialchars($_SESSION['admin_error']) = 'Ошибка валидации данных. Проверьте введенные значения.';
+                $_SESSION['admin_error'] = htmlspecialchars('Ошибка валидации данных. Проверьте введенные значения.');
                 header("Location: admin.php");
                 exit();
             }
