@@ -119,15 +119,3 @@ function not_found()
     );
 }
 
-function theme($t, $c = array())
-{
-    $template = conf('theme') . '/' . str_replace('/', '_', $t) . '.tpl.php';
-    if (!file_exists($template)) {
-        return implode('', $c);
-    }
-    ob_start();
-    include $template;
-    $contents = ob_get_contents();
-    ob_end_clean();
-    return $contents;
-}
