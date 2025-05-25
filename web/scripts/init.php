@@ -1,7 +1,7 @@
 <?php
-function init($request = [], $urlconf = [], $db = null) {
+function init($request = array(), $urlconf = array(), $db = null) {
     if ($db === null) {
-        require_once(__DIR__.'/db.php');
+        require_once(__DIR__ . '/db.php');
     }
 
     $response = array();

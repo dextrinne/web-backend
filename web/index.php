@@ -1,29 +1,33 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+include('./settings.php');
+ini_set('display_errors', DISPLAY_ERRORS);
+ini_set('include_path', INCLUDE_PATH);
 
-include_once('./settings.php');
-
-include_once('./scripts/db.php');
-
+include('./scripts/db.php');  
 include_once('./scripts/functions.php');
 include_once('./scripts/init.php');
 
-$request = [
-    'url' => $_GET['q'] ?? '',
-    'method' => $_SERVER['REQUEST_METHOD'],
-    'get' => $_GET,
-    'post' => $_POST,
-    'Content-Type' => 'text/html'
-];
+$request = array(
+    'url' => isset($_GET['q']) ? $_GET['q'] : '',
+    'method' => isset($_POST['method']) && in_array($_POST['method'], array('get', 'post', 'put', 'delete')) ? $_POST['method'] : $_SERVER['REQUEST_METHOD'],
+    'get' => !empty($_GET) ? $_GET : array(),
+    'post' => !empty($_POST) ? $_POST : array(),
+    'put' => !empty($_POST) && !empty($_POST['method']) && $_POST['method'] == 'put' ? $_POST : array(),
+    'delete' => !empty($_POST) && !empty($_POST['method']) && $_POST['method'] == 'put' ? $_POST : array(),
+    'Content-Type' => 'text/html',
+);
 
 $response = init($request, $urlconf, $db);
 
 if (!empty($response['headers'])) {
     foreach ($response['headers'] as $key => $value) {
-        header(is_string($key) ? "$key: $value" : $value);
+        if (is_string($key)) {
+            header(sprintf('%s: %s', $key, $value));
+        } else {
+            header($value);
+        }
     }
 }
-
-echo $response['entity'] ?? '';
+if (!empty($response['entity'])) {
+    print ($response['entity']);
+}
