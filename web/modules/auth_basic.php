@@ -20,11 +20,11 @@ function auth(&$request, $r) {
                 $request['user'] = $user;
             }
         } catch (PDOException $e) {
-            error_log("Ошибка базы данных при аутентификации: " . $e->getMessage());
-            return array(
-                'headers' => array('HTTP/1.1 500 Internal Server Error'),
-                'entity' => 'Ошибка сервера при аутентификации.'
-            );
+            error_log("Database error in auth(): " . $e->getMessage());
+            return [
+                'headers' => ['HTTP/1.1 500 Internal Server Error'],
+                'entity' => 'Database error during authentication.'
+            ];
         }
     }
 
