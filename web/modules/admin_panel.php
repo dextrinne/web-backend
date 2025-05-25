@@ -1,101 +1,83 @@
 <?php
-function admin_panel_post($request, $url_param_1 = null) {
-    global $db;
-    session_start();
+header('Content-Type: text/html; charset=UTF-8');
+require_once 'includes/security_headers.php';
+session_start();
+include('./actions/db.php');
+include('./actions/functions.php');
 
-    // Проверка CSRF токена
-    if (empty($_SESSION['csrf_token']) || !isset($request['post']['csrf_token']) || 
-        $request['post']['csrf_token'] !== $_SESSION['csrf_token']) {
-        die('CSRF token validation failed.');
+// Проверка HTTP-авторизации
+if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])) {
+    header('WWW-Authenticate: Basic realm="Admin Panel"');
+    header('HTTP/1.0 401 Unauthorized');
+    echo 'Требуется авторизация';
+    exit();
+}
+
+// Проверка учетных данных администратора
+$admin_login = $_SERVER['PHP_AUTH_USER'];
+$admin_pass = $_SERVER['PHP_AUTH_PW'];
+
+try {
+    // Получаем хеш пароля из базы данных
+    $stmt = $db->prepare("SELECT password FROM admin WHERE login = ?");
+    $stmt->execute([$admin_login]);
+    $admin_data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$admin_data) {
+        // Администратор с таким логином не найден
+        header('WWW-Authenticate: Basic realm="Admin Panel"');
+        header('HTTP/1.0 401 Unauthorized');
+        echo 'Неверные учетные данные';
+        exit();
     }
 
-    // Обработка удаления
-    if (isset($request['post']['action']) && $request['post']['action'] == 'delete' && 
-        isset($request['post']['id']) && is_numeric($request['post']['id'])) {
-        $id_to_delete = intval($request['post']['id']);
-        try {
-            delete_user($db, $id_to_delete);
-            $_SESSION['admin_message'] = '<p style="color: green;">Пользователь успешно удален.</p>';
-        } catch (PDOException $e) {
-            error_log("Ошибка при удалении пользователя: " . $e->getMessage());
-            $_SESSION['admin_message'] = '<p style="color: red;">Ошибка при удалении пользователя.</p>';
-        }
-        return redirect('admin');
+    // Сравниваем хеши паролей
+    $hashed_input = hash('sha256', $admin_pass);
+    if ($hashed_input !== $admin_data['password']) {
+        header('WWW-Authenticate: Basic realm="Admin Panel"');
+        header('HTTP/1.0 401 Unauthorized');
+        echo 'Неверные учетные данные';
+        exit();
+    }
+} catch (PDOException $e) {
+    error_log('Admin authentication error: ' . $e->getMessage());
+    die('Ошибка проверки учетных данных.');
+}
+
+// Генерация CSRF-токена
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// Обработка действий администратора
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Проверка CSRF-токена
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['admin_error'] = htmlspecialchars('Неверный CSRF-токен');
+        header("Location: admin.php");
+        exit();
     }
 
-    return redirect('admin');
-}
-
-function authenticate() {
-    header('HTTP/1.1 401 Unauthorized');
-    header('WWW-Authenticate: Basic realm="Admin Area"');
-    return theme('401');
-}
-
-function get_all_users($db) {
-    $stmt = $db->prepare("
-        SELECT u.*, GROUP_CONCAT(l.name SEPARATOR ', ') AS languages
-        FROM user u
-        LEFT JOIN user_language ul ON u.id = ul.user_id
-        LEFT JOIN language l ON ul.lang_id = l.id
-        GROUP BY u.id
-    ");
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function get_language_statistics($db) {
-    $stmt = $db->prepare("
-        SELECT l.name, COUNT(ul.user_id) AS user_count
-        FROM language l
-        LEFT JOIN user_language ul ON l.id = ul.lang_id
-        GROUP BY l.id
-        ORDER BY user_count DESC
-    ");
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function delete_user($db, $id) {
-    $db->beginTransaction();
     try {
-        $stmt = $db->prepare("DELETE FROM user_language WHERE user_id = ?");
-        $stmt->execute([$id]);
-        
-        $stmt = $db->prepare("DELETE FROM user_login WHERE user_id = ?");
-        $stmt->execute([$id]);
-        
-        $stmt = $db->prepare("DELETE FROM user WHERE id = ?");
-        $stmt->execute([$id]);
-        
-        $db->commit();
+        if (isset($_POST['delete_user'])) {
+            // Удаление пользователя
+            $stmt = $db->prepare("DELETE FROM user WHERE id = ?");
+            $stmt->execute([intval($_POST['user_id'])]);
+            $_SESSION['admin_success'] = 'Пользователь успешно удален';
+        }
     } catch (PDOException $e) {
-        $db->rollBack();
-        throw $e;
+        error_log('Admin operation error: ' . $e->getMessage());
+        $_SESSION['admin_error'] = 'Произошла ошибка при выполнении операции. Пожалуйста, попробуйте позже.';
     }
+
+    header("Location: admin.php");
+    exit();
 }
 
-function update_user($db, $id, $fio, $tel, $email, $bdate, $gender, $bio, $ccheck, $languages) {
-    $stmt = $db->prepare("
-        UPDATE user SET 
-            fio = ?, 
-            tel = ?, 
-            email = ?, 
-            bdate = ?, 
-            gender = ?, 
-            bio = ?, 
-            ccheck = ?
-        WHERE id = ?
-    ");
-    $stmt->execute([$fio, $tel, $email, $bdate, $gender, $bio, $ccheck, $id]);
+// Получение данных для отображения
+$users = getAllUsers($db);
+$language_stats = getLanguageStats($db);
 
-    // Обновляем языки
-    $stmt = $db->prepare("DELETE FROM user_language WHERE user_id = ?");
-    $stmt->execute([$id]);
-
-    $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (?, ?)");
-    foreach ($languages as $lang_id) {
-        $stmt->execute([$id, $lang_id]);
-    }
-}
+// Подключение шаблона
+include('./theme/admin_panel.tpl.php');
 ?>
