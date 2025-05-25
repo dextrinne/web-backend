@@ -1,57 +1,4 @@
 <?php
-function admin_panel_get($request) {
-    global $db;
-
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-
-    // Аутентификация
-    if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])) {
-        return authenticate();
-    }
-
-    $admin_login = $_SERVER['PHP_AUTH_USER'];
-    $admin_password = $_SERVER['PHP_AUTH_PW'];
-
-    try {
-        $stmt = $db->prepare("SELECT id, password FROM admin WHERE login = ?");
-        $stmt->execute([$admin_login]);
-        $admin = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$admin || !password_verify($admin_password, $admin['password'])) {
-            return authenticate();
-        }
-
-        // Генерация CSRF токена
-        if (empty($_SESSION['csrf_token'])) {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-        }
-        $csrf_token = $_SESSION['csrf_token'];
-
-        // Получение данных для отображения
-        $users = get_all_users($db);
-        $language_stats = get_language_statistics($db);
-
-        // Формирование массива данных для шаблона
-        $template_data = [
-            'users' => $users,
-            'language_stats' => $language_stats,
-            'csrf_token' => $csrf_token,
-            'admin_message' => isset($_SESSION['admin_message']) ? $_SESSION['admin_message'] : '',
-        ];
-
-        unset($_SESSION['admin_message']);
-
-        // Рендеринг шаблона
-        return theme('admin_panel', ['#content' => $template_data]);
-
-    } catch (PDOException $e) {
-        error_log("Ошибка базы данных: " . $e->getMessage());
-        die("Ошибка: Произошла ошибка на сервере.");
-    }
-}
-
 function admin_panel_post($request, $url_param_1 = null) {
     global $db;
     session_start();
@@ -149,6 +96,59 @@ function update_user($db, $id, $fio, $tel, $email, $bdate, $gender, $bio, $cchec
     $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (?, ?)");
     foreach ($languages as $lang_id) {
         $stmt->execute([$id, $lang_id]);
+    }
+}
+
+function admin_panel_get($request) {
+    global $db;
+
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    // Аутентификация
+    if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])) {
+        return authenticate();
+    }
+
+    $admin_login = $_SERVER['PHP_AUTH_USER'];
+    $admin_password = $_SERVER['PHP_AUTH_PW'];
+
+    try {
+        $stmt = $db->prepare("SELECT id, password FROM admin WHERE login = ?");
+        $stmt->execute([$admin_login]);
+        $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$admin || !password_verify($admin_password, $admin['password'])) {
+            return authenticate();
+        }
+
+        // Генерация CSRF токена
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+        $csrf_token = $_SESSION['csrf_token'];
+
+        // Получение данных для отображения
+        $users = get_all_users($db);
+        $language_stats = get_language_statistics($db);
+
+        // Формирование массива данных для шаблона
+        $template_data = [
+            'users' => $users,
+            'language_stats' => $language_stats,
+            'csrf_token' => $csrf_token,
+            'admin_message' => isset($_SESSION['admin_message']) ? $_SESSION['admin_message'] : '',
+        ];
+
+        unset($_SESSION['admin_message']);
+
+        // Рендеринг шаблона
+        return theme('admin_panel', ['#content' => $template_data]);
+
+    } catch (PDOException $e) {
+        error_log("Ошибка базы данных: " . $e->getMessage());
+        die("Ошибка: Произошла ошибка на сервере.");
     }
 }
 ?>
