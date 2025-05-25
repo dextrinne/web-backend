@@ -1,28 +1,17 @@
 <?php
-
-$db = new PDO(
-    'mysql:host=' . conf('db_host') . ';dbname=' . conf('db_name') . ';charset=utf8mb4',
-    conf('db_user'),
-    conf('db_psw'),
-    [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8mb4'"
-    ]
-);
-
-global $db;
 try {
     $db = new PDO(
-        'mysql:host=' . conf('db_host') . ';dbname=' . conf('db_name'),
-        conf('db_user'),
-        conf('db_psw'),
-        array(PDO::MYSQL_ATTR_FOUND_ROWS => true, PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8')
+        'mysql:host=localhost;dbname=u68595;charset=utf8',
+        'u68595',
+        '6788124',
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+        ]
     );
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Ошибка подключения к базе данных: " . $e->getMessage());
 }
-
 
 function db_row($stmt)
 {
