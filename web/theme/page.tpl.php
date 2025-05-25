@@ -8,9 +8,9 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css">
-    <link rel="stylesheet" href="<?php echo $conf['basedir']; ?>frontend/styles1.css">
-    <link rel="stylesheet" href="<?php echo $conf['basedir']; ?>frontend/style-menu.css">
-    <link rel="stylesheet" href="<?php echo $conf['basedir']; ?>frontend/foot.css">
+    <link rel="stylesheet" href="/web-backend/web/frontend/styles1.css">
+    <link rel="stylesheet" href="/web-backend/web/frontend/style-menu.css">
+    <link rel="stylesheet" href="/web-backend/web/frontend/foot.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
 </head>
