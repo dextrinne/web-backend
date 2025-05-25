@@ -1,6 +1,5 @@
 <?php
-function auth(&$request, $r) {
-    global $db;
+function auth(&$request, $r, $db) { // Accept $db as a parameter
     $user = null;
 
     if (empty($user) && !empty($_SERVER['PHP_AUTH_USER'])) {
@@ -11,7 +10,7 @@ function auth(&$request, $r) {
             $stmt = $db->prepare("SELECT id, password FROM admin WHERE login = ?");
             $stmt->execute([$admin_login]);
             $admin = $stmt->fetch(PDO::FETCH_ASSOC);
-
+            
             if ($admin && hash('sha256', $admin_password) === $admin['password']) {
                 $user = array(
                     'login' => $admin_login,
@@ -27,7 +26,6 @@ function auth(&$request, $r) {
             ];
         }
     }
-
     if (!isset($_SERVER['PHP_AUTH_USER']) || empty($user) || $_SERVER['PHP_AUTH_USER'] != $user['login']) {
         unset($user);
         $response = array(
@@ -40,4 +38,3 @@ function auth(&$request, $r) {
         return $response;
     }
 }
-?>

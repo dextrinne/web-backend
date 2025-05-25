@@ -1,7 +1,8 @@
 <?php
 function init($request = array(), $urlconf = array())
 {
-    $response = array();
+    require_once('db.php'); 
+    $response = init($request, $urlconf);
     $template = 'page';
     $c = array();
 
