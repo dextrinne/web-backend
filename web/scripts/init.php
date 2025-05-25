@@ -1,7 +1,7 @@
 <?php
-function init($request = array(), $urlconf = array(), $db = null) {
+function init($request = [], $urlconf = [], $db = null) {
     if ($db === null) {
-        require_once(__DIR__ . '/db.php');
+        require_once(__DIR__.'/db.php');
     }
 
     $response = array();
@@ -10,6 +10,7 @@ function init($request = array(), $urlconf = array(), $db = null) {
     $c = array();
 
     require_once('functions.php'); 
+    require_once('db.php');
 
     $q = isset($request['url']) ? $request['url'] : '';
     $method = isset($request['method']) ? $request['method'] : 'get';
