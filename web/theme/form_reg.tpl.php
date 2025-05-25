@@ -25,7 +25,7 @@
                 <a href="./login.php" class="btn btn-secondary">Войти</a>
             <?php endif; ?>
             
-            <a href="/admin" class="btn btn-admin" target="_blank" 
+            <a href="./admin" class="btn btn-admin" target="_blank" 
             style="background-color: #dc3545; color: white; border: none;"> Администратор</a>
         </div>
 
