@@ -10,7 +10,6 @@ function init($request = [], $urlconf = [], $db = null) {
     $c = array();
 
     require_once('functions.php'); 
-    require_once('db.php');
 
     $q = isset($request['url']) ? $request['url'] : '';
     $method = isset($request['method']) ? $request['method'] : 'get';
