@@ -2,9 +2,32 @@
 function edit_user_get($request, $user_id) {
     global $db;
 
-    // Проверка авторизации администратора
-    if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])) {
-        return authenticate();
+    session_start();
+
+    // Проверка авторизации пользователя
+    if (empty($_SESSION['login']) || empty($_SESSION['uid'])) {
+        return redirect('/login');
+    }
+
+    // Проверка, что пользователь редактирует свои данные или является администратором
+    $is_admin = false;
+    if (!empty($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['PHP_AUTH_PW'])) {
+        $admin_login = $_SERVER['PHP_AUTH_USER'];
+        $admin_password = $_SERVER['PHP_AUTH_PW'];
+        try {
+            $stmt = $db->prepare("SELECT id, password FROM admin WHERE login = ?");
+            $stmt->execute([$admin_login]);
+            $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($admin && hash('sha256', $admin_password) === $admin['password']) {
+                $is_admin = true;
+            }
+        } catch (PDOException $e) {
+            error_log("Admin auth error: " . $e->getMessage());
+        }
+    }
+
+    if (!$is_admin && $_SESSION['uid'] != $user_id) {
+        return access_denied();
     }
 
     $admin_login = $_SERVER['PHP_AUTH_USER'];
