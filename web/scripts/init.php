@@ -1,4 +1,5 @@
 <?php
+memory_limit = 256M
 function init($request = array(), $urlconf = array())
 {
     require_once('db.php'); 
