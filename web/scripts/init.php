@@ -1,6 +1,9 @@
 <?php
-function init($request = array(), $urlconf = array())
-{
+function init($request = array(), $urlconf = array(), $db = null) {
+    if ($db === null) {
+        require_once(__DIR__ . '/db.php');
+    }
+
     $response = array();
 
     $template = 'page';

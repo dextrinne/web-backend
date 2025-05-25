@@ -15,7 +15,7 @@ $request = array(
     'Content-Type' => 'text/html',
 );
 
-$response = init($request, $urlconf);
+$response = init($request, $urlconf, $db);
 
 if (!empty($response['headers'])) {
     foreach ($response['headers'] as $key => $value) {
