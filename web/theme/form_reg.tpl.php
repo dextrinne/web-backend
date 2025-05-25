@@ -22,7 +22,7 @@
 
         <div class="form-actions" style=" justify-content: space-between; margin-bottom: 20px;margin-left: 35pt">
             <?php if (!$c['is_auth']): ?>
-                <a href="./login.php" class="btn btn-secondary">Войти</a>
+                <a href="./login.php" class="btn btn-secondary" target="_blank">Войти</a>
             <?php endif; ?>
             
             <a href="./admin" class="btn btn-admin" target="_blank" 
