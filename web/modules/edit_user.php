@@ -30,7 +30,7 @@ function edit_user_get($request, $user_id) {
 
         // Получение выбранных языков пользователя
         $stmt = $db->prepare("
-            SELECT l.id, l.name
+            SELECT l.id, l.name 
             FROM language l
             JOIN user_language ul ON l.id = ul.lang_id
             WHERE ul.user_id = ?
@@ -45,7 +45,6 @@ function edit_user_get($request, $user_id) {
         $all_languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Генерация CSRF токена
-        session_start();  // Убедитесь, что сессия стартовала
         if (empty($_SESSION['csrf_token'])) {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
@@ -70,21 +69,16 @@ function edit_user_post($request, $user_id) {
     global $db;
     session_start();
 
-    // Проверка HTTP-авторизации
-    if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])) {
-        return authenticate();
-    }
-  // Проверка CSRF токена
-    if (empty($_SESSION['csrf_token']) || !isset($request['post']['csrf_token']) ||
+    // Проверка CSRF токена
+    if (empty($_SESSION['csrf_token']) || !isset($request['post']['csrf_token']) || 
         $request['post']['csrf_token'] !== $_SESSION['csrf_token']) {
         die('CSRF token validation failed.');
     }
 
-
     try {
         // Обновление данных пользователя
         $stmt = $db->prepare("
-            UPDATE user
+            UPDATE user 
             SET fio = ?, tel = ?, email = ?, bdate = ?, gender = ?, bio = ?, ccheck = ?
             WHERE id = ?
         ");
@@ -101,11 +95,11 @@ function edit_user_post($request, $user_id) {
 
         // Обновление языков программирования
         $db->beginTransaction();
-
+        
         // Удаляем старые связи
         $stmt = $db->prepare("DELETE FROM user_language WHERE user_id = ?");
         $stmt->execute([$user_id]);
-
+        
         // Добавляем новые связи
         if (!empty($request['post']['languages']) && is_array($request['post']['languages'])) {
             $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (?, ?)");
@@ -113,20 +107,16 @@ function edit_user_post($request, $user_id) {
                 $stmt->execute([$user_id, intval($lang_id)]);
             }
         }
-
+        
         $db->commit();
 
-        $_SESSION['admin_message'] = 'Данные пользователя успешно обновлены.';
-
-         return redirect('admin');
-
+        return json_response(['success' => true, 'message' => 'Данные успешно обновлены']);
 
     } catch (PDOException $e) {
         if ($db->inTransaction()) {
             $db->rollBack();
         }
         error_log("Ошибка при обновлении пользователя: " . $e->getMessage());
-        $_SESSION['admin_message'] = 'Ошибка при обновлении данных: ' . $e->getMessage();
-        return redirect('admin');
+        return json_response(['success' => false, 'message' => 'Ошибка при обновлении данных']);
     }
 }

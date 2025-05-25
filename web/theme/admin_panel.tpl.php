@@ -2,10 +2,7 @@
 $users = $c['users'] ?? [];
 $language_stats = $c['language_stats'] ?? [];
 $csrf_token = $c['csrf_token'] ?? '';
-$admin_message = $_SESSION['admin_message'] ?? '';
-
-// Очищаем сообщение из сессии после отображения
-unset($_SESSION['admin_message']);
+$admin_message = $c['admin_message'] ?? '';
 ?>
 
 <!DOCTYPE html>
@@ -40,20 +37,16 @@ unset($_SESSION['admin_message']);
             padding: 5px 10px;
             margin: 2px;
             cursor: pointer;
-            text-decoration: none;
-            display: inline-block; /* Чтобы padding работал */
         }
         .edit-btn {
             background-color: #4CAF50;
             color: white;
             border: none;
-            border-radius: 4px; /* Для красоты */
         }
         .delete-btn {
             background-color: #f44336;
             color: white;
             border: none;
-             border-radius: 4px; /* Для красоты */
         }
         .admin-message {
             padding: 10px;
@@ -63,23 +56,19 @@ unset($_SESSION['admin_message']);
         .success {
             background-color: #dff0d8;
             color: #3c763d;
-            border: 1px solid #3c763d;
         }
         .error {
             background-color: #f2dede;
             color: #a94442;
-            border: 1px solid #a94442;
         }
     </style>
 </head>
 <body>
-    <h1>Административная панель</h1>
-
     <?php if (!empty($admin_message)): ?>
-        <div class="admin-message <?= strpos($admin_message, 'успешно') !== false ? 'success' : 'error' ?>">
-            <?= $admin_message ?>
-        </div>
+        <div class="admin-message"><?= $admin_message ?></div>
     <?php endif; ?>
+
+    <h1>Административная панель</h1>
 
     <h2>Пользователи</h2>
     <table>
@@ -104,14 +93,14 @@ unset($_SESSION['admin_message']);
                     <td><?= htmlspecialchars($user['email']) ?></td>
                     <td><?= htmlspecialchars($user['bdate']) ?></td>
                     <td><?= htmlspecialchars($user['gender']) ?></td>
-                    <td><?= htmlspecialchars($user['languages'] ?? 'Нет') ?></td>
+                    <td><?= htmlspecialchars($user['languages'] ?? '') ?></td>
                     <td>
-                        <a href="<?= conf('basedir') ?>edit_user/<?= $user['id'] ?>" class="action-btn edit-btn">Редактировать</a>
+                        <a href="/edit_user/<?= $user['id'] ?>" class="action-btn edit-btn" target="_blank">Редактировать</a>
                         <form method="post" style="display: inline;">
                             <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="id" value="<?= $user['id'] ?>">
-                            <button type="submit" class="action-btn delete-btn"
+                            <button type="submit" class="action-btn delete-btn" 
                                 onclick="return confirm('Вы уверены, что хотите удалить этого пользователя?')">Удалить</button>
                         </form>
                     </td>
