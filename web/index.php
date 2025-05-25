@@ -1,6 +1,9 @@
 <?php
-include_once('./settings.php');
-include_once('./scripts/db.php');
+include('./settings.php');
+ini_set('display_errors', DISPLAY_ERRORS);
+ini_set('include_path', INCLUDE_PATH);
+
+include('./scripts/db.php');  
 include_once('./scripts/functions.php');
 include_once('./scripts/init.php');
 
