@@ -1,6 +1,4 @@
 <?php
-echo "<pre>Template vars: "; print_r($c); echo "</pre>";
-die();
 $users = $c['users'] ?? [];
 $language_stats = $c['language_stats'] ?? [];
 $csrf_token = $c['csrf_token'] ?? '';
