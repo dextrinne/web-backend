@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: text/html; charset=UTF-8');
 session_start();
-include('./scripts/db.php');
+include_once('./scripts/db.php');
 include('./scripts/functions.php');
 
 
