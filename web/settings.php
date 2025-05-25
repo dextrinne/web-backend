@@ -41,24 +41,15 @@ $conf = array(
 );
 
 $urlconf = array(
-    '/^admin$/' => array(
-        'module' => 'admin_panel',
-        'auth' => 'auth_basic'
-    ),
-    '/^admin\/(\d+)$/' => array(
-        'module' => 'admin_panel',
-        'auth' => 'auth_basic'
-    ),
-    '/^edit_user\/(\d+)$/' => array(
-        'module' => 'edit_user',
-        'auth' => 'auth_basic'
-    ),
-    "/" => array('module' => 'front'),
-    '/^form$/' => array('module' => 'form'),
-    '/^success$/' => array('module' => 'success'),
-    '/^register$/' => array('module' => 'form_reg'),
-    '/^login$/' => array('module' => 'login'),
-    '/^logout$/' => array('module' => 'logout'),
+  '' => array('module' => 'front'),
+  '/^admin$/' => array('module' => 'admin_panel', 'auth' => 'auth_basic'),
+  '/^admin\/(\d+)$/' => array('module' => 'admin_panel', 'auth' => 'auth_basic'),
+  '/^edit_user\/(\d+)$/' => array('module' => 'edit_user', 'auth' => 'auth_basic'),
+  '/^form$/' => array('module' => 'form'),
+  '/^success$/' => array('module' => 'success'),
+  '/^register$/' => array('module' => 'form_reg'),
+  '/^login$/' => array('module' => 'login'),
+  '/^logout$/' => array('module' => 'logout'),
 );
 
 
