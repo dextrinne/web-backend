@@ -1,5 +1,6 @@
 <?php
 header('Content-Type: text/html; charset=UTF-8');
+require_once 'includes/security_headers.php';
 session_start();
 include('./actions/db.php');
 include('./actions/functions.php');
@@ -11,33 +12,6 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])) {
     echo 'Требуется авторизация';
     exit();
 }
-
-// После успешной аутентификации
-if (!isset($admin_data) || empty($admin_data)) {
-    header('WWW-Authenticate: Basic realm="Admin Panel"');
-    header('HTTP/1.0 401 Unauthorized');
-    echo 'Неверные учетные данные';
-    exit();
-}
-
-// Проверьте, что функции getAllUsers и getLanguageStats существуют и работают
-if (!function_exists('getAllUsers') || !function_exists('getLanguageStats')) {
-    die('Required functions are missing');
-}
-
-// Проверьте результат запросов
-$users = getAllUsers($db);
-$language_stats = getLanguageStats($db);
-
-if (empty($users)) {
-    error_log('No users found in database');
-}
-
-// Перед подключением шаблона добавьте проверку
-if (!file_exists('./theme/admin_panel.tpl.php')) {
-    die('Template file not found');
-}
-
 
 // Проверка учетных данных администратора
 $admin_login = $_SERVER['PHP_AUTH_USER'];
