@@ -1,14 +1,12 @@
 <?php
-memory_limit = 256M
 function init($request = array(), $urlconf = array())
 {
-    require_once('db.php'); 
-    $response = init($request, $urlconf);
+    $response = array();
+
     $template = 'page';
     $c = array();
 
     require_once('functions.php'); 
-    require_once('db.php');
 
     $q = isset($request['url']) ? $request['url'] : '';
     $method = isset($request['method']) ? $request['method'] : 'get';
