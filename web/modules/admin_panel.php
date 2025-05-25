@@ -4,6 +4,7 @@ session_start();
 include('./scripts/db.php');
 include('./scripts/functions.php');
 
+
 // Проверка HTTP-авторизации
 if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])) {
     header('WWW-Authenticate: Basic realm="Admin Panel"');
