@@ -10,11 +10,6 @@ $db = new PDO(
     ]
 );
 
-function conf($key) {
-    global $conf;
-    return isset($conf[$key]) ? $conf[$key] : null;
-}
-
 global $db;
 try {
     $db = new PDO(
