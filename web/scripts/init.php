@@ -1,23 +1,6 @@
 <?php
 function init($request = array(), $urlconf = array())
 {
-    error_log("URL: " . $request['url']);
-    foreach ($urlconf as $url => $r) {
-        $matches = array();
-        if ($url == " || $url[0] != '/') {
-            if ($url == $q) {
-                error_log("Matched URL: " . $url);
-                break;
-            }
-        } else {
-            if (preg_match_all($url, $q, $matches)) {
-                error_log("Matched URL (regex): " . $url);
-                break;
-            }
-        }
-    }
-
-    
     $response = array();
 
     $template = 'page';
