@@ -35,7 +35,8 @@ function form_reg_get($request)
         'messages' => $messages,
         'is_auth' => $is_auth,
         'is_admin' => $is_admin,
-        'csrf_token' => $_SESSION['csrf_token']
+        'csrf_token' => $_SESSION['csrf_token'],
+        'conf' => $GLOBALS['conf'] // Добавляем конфиг в шаблон
     ]);
 }
 
