@@ -24,6 +24,19 @@ function include_frontend_file(string $filename, array $data = []): void
 function frontend_url(string $path): string
 {
     global $conf;
-    $base_url = conf('basedir');
-    return 'frontend/' . $path;
+    return $conf['basedir'] . 'frontend/' . $path;
+}
+
+function include_frontend_file(string $filename, array $data = []): void
+{
+    global $conf;
+
+    $filepath = $_SERVER['DOCUMENT_ROOT'] . $conf['frontend_dir'] . '/' . $filename;
+
+    if (file_exists($filepath)) {
+        extract($data);
+        include $filepath;
+    } else {
+        echo "<!-- Файл frontend не найден: " . htmlspecialchars($filename) . " -->";
+    }
 }

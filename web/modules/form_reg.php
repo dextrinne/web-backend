@@ -234,7 +234,7 @@ function connect_db()
 {
     try {
         return new PDO(
-            'mysql:host=localhost;dbname=u68761;charset=utf8',
+            'mysql:host=localhost;dbname=u68595;charset=utf8',
             'u68595',
             '6788124',
             [
