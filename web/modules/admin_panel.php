@@ -1,6 +1,5 @@
 <?php
 header('Content-Type: text/html; charset=UTF-8');
-require_once 'includes/security_headers.php';
 session_start();
 include('./actions/db.php');
 include('./actions/functions.php');
