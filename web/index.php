@@ -3,6 +3,7 @@ include('./settings.php');
 ini_set('display_errors', DISPLAY_ERRORS);
 ini_set('include_path', INCLUDE_PATH);
 
+include('./scripts/db.php');
 include('./scripts/init.php');
 
 $request = array(
