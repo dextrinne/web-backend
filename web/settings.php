@@ -42,7 +42,10 @@ $conf = array(
 
 $urlconf = array(
   '' => array('module' => 'front'),
-  '/^admin$/' => ['module' => 'admin_panel', 'auth' => 'auth_basic'],
+  '/^admin$/' => array(
+    'module' => 'admin_panel', 
+    'auth' => 'auth_basic'
+  ),
   '/^admin\/(\d+)$/' => array('module' => 'admin_panel', 'auth' => 'auth_basic'),
   '/^edit_user\/(\d+)$/' => array('module' => 'edit_user', 'auth' => 'auth_basic'),
   '/^form$/' => array('module' => 'form'),
