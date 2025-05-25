@@ -1,8 +1,8 @@
 <?php
 header('Content-Type: text/html; charset=UTF-8');
 session_start();
-include('./actions/db.php');
-include('./actions/functions.php');
+include('./scripts/db.php');
+include('./scripts/functions.php');
 
 // Проверка HTTP-авторизации
 if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])) {
