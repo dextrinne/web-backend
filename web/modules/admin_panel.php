@@ -19,11 +19,7 @@ function admin_panel_get($request) {
         $stmt->execute([$admin_login]);
         $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$admin) {
-            return authenticate();
-        }
-
-        if (!password_verify($admin_password, $admin['password'])) {
+        if (!$admin || !password_verify($admin_password, $admin['password'])) {
             return authenticate();
         }
 
@@ -47,6 +43,7 @@ function admin_panel_get($request) {
 
         unset($_SESSION['admin_message']);
 
+        // Рендеринг шаблона
         return theme('admin_panel', ['#content' => $template_data]);
 
     } catch (PDOException $e) {
@@ -60,12 +57,14 @@ function admin_panel_post($request, $url_param_1 = null) {
     session_start();
 
     // Проверка CSRF токена
-    if (empty($_SESSION['csrf_token']) || !isset($request['post']['csrf_token']) || $request['post']['csrf_token'] !== $_SESSION['csrf_token']) {
+    if (empty($_SESSION['csrf_token']) || !isset($request['post']['csrf_token']) || 
+        $request['post']['csrf_token'] !== $_SESSION['csrf_token']) {
         die('CSRF token validation failed.');
     }
 
     // Обработка удаления
-    if (isset($request['post']['action']) && $request['post']['action'] == 'delete' && isset($request['post']['id']) && is_numeric($request['post']['id'])) {
+    if (isset($request['post']['action']) && $request['post']['action'] == 'delete' && 
+        isset($request['post']['id']) && is_numeric($request['post']['id'])) {
         $id_to_delete = intval($request['post']['id']);
         try {
             delete_user($db, $id_to_delete);
@@ -77,70 +76,6 @@ function admin_panel_post($request, $url_param_1 = null) {
         return redirect('admin');
     }
 
-    // Обработка редактирования
-    if (isset($request['post']['action']) && $request['post']['action'] == 'edit' && isset($request['post']['id']) && is_numeric($request['post']['id'])) {
-        $id_to_edit = intval($request['post']['id']);
-
-        $validation_errors = [];
-
-        $fio = isset($request['post']['fio']) ? trim(htmlspecialchars($request['post']['fio'])) : '';
-        if (!preg_match("/^[a-zA-Zа-яА-Я\s-]+$/u", $fio)) {
-            $validation_errors['fio'] = 'ФИО должно содержать только буквы, пробелы и дефисы.';
-        }
-
-        $tel = isset($request['post']['tel']) ? trim(htmlspecialchars($request['post']['tel'])) : '';
-        if (!preg_match("/^[0-9\-\(\)\+]+$/", $tel)) {
-            $validation_errors['tel'] = 'Телефон должен содержать только цифры, скобки, дефисы и знаки "+".';
-        }
-
-        $email = isset($request['post']['email']) ? trim(htmlspecialchars($request['post']['email'])) : '';
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $validation_errors['email'] = 'Некорректный email.';
-        }
-
-        $bdate = isset($request['post']['bdate']) ? trim(htmlspecialchars($request['post']['bdate'])) : '';
-        try {
-            if (!empty($bdate)) {
-                $bdate_obj = new DateTime($bdate);
-                $bdate = $bdate_obj->format('Y-m-d');
-            }
-        } catch (Exception $e) {
-            $validation_errors['bdate'] = 'Некорректная дата рождения.';
-            $bdate = '';
-        }
-
-        $gender = isset($request['post']['gender']) ? trim(htmlspecialchars($request['post']['gender'])) : '';
-        if (empty($gender)) {
-            $validation_errors['gender'] = 'Укажите пол.';
-        }
-
-        $bio = isset($request['post']['bio']) ? trim(htmlspecialchars($request['post']['bio'])) : '';
-        if (strlen($bio) > 1000) {
-            $validation_errors['bio'] = 'Биография слишком длинная (максимум 1000 символов).';
-        }
-
-        $ccheck = isset($request['post']['ccheck']) ? intval($request['post']['ccheck']) : 0;
-
-        $languages = isset($request['post']['languages']) && is_array($request['post']['languages']) ? array_map('intval', $request['post']['languages']) : [];
-
-        if (empty($validation_errors)) {
-            try {
-                update_user($db, $id_to_edit, $fio, $tel, $email, $bdate, $gender, $bio, $ccheck, $languages);
-                $_SESSION['admin_message'] = '<p style="color: green;">Данные пользователя успешно обновлены.</p>';
-            } catch (PDOException $e) {
-                error_log("Ошибка при обновлении данных пользователя: " . $e->getMessage());
-                $_SESSION['admin_message'] = '<p style="color: red;">Ошибка при обновлении данных пользователя.</p>';
-            }
-        } else {
-            $_SESSION['admin_message'] = '<p style="color: red;">Обнаружены ошибки валидации:</p><ul>';
-            foreach ($validation_errors as $field => $error) {
-                $_SESSION['admin_message'] .= '<li>' . htmlspecialchars($error) . '</li>';
-            }
-            $_SESSION['admin_message'] .= '</ul>';
-        }
-        return redirect('admin');
-    }
-    
     return redirect('admin');
 }
 
@@ -150,12 +85,13 @@ function authenticate() {
     return theme('401');
 }
 
-// Вспомогательные функции для работы с БД
 function get_all_users($db) {
     $stmt = $db->prepare("
-        SELECT u.*, ul.login, ul.role 
+        SELECT u.*, GROUP_CONCAT(l.name SEPARATOR ', ') AS languages
         FROM user u
-        JOIN user_login ul ON u.id = ul.user_id
+        LEFT JOIN user_language ul ON u.id = ul.user_id
+        LEFT JOIN language l ON ul.lang_id = l.id
+        GROUP BY u.id
     ");
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -163,20 +99,33 @@ function get_all_users($db) {
 
 function get_language_statistics($db) {
     $stmt = $db->prepare("
-        SELECT l.name, COUNT(ul.lang_id) AS count
+        SELECT l.name, COUNT(ul.user_id) AS user_count
         FROM language l
         LEFT JOIN user_language ul ON l.id = ul.lang_id
         GROUP BY l.id
-        ORDER BY count DESC
+        ORDER BY user_count DESC
     ");
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 function delete_user($db, $id) {
-    // Каскадное удаление сработает благодаря ON DELETE CASCADE
-    $stmt = $db->prepare("DELETE FROM user WHERE id = ?");
-    $stmt->execute([$id]);
+    $db->beginTransaction();
+    try {
+        $stmt = $db->prepare("DELETE FROM user_language WHERE user_id = ?");
+        $stmt->execute([$id]);
+        
+        $stmt = $db->prepare("DELETE FROM user_login WHERE user_id = ?");
+        $stmt->execute([$id]);
+        
+        $stmt = $db->prepare("DELETE FROM user WHERE id = ?");
+        $stmt->execute([$id]);
+        
+        $db->commit();
+    } catch (PDOException $e) {
+        $db->rollBack();
+        throw $e;
+    }
 }
 
 function update_user($db, $id, $fio, $tel, $email, $bdate, $gender, $bio, $ccheck, $languages) {

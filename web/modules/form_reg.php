@@ -235,8 +235,8 @@ function connect_db()
     try {
         return new PDO(
             'mysql:host=localhost;dbname=u68761;charset=utf8',
-            'u68761',
-            '7216447',
+            'u68595',
+            '6788124',
             [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC

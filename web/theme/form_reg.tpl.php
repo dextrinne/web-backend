@@ -20,10 +20,15 @@
     <div class="container">
         <div id="form-messages"></div>
 
-        <div class="form-actions">
+        <div class="form-actions" style="display: flex; justify-content: space-between; margin-bottom: 20px;">
             <?php if (!$c['is_auth']): ?>
                 <a href="./login.php" class="btn btn-secondary">Войти</a>
             <?php endif; ?>
+            
+            <a href="/admin" class="btn btn-admin" target="_blank" 
+            style="background-color: #dc3545; color: white; border: none;">
+                Администратор
+            </a>
 
             <?php if ($c['is_admin']): ?>
                 <a href="./modules/admin_panel.php" class="btn btn-admin">Админпанель</a>
