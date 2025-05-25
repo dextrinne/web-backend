@@ -24,7 +24,7 @@ function init($request = array(), $urlconf = array())
 
         if (isset($r['auth'])) {
             require_once($r['auth'] . '.php');
-            $auth = auth($request, $r);
+            $auth = auth($request, $r, $db); 
             if ($auth) {
                 return $auth;
             }

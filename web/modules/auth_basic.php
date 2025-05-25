@@ -1,6 +1,5 @@
 <?php
-function auth(&$request, $r) {
-    global $db;
+function auth(&$request, $r, $db) {
     $user = null;
 
     if (empty($user) && !empty($_SERVER['PHP_AUTH_USER'])) {
