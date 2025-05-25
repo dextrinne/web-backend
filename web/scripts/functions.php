@@ -29,18 +29,3 @@ function frontend_url(string $path): string
 
 
 
-/**
- * @param string 
- * @param array 
- * @return string
- */
-function theme($template, $variables = [])
-{
-    global $conf;
-    extract($variables);
-    ob_start();
-    include($conf['theme'] . '/' . $template . '.tpl.php');
-    return ob_get_clean();
-}
-
-
