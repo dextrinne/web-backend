@@ -22,12 +22,9 @@ function init($request = array(), $urlconf = array())
             }
         }
 
-         if (isset($r['auth'])) {
+        if (isset($r['auth'])) {
             require_once($r['auth'] . '.php');
             $auth = auth($request, $r);
-            echo "init.php: auth() returned:\n";
-            var_dump($auth);
-            echo "\n";
             if ($auth) {
                 return $auth;
             }
