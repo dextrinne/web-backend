@@ -26,3 +26,11 @@ function frontend_url(string $path): string
     global $conf;
     return $conf['basedir'] . 'frontend/' . $path;
 }
+
+function theme($template, $variables = []) {
+    global $conf;
+    extract($variables);
+    ob_start();
+    include($conf['theme'] . '/' . $template . '.tpl.php');
+    return ob_get_clean();
+}
