@@ -1,9 +1,9 @@
 <?php
-include('./settings.php');
+include(__DIR__ . '/settings.php');
 ini_set('display_errors', DISPLAY_ERRORS);
 ini_set('include_path', INCLUDE_PATH);
 
-include('./scripts/init.php');
+include(__DIR__ . '/settings.php');
 
 $request = array(
   'url' => isset($_GET['q']) ? $_GET['q'] : '',
