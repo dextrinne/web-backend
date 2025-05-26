@@ -20,7 +20,7 @@
     <div class="container">
         <div id="form-messages"></div>
 
-        <div class="form-actions" style=" justify-content: space-between; margin-bottom: 20px;margin-left: 35pt">
+        <div class="form-actions" style=" justify-content: space-between; margin-bottom: 20px;margin-left: 55pt">
             <?php if (!$c['is_auth']): ?>
                 <a href="./login.php" class="btn btn-secondary" target="_blank">Войти</a>
             <?php endif; ?>
@@ -125,7 +125,7 @@
 
             <!-- Соглашение -->
             <div class="form-group">
-                <label class="form-check-label">
+                <label class="form-check-label1" style="display: block;">
                     <input type="checkbox" id="agreement" name="agreement" value="1" class="form-check-input" <?php echo (!empty($c['values']['agreement'])) ? 'checked' : ''; ?>>
                     Я согласен(а) с условиями контракта <span class="required">*</span>
                 </label>

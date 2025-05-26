@@ -59,7 +59,7 @@
 .contact-form textarea {
     background-color: transparent;
     color: white;
-    padding: 10px 15px;
+    padding: 10px 10px;
     border: 1px solid #666;
     width: 100%;
 }
@@ -79,6 +79,8 @@
 .btn-danger {
     background-color: #f14d34;
     border: none;
+    margin-top: 10pt;
+    margin-left: -25pt;
 }
 
 .btn-danger:hover {
@@ -111,7 +113,8 @@
 
 .form-check-label {
     display: block;
-    margin-left: 26px;
+    margin-left: 25pt;
+    margin-right: 20pt;
 }
 
 .contact-form input:-webkit-autofill,
