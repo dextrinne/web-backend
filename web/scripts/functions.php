@@ -31,38 +31,35 @@ if (!function_exists('frontend_url')) {
     }
 }
 
-// Функция для получения всех пользователей
 function getAllUsers($db) {
     try {
-        $stmt = $db->prepare("
-            SELECT 
-                u.id, u.fio, u.tel, u.email, u.bdate, u.gender, u.bio, u.ccheck,
-                GROUP_CONCAT(l.name SEPARATOR ', ') as languages
+        $stmt = $db->query("
+            SELECT u.*, 
+                   GROUP_CONCAT(l.name SEPARATOR ', ') as languages
             FROM user u
             LEFT JOIN user_language ul ON u.id = ul.user_id
             LEFT JOIN language l ON ul.lang_id = l.id
             GROUP BY u.id
         ");
-        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        die('Ошибка получения пользователей: ' . $e->getMessage());
+        error_log('Ошибка получения пользователей: ' . $e->getMessage());
+        return [];
     }
 }
 
-// Функция для получения статистики по языкам
 function getLanguageStats($db) {
     try {
-        $stmt = $db->prepare("
+        $stmt = $db->query("
             SELECT l.name, COUNT(ul.user_id) as user_count
             FROM language l
             LEFT JOIN user_language ul ON l.id = ul.lang_id
             GROUP BY l.id
             ORDER BY user_count DESC
         ");
-        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        die('Ошибка получения статистики: ' . $e->getMessage());
+        error_log('Ошибка получения статистики: ' . $e->getMessage());
+        return [];
     }
 }
