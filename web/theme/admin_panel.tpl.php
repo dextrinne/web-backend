@@ -54,6 +54,9 @@
         }
 
         .edit-btn {
+            text-decoration: none;
+            display: inline-block;
+            padding: 2.6pt 2pt;
             background-color: #4CAF50;
             color: white;
             border: none;
