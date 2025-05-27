@@ -31,25 +31,6 @@ $response = init($request, $urlconf, $db);
 }
 if (!empty($response['entity'])) {
     print ($response['entity']);
-}
-
-if (!empty($response['entity'])) {
-    // Если есть контент для вывода
-    print $response['entity'];
-} elseif (!empty($response['headers'])) {
-    // Обработка перенаправлений/заголовков
-    foreach ($response['headers'] as $key => $value) {
-        header(sprintf('%s: %s', $key, $value));
-    }
-} else {
-    // Только если действительно ничего не найдено - показываем 404
-    $response = not_found();
-    if (!empty($response['headers'])) {
-        foreach ($response['headers'] as $key => $value) {
-            header(sprintf('%s: %s', $key, $value));
-        }
-    }
-    print $response['entity'];
 }*/
 
 // Если есть вывод или это админка - выводим как есть
