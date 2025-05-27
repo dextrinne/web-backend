@@ -16,7 +16,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($user && password_verify($password, $user["password"])) {
             $_SESSION["login"] = $login;
             $_SESSION["uid"] = $user["user_id"];
-            header("Location: /web-backend/web/edit_user/" . $user["user_id"]);
+            /*header("Location: /web-backend/web/edit_user/" . $user["user_id"]);*/
+            header("Location: /web-backend/web/modules/edit_user.php?id=<?= $user['id'] ?>");
             exit();
         } else {
             $error_message = "Неверный логин или пароль.";
