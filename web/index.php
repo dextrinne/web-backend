@@ -32,7 +32,7 @@ if (!empty($response['headers'])) {
     print ($response['entity']);
 }*/
 
-if (!empty($response['entity']) {
+if (!empty($response['entity'])) {
     // Если есть контент для вывода
     print $response['entity'];
 } elseif (!empty($response['headers'])) {
