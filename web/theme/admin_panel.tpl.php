@@ -9,7 +9,7 @@
             font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #cbeaed;
+            background-color: #778DA9;
         }
 
         tbody {
@@ -17,7 +17,7 @@
         }
 
         h1, h2 {
-            color: #006a71;
+            color: #0D1B2A;
             text-align: center;
         }
 
