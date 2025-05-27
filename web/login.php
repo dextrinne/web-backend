@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION["login"] = $login;
             $_SESSION["uid"] = $user["user_id"];
             /*header("Location: /web-backend/web/edit_user/" . $user["user_id"]);*/
-            header("Location: /web-backend/web/modules/edit_user.php?id=<?= $user['id'] ?>");
+            header("Location: /web-backend/web/modules/edit_user.php?id=". $user["user_id"]);
             exit();
         } else {
             $error_message = "Неверный логин или пароль.";
