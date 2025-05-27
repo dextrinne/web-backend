@@ -9,8 +9,20 @@ function edit_user_get($request, $user_id) {
         return redirect('/login');
     }
 
-    // Проверка, что пользователь редактирует свои данные или является администратором
+    // Проверка, является ли пользователь администратором
     $is_admin = false;
+    if (!empty($_SESSION['admin_login'])) {
+        try {
+            $stmt = $db->prepare("SELECT id FROM admin WHERE login = ?");
+            $stmt->execute([$_SESSION['admin_login']]);
+            $is_admin = (bool) $stmt->fetch();
+        } catch (PDOException $e) {
+            error_log("Admin auth error: " . $e->getMessage());
+        }
+    }
+
+    // Проверка, что пользователь редактирует свои данные или является администратором
+    /*$is_admin = false;
     if (!empty($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['PHP_AUTH_PW'])) {
         $admin_login = $_SERVER['PHP_AUTH_USER'];
         $admin_password = $_SERVER['PHP_AUTH_PW'];
@@ -24,7 +36,7 @@ function edit_user_get($request, $user_id) {
         } catch (PDOException $e) {
             error_log("Admin auth error: " . $e->getMessage());
         }
-    }
+    }*/
 
     if (!$is_admin && $_SESSION['uid'] != $user_id) {
         return access_denied();

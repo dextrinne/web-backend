@@ -39,6 +39,7 @@ try {
         echo 'Неверные учетные данные';
         exit();
     }
+    $_SESSION['admin_login'] = $admin_login;
 } catch (PDOException $e) {
     error_log('Admin authentication error: ' . $e->getMessage());
     die('Ошибка проверки учетных данных.');
