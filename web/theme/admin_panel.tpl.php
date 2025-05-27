@@ -29,7 +29,7 @@
         }
 
         th, td {
-            border: 1px solid #ddd;
+            border: 1px solid #778DA9;
             padding: 8px;
             text-align: left;
         }
