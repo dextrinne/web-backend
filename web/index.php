@@ -30,4 +30,4 @@ $response = init($request, $urlconf, $db);
 }
 if (!empty($response['entity'])) {
     print ($response['entity']);
-}
+}*/
