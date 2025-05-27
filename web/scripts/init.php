@@ -63,20 +63,9 @@ function init($request = array(), $urlconf = array(), $db = null) {
             }
         }
     }
-    /*if (!empty($c)) {
-        $c['#request'] = $request;
-        $response['entity'] = theme($template, $c);
-    } else {
-        $response = not_found();
-    }*/
     if (!empty($c)) {
         $c['#request'] = $request;
         $response['entity'] = theme($template, $c);
-        
-        // Если это admin_panel - не возвращаем 404
-        if (strpos($template, 'admin_panel') !== false) {
-            return $response;
-        }
     } else {
         $response = not_found();
     }
