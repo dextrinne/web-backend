@@ -1,4 +1,16 @@
 <?php
+ob_start();
+session_start();
+
+if (!empty($response['headers'])) {
+    if (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+    foreach ($response['headers'] as $key => $value) {
+        header(sprintf('%s: %s', $key, $value));
+    }
+}
+
 include('./settings.php');
 ini_set('display_errors', DISPLAY_ERRORS);
 ini_set('include_path', INCLUDE_PATH);
