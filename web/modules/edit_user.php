@@ -22,7 +22,7 @@ function edit_user_get($request, $user_id) {
     }
 
     // Проверка, что пользователь редактирует свои данные или является администратором
-    /*$is_admin = false;
+    $is_admin = false;
     if (!empty($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['PHP_AUTH_PW'])) {
         $admin_login = $_SERVER['PHP_AUTH_USER'];
         $admin_password = $_SERVER['PHP_AUTH_PW'];
@@ -36,7 +36,7 @@ function edit_user_get($request, $user_id) {
         } catch (PDOException $e) {
             error_log("Admin auth error: " . $e->getMessage());
         }
-    }*/
+    }
 
     if (!$is_admin && $_SESSION['uid'] != $user_id) {
         return access_denied();
