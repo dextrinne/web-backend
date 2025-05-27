@@ -52,7 +52,23 @@ function init($request = array(), $urlconf = array(), $db = null) {
             $params[$key] = $match[0];
         }
 
-        if ($result = call_user_func_array($func, $params)) {
+        /*if ($result = call_user_func_array($func, $params)) {*/
+        $ref = new ReflectionFunction($func);
+        $orderedParams = [];
+
+        foreach ($ref->getParameters() as $param) {
+            $name = $param->getName();
+            if (isset($params[$name])) {
+                $orderedParams[] = $params[$name];
+            } elseif ($param->isDefaultValueAvailable()) {
+                $orderedParams[] = $param->getDefaultValue();
+            } else {
+                // Можно выбросить исключение или поставить null
+                $orderedParams[] = null;
+            }
+        }
+
+        if ($result = call_user_func_array($func, $orderedParams)) {
             if (is_array($result)) {
                 $response = array_merge($response, $result);
                 if (!empty($response['headers'])) {
