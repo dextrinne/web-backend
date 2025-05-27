@@ -27,7 +27,7 @@ $response = init($request, $urlconf, $db);
             header($value);
         }
     }
-}
+}*/
 if (!empty($response['entity'])) {
     print ($response['entity']);
-}*/
+}
