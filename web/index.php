@@ -19,7 +19,7 @@ $request = array(
 
 $response = init($request, $urlconf, $db);
 
-/*if (!empty($response['headers'])) {
+if (!empty($response['headers'])) {
     foreach ($response['headers'] as $key => $value) {
         if (is_string($key)) {
             header(sprintf('%s: %s', $key, $value));
@@ -30,9 +30,9 @@ $response = init($request, $urlconf, $db);
 }
 if (!empty($response['entity'])) {
     print ($response['entity']);
-}*/
+}
 
-if (!empty($response['entity']) {
+/*if (!empty($response['entity']) {
     // Если есть контент для вывода
     print $response['entity'];
 } elseif (!empty($response['headers'])) {
@@ -49,4 +49,4 @@ if (!empty($response['entity']) {
         }
     }
     print $response['entity'];
-}
+}*/
