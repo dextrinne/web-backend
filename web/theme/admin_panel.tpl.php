@@ -10,10 +10,11 @@
             margin: 0;
             padding: 20px;
             background-color: #778DA9;
+            color: #0D1B2A;
         }
 
         tbody {
-            background-color: #f5f5f5;
+            background-color: #E0E1DD;
         }
 
         h1, h2 {
