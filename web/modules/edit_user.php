@@ -51,7 +51,9 @@ function edit_user_get($request, $user_id) {
         $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$admin || !password_verify($admin_password, $admin['password'])) {
-            return authenticate();
+            header('WWW-Authenticate: Basic realm="Admin Panel"');
+            header('HTTP/1.0 401 Unauthorized');
+            echo 'Неверные учетные данные';
         }
 
         // Получение данных пользователя
