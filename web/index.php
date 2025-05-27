@@ -31,7 +31,9 @@ $response = init($request, $urlconf, $db);
 if (!empty($response['entity'])) {
     print ($response['entity']);
 }*/
-
+if ($request['url'] !== 'admin' && empty($response['entity']) && empty($response['headers'])) {
+    $response = not_found();
+}
 if (!empty($response['entity'])) {
     // Если есть контент для вывода
     print $response['entity'];
