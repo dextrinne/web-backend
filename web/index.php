@@ -28,11 +28,11 @@ if (!empty($response['headers'])) {
         }
     }
 }
-if (!empty($response['entity'])) {
+/*if (!empty($response['entity'])) {
     print ($response['entity']);
-}
+}*/
 
-/*if (!empty($response['entity']) {
+if (!empty($response['entity']) {
     // Если есть контент для вывода
     print $response['entity'];
 } elseif (!empty($response['headers'])) {
@@ -49,4 +49,4 @@ if (!empty($response['entity'])) {
         }
     }
     print $response['entity'];
-}*/
+}
