@@ -1,4 +1,5 @@
 <?php
+ob_start();
 include('./settings.php');
 ini_set('display_errors', DISPLAY_ERRORS);
 ini_set('include_path', INCLUDE_PATH);
@@ -30,10 +31,8 @@ $response = init($request, $urlconf, $db);
 }
 if (!empty($response['entity'])) {
     print ($response['entity']);
-}*/
-if ($request['url'] !== 'admin' && empty($response['entity']) && empty($response['headers'])) {
-    $response = not_found();
 }
+
 if (!empty($response['entity'])) {
     // Если есть контент для вывода
     print $response['entity'];
@@ -51,4 +50,25 @@ if (!empty($response['entity'])) {
         }
     }
     print $response['entity'];
+}*/
+
+// Если есть вывод или это админка - выводим как есть
+if (ob_get_length() > 0 || $request['url'] === 'admin') {
+    ob_end_flush();
+} else {
+    ob_end_clean();
+    if (!empty($response['headers'])) {
+        foreach ($response['headers'] as $key => $value) {
+            header(sprintf('%s: %s', $key, $value));
+        }
+    }
+    if (!empty($response['entity'])) {
+        print $response['entity'];
+    } else {
+        $response = not_found();
+        foreach ($response['headers'] as $key => $value) {
+            header(sprintf('%s: %s', $key, $value));
+        }
+        print $response['entity'];
+    }
 }
