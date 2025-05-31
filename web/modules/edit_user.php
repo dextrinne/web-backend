@@ -1,12 +1,14 @@
 <?php
-function edit_user_get($request, $user_id = null) {
+function edit_user_get($request, $user_id) {
     global $db;
     session_start();
 
-    // Если user_id не передан, берем из запроса
-    $user_id = $user_id ?? ($_GET['user_id'] ?? $_POST['user_id'] ?? null);
-    
-    // Проверка авторизации (для обычных пользователей)
+    // Проверка авторизации
+    if (empty($_SESSION['login']) || empty($_SESSION['uid'])) {
+        return redirect('/login');
+    }
+
+    // Проверка прав доступа
     $is_admin = false;
     if (!empty($_SESSION['admin_login'])) {
         try {
@@ -18,8 +20,8 @@ function edit_user_get($request, $user_id = null) {
         }
     }
 
-    // Если это не админ и не владелец аккаунта - доступ запрещен
-    if (!$is_admin && (empty($_SESSION['uid']) || $_SESSION['uid'] != $user_id)) {
+    // Проверка, что пользователь редактирует свои данные или является администратором
+    if (!$is_admin && $_SESSION['uid'] != $user_id) {
         return access_denied();
     }
 
@@ -65,36 +67,30 @@ function edit_user_get($request, $user_id = null) {
             'values' => $user
         ];
 
-        return theme($is_admin ? 'form_reg' : 'form', $template_data);
+        return theme('form', $template_data);
     } catch (PDOException $e) {
         error_log("Ошибка базы данных: " . $e->getMessage());
         die("Ошибка: Произошла ошибка на сервере.");
     }
 }
 
-function edit_user_post($request, $user_id = null) {
+function edit_user_post($request, $user_id) {
     global $db;
     session_start();
 
-    $user_id = $user_id ?? ($request['post']['user_id'] ?? null);
-    
     // Проверка CSRF токена
-    if (empty($_SESSION['csrf_token']) || 
-        !isset($request['post']['csrf_token']) || 
+    if (empty($_SESSION['csrf_token']) || !isset($request['post']['csrf_token']) ||
         $request['post']['csrf_token'] !== $_SESSION['csrf_token']) {
         return json_response(['success' => false, 'message' => 'CSRF token validation failed.']);
     }
 
-    // Проверка прав администратора
-    if (!isset($_SESSION['admin_login'])) {
-        return json_response(['success' => false, 'message' => 'Доступ запрещен.']);
-    }
-
     try {
         // Обновление данных пользователя
-        $stmt = $db->prepare("UPDATE user SET fio = ?, tel = ?, email = ?, 
-                             bdate = ?, gender = ?, bio = ?, ccheck = ? 
-                             WHERE id = ?");
+        $stmt = $db->prepare("
+            UPDATE user
+            SET fio = ?, tel = ?, email = ?, bdate = ?, gender = ?, bio = ?, ccheck = ?
+            WHERE id = ?
+        ");
         
         $stmt->execute([
             $request['post']['fio'],
@@ -125,7 +121,6 @@ function edit_user_post($request, $user_id = null) {
         $db->commit();
         
         return json_response(['success' => true, 'message' => 'Данные успешно обновлены']);
-
     } catch (PDOException $e) {
         if ($db->inTransaction()) {
             $db->rollBack();
@@ -139,3 +134,6 @@ function json_response($data) {
     header('Content-Type: application/json');
     die(json_encode($data));
 }
+
+
+?>
