@@ -1,15 +1,17 @@
 <?php
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['admin_edit'])) {
-    // Проверяем авторизацию администратора
-    if (!isset($_SESSION['admin_login'])) {
+session_start();
+
+// Обработка запроса на редактирование от администратора
+if (isset($_GET['admin_edit']) && $_GET['admin_edit'] == 1) {
+    // Проверяем авторизацию администратора через сессию
+    if (empty($_SESSION['admin_login'])) {
+        $_SESSION['admin_redirect'] = $_SERVER['REQUEST_URI'];
         header("Location: /web-backend/web/modules/admin_panel.php");
         exit();
     }
     
     // Сохраняем ID пользователя для редактирования
-    $_SESSION['edit_user_id'] = $_POST['edit_user_id'];
-    
-    // Перенаправляем на форму с якорем
+    $_SESSION['edit_user_id'] = (int)$_GET['user_id'];
     header("Location: /web-backend/web/#form-anchor");
     exit();
 }

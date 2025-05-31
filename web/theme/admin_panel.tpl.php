@@ -131,7 +131,7 @@
                     <td><?= $user['ccheck'] ? 'Да' : 'Нет' ?></td>
                     <td><?= htmlspecialchars($user['languages']) ?></td>
                     <td>
-                        <form method="post" action="/web-backend/web/index.php" style="display:inline;">
+                        <form method="post" action="/web-backend/web/index.php?admin_edit=1&user_id=<?= $user['id'] ?>" style="display:inline;">
                             <input type="hidden" name="login" value="<?= htmlspecialchars($user['email']) ?>">
                             <input type="hidden" name="password" value="temporary_password">
                             <input type="hidden" name="admin_edit" value="1">
