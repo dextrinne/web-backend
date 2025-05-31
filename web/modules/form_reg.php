@@ -176,11 +176,12 @@ function form_reg_post($request) {
         $_SESSION['new_login'] = $login;
         $_SESSION['new_password'] = $password;
 
-        return json_response([
-            'success' => true,
-            'message' => $message,
-            'redirect' => '/'
-        ]);
+        // Стало:
+        $_SESSION['registration_success'] = [
+            'login' => $login,
+            'password' => $password
+        ];
+        return json_response(['status' => 'success']);
     } catch (PDOException $e) {
         $db->rollBack();
         return json_response([

@@ -217,28 +217,33 @@
                 // Определяем URL для отправки
                 const url = '<?php echo $c['is_auth'] ? "edit_user.php?id=" . ($c['user']['id'] ?? '') : "form.php"; ?>';
                 
-                // Отправляем AJAX-запрос
                 fetch('/web-backend/web/form_reg.php', {
                     method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showSuccessMessage();
+                        document.getElementById('registration-form').reset();
                     }
                 })
-                .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                .catch(error => console.error('Error:', error));
+
+                function showSuccessMessage() {
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'registration-alert success';
+                    alertDiv.innerHTML = `
+                        <h3>Регистрация успешна!</h3>
+                        <p>Ваши данные для входа:</p>
+                        <p><strong>Логин:</strong> ${generatedLogin}</p>
+                        <p><strong>Пароль:</strong> ${generatedPassword}</p>
+                        <p>Сохраните эти данные!</p>
+                        <button onclick="this.parentElement.remove()">Закрыть</button>
+                    `;
+                    document.body.appendChild(alertDiv);
+                    setTimeout(() => alertDiv.remove(), 10000);
                 }
-                return response.json();
-                })
-                .then(data => {
-                if (data.success) {
-                    window.location.href = '/web-backend/web/success.php'; // Перенаправление после успеха
-                } else {
-                    showValidationErrors(data.errors);
-                }
-                })
                 .catch(error => {
                 showMessage('error', 'Ошибка: ' + error.message);
                 });
