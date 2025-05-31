@@ -178,7 +178,7 @@ function validate_form_data($post_data) {
     }
 
     // Email
-    $values['email'] = mb_strtolower(trim($post_data['email'] ?? ''));
+    $values['email'] = strtolower(trim($post_data['email'] ?? ''));
     if (empty($values['email'])) {
         $errors['email'] = 'Email обязателен для заполнения';
     } else {
