@@ -6,15 +6,20 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 function form_reg_get($request) {
     global $db;
-    
+
     // Проверка авторизации
     $is_auth = !empty($_SESSION['login']) && !empty($_SESSION['uid']);
     $is_admin = false;
     $uid = $_SESSION['uid'] ?? null;
 
     // Определяем тип формы
-    $form_type = $is_auth ? 'update' : 'register';
-    
+    $form_type = 'register'; // По умолчанию форма регистрации
+
+    // Если пользователь авторизован или есть параметр edit, это форма обновления
+    if ($is_auth || (isset($request['get']['edit']) && $request['get']['edit'] === 'true')) {
+        $form_type = 'update';
+    }
+
     // Получаем все языки программирования
     try {
         $stmt = $db->prepare("SELECT id, name FROM language");
@@ -57,7 +62,7 @@ function form_reg_get($request) {
         'csrf_token' => $_SESSION['csrf_token'],
         'errors' => $_SESSION['form_errors'] ?? [],
         'user' => $values,
-        'form_type' => $form_type // Добавляем тип формы
+        'form_type' => $form_type // Передаем тип формы в шаблон
     ]);
 }
 
