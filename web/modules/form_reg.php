@@ -12,6 +12,9 @@ function form_reg_get($request) {
     $is_admin = false;
     $uid = $_SESSION['uid'] ?? null;
 
+    // Определяем тип формы
+    $form_type = $is_auth ? 'update' : 'register';
+    
     // Получаем все языки программирования
     try {
         $stmt = $db->prepare("SELECT id, name FROM language");
@@ -53,11 +56,17 @@ function form_reg_get($request) {
         'selected_lang_ids' => $selected_lang_ids,
         'csrf_token' => $_SESSION['csrf_token'],
         'errors' => $_SESSION['form_errors'] ?? [],
-        'user' => $values
+        'user' => $values,
+        'form_type' => $form_type // Добавляем тип формы
     ]);
 }
 
 function form_reg_post($request) {
+    // Проверка статуса сессии
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+
     // Подключение к базе данных
     $db = connect_db();
     if (!$db) {
@@ -88,8 +97,11 @@ function form_reg_post($request) {
     try {
         $db->beginTransaction();
 
-        if (!empty($_SESSION['login']) && !empty($_SESSION['uid'])) {
-            // Пользователь авторизован - обновляем данные
+        // Проверяем, авторизован ли пользователь
+        $is_auth = !empty($_SESSION['login']) && !empty($_SESSION['uid']);
+
+        if ($is_auth) {
+            // Обновление данных существующего пользователя
             $user_id = $_SESSION['uid'];
             
             // Обновляем основную информацию
@@ -120,15 +132,9 @@ function form_reg_post($request) {
                 }
             }
 
-            $db->commit();
-            
-            return json_response([
-                'success' => true,
-                'message' => 'Данные успешно обновлены',
-                'redirect' => '/'
-            ]);
+            $message = 'Данные успешно обновлены';
         } else {
-            // Новый пользователь - регистрация
+            // Регистрация нового пользователя
             // Создаем запись в user_login
             $login = 'user_' . bin2hex(random_bytes(4));
             $password = substr(bin2hex(random_bytes(8)), 0, 8);
@@ -162,18 +168,16 @@ function form_reg_post($request) {
                 }
             }
 
-            $db->commit();
-            
-            return json_response([
-                'success' => true,
-                'message' => 'Регистрация успешно завершена',
-                'credentials' => [
-                    'login' => $login,
-                    'password' => $password
-                ],
-                'redirect' => '/'
-            ]);
+            $message = 'Регистрация успешно завершена';
         }
+
+        $db->commit();
+        
+        return json_response([
+            'success' => true,
+            'message' => $message,
+            'redirect' => '/'
+        ]);
     } catch (PDOException $e) {
         $db->rollBack();
         return json_response([
