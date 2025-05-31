@@ -100,7 +100,7 @@
             </form>
         <?php else: ?>
             <!-- Общая форма (регистрация/редактирование) -->
-            <form method="post" id="user-form" class="contact-form" novalidate>
+            <form method="post" id="registration-form" class="contact-form" novalidate>
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($c['csrf_token']); ?>">
                 
                 <!-- ФИО -->
@@ -198,11 +198,9 @@
                         <?php echo !empty($c['errors']['ccheck']) ? htmlspecialchars($c['errors']['ccheck']) : ''; ?>
                     </div>
                 </div>
-                    
-                <button type="submit" id="submit-btn">
-                    <?php echo $c['is_auth'] ? 'Обновить данные' : 'Зарегистрироваться'; ?>
-                </button>
-            </form>
+                
+                <button type="submit" id="submit-btn"><?php echo $c['is_auth'] ? 'Обновить данные' : 'Зарегистрироваться'; ?></button>
+        </form>
         <?php endif; ?>
     </div>
 
