@@ -1,13 +1,12 @@
 <?php
-function form_reg_get($request) {
+// Проверяем, не запущена ли уже сессия
+if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
-    
-    // Подключение к базе данных
-    $db = connect_db();
-    if (!$db) {
-        die("Ошибка подключения к базе данных");
-    }
+}
 
+function form_reg_get($request) {
+    global $db;
+    
     // Проверка авторизации
     $is_auth = !empty($_SESSION['login']) && !empty($_SESSION['uid']);
     $is_admin = false;
@@ -46,7 +45,7 @@ function form_reg_get($request) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-    return theme('form', [
+    return theme('form_reg', [
         'is_auth' => $is_auth,
         'is_admin' => $is_admin,
         'values' => $values,
@@ -59,8 +58,6 @@ function form_reg_get($request) {
 }
 
 function form_reg_post($request) {
-    session_start();
-    
     // Подключение к базе данных
     $db = connect_db();
     if (!$db) {
