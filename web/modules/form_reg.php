@@ -127,7 +127,7 @@ function form_reg_post($request) {
             $message = 'Данные успешно обновлены';
         } else {
             // Регистрация нового пользователя
-            $db->beginTransaction();
+            //$db->beginTransaction();
 
             // 1. Сначала вставляем данные в таблицу `user`
             $stmt = $db->prepare("
