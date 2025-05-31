@@ -154,4 +154,6 @@ function json_response($data) {
     header('Content-Type: application/json');
     die(json_encode($data));
 }
+
+include(__DIR__ . '/../theme/edit_user.tpl.php'); 
 ?>
