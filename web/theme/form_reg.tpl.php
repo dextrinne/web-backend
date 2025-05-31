@@ -1,19 +1,10 @@
 <?php
 $is_edit_mode = $c['is_edit_mode'] ?? false;
-$errors = $c['errors'] ?? [];
-$values = $c['values'] ?? [];
-$messages = $c['messages'] ?? [];
-$is_auth = $c['is_auth'] ?? false;
-$is_admin = $c['is_admin'] ?? false;
-$csrf_token = $c['csrf_token'] ?? '';
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?= $is_edit_mode ? 'Редактирование данных' : 'Форма регистрации' ?></title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Форма</title>
     <style>
         .error {
             color: red;
@@ -71,209 +62,388 @@ $csrf_token = $c['csrf_token'] ?? '';
             background-color: #cccccc;
             cursor: not-allowed;
         }
-
     </style>
 </head>
-<body style="background-color: #f8f9fa;">
+<body>
     <div class="container">
-        <div class="form-container">
-            <h2 class="form-title"><?= $is_edit_mode ? 'Редактирование данных' : 'Форма регистрации' ?></h2>
-            
-            <?php if (!empty($messages)): ?>
-                <div class="alert alert-success">
-                    <?php foreach ($messages as $message): ?>
-                        <p><?= htmlspecialchars($message) ?></p>
-                    <?php endforeach; ?>
-                </div>
+        <div id="form-messages"></div>
+
+        <div class="form-actions" style="justify-content: space-between; margin-bottom: 20px;margin-left: 55pt">
+            <?php if (!$c['is_auth']): ?>
+                <a href="./login.php" class="btn btn-secondary" target="_blank">Войти</a>
             <?php endif; ?>
             
-            <?php if (!empty($errors['general'])): ?>
-                <div class="alert alert-danger">
-                    <?= htmlspecialchars($errors['general']) ?>
-                </div>
-            <?php endif; ?>
-            
-            <form method="post" id="user-form" class="needs-validation" novalidate>
-                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
-                
-                <!-- ФИО -->
-                <div class="mb-3">
-                    <label for="fio" class="form-label">ФИО <span class="required-star">*</span></label>
-                    <input type="text" class="form-control <?= !empty($errors['fio']) ? 'error-input' : '' ?>" 
-                           id="fio" name="fio" required
-                           value="<?= htmlspecialchars($values['fio'] ?? '') ?>">
-                    <?php if (!empty($errors['fio'])): ?>
-                        <div class="error"><?= htmlspecialchars($errors['fio']) ?></div>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- Телефон -->
-                <div class="mb-3">
-                    <label for="phone" class="form-label">Телефон <span class="required-star">*</span></label>
-                    <input type="tel" class="form-control <?= !empty($errors['phone']) ? 'error-input' : '' ?>" 
-                           id="phone" name="phone" required
-                           value="<?= htmlspecialchars($values['phone'] ?? '') ?>">
-                    <?php if (!empty($errors['phone'])): ?>
-                        <div class="error"><?= htmlspecialchars($errors['phone']) ?></div>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- Email -->
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email <span class="required-star">*</span></label>
-                    <input type="email" class="form-control <?= !empty($errors['email']) ? 'error-input' : '' ?>" 
-                           id="email" name="email" required
-                           value="<?= htmlspecialchars($values['email'] ?? '') ?>">
-                    <?php if (!empty($errors['email'])): ?>
-                        <div class="error"><?= htmlspecialchars($errors['email']) ?></div>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- Дата рождения -->
-                <div class="mb-3">
-                    <label for="birthdate" class="form-label">Дата рождения <span class="required-star">*</span></label>
-                    <input type="date" class="form-control <?= !empty($errors['birthdate']) ? 'error-input' : '' ?>" 
-                           id="birthdate" name="birthdate" required
-                           value="<?= htmlspecialchars($values['birthdate'] ?? '') ?>">
-                    <?php if (!empty($errors['birthdate'])): ?>
-                        <div class="error"><?= htmlspecialchars($errors['birthdate']) ?></div>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- Пол -->
-                <div class="mb-3">
-                    <label class="form-label">Пол <span class="required-star">*</span></label>
-                    <div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="gender" id="gender-male" value="male" required
-                                <?= (isset($values['gender']) && $values['gender'] === 'male') ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="gender-male">Мужской</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="gender" id="gender-female" value="female" required
-                                <?= (isset($values['gender']) && $values['gender'] === 'female') ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="gender-female">Женский</label>
-                        </div>
-                    </div>
-                    <?php if (!empty($errors['gender'])): ?>
-                        <div class="error"><?= htmlspecialchars($errors['gender']) ?></div>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- Языки программирования -->
-                <div class="mb-3">
-                    <label class="form-label">Языки программирования <span class="required-star">*</span></label>
-                    <div class="d-flex flex-wrap">
-                        <?php foreach ([
-                            1 => 'Pascal', 2 => 'C', 3 => 'C++', 4 => 'JavaScript',
-                            5 => 'PHP', 6 => 'Python', 7 => 'Java', 8 => 'Haskell',
-                            9 => 'Clojure', 10 => 'Prolog', 11 => 'Scala', 12 => 'Go'
-                        ] as $id => $name): ?>
-                            <div class="language-checkbox form-check">
-                                <input class="form-check-input" type="checkbox" name="languages[]" 
-                                       id="lang-<?= $id ?>" value="<?= $id ?>"
-                                       <?= in_array($id, $values['languages'] ?? []) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="lang-<?= $id ?>">
-                                    <?= htmlspecialchars($name) ?>
-                                </label>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                    <?php if (!empty($errors['languages'])): ?>
-                        <div class="error"><?= htmlspecialchars($errors['languages']) ?></div>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- Биография -->
-                <div class="mb-3">
-                    <label for="bio" class="form-label">Биография</label>
-                    <textarea class="form-control <?= !empty($errors['bio']) ? 'error-input' : '' ?>" 
-                              id="bio" name="bio" rows="4"><?= htmlspecialchars($values['bio'] ?? '') ?></textarea>
-                    <?php if (!empty($errors['bio'])): ?>
-                        <div class="error"><?= htmlspecialchars($errors['bio']) ?></div>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- Соглашение -->
-                <div class="mb-4">
-                    <div class="form-check">
-                        <input class="form-check-input <?= !empty($errors['agreement']) ? 'error-input' : '' ?>" 
-                               type="checkbox" id="agreement" name="agreement" value="1" required
-                               <?= !empty($values['agreement']) ? 'checked' : '' ?>>
-                        <label class="form-check-label" for="agreement">
-                            Я согласен(а) с условиями контракта <span class="required-star">*</span>
-                        </label>
-                    </div>
-                    <?php if (!empty($errors['agreement'])): ?>
-                        <div class="error"><?= htmlspecialchars($errors['agreement']) ?></div>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- Кнопки отправки/назад -->
-                <div class="d-flex justify-content-between">
-                    <button type="submit" class="btn btn-primary">
-                        <?= $is_edit_mode ? 'Обновить данные' : 'Зарегистрироваться' ?>
-                    </button>
-                    <?php if ($is_edit_mode && $is_admin): ?>
-                        <a href="admin_panel.php" class="btn btn-secondary">Назад в админку</a>
-                    <?php elseif ($is_edit_mode): ?>
-                        <a href="/" class="btn btn-secondary">На главную</a>
-                    <?php endif; ?>
-                </div>
-            </form>
+            <a href="./modules/admin_panel.php" class="btn btn-admin" target="_blank" 
+            style="background-color: #dc3545; color: white; border: none;">Администратор</a>
         </div>
+
+        <form method="post" id="registration-form" class="contact-form" novalidate>
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($c['csrf_token']); ?>">
+
+            <!-- ФИО -->
+            <div class="form-group">
+                <label for="fio">ФИО: <span class="required">*</span></label>
+                <input type="text" id="fio" name="fio" required
+                    value="<?php echo htmlspecialchars($c['values']['fio'] ?? ''); ?>"
+                    class="<?php echo !empty($c['errors']['fio']) ? 'error-input' : ''; ?>">
+                <div id="fio-error" class="error">
+                    <?php echo !empty($c['errors']['fio']) ? htmlspecialchars($c['errors']['fio']) : ''; ?>
+                </div>
+            </div>
+
+            <!-- Телефон -->
+            <div class="form-group">
+                <label for="phone">Телефон: <span class="required">*</span></label>
+                <input type="tel" id="phone" name="phone" placeholder="+7 (XXX) XXX-XX-XX" required
+                    value="<?php echo htmlspecialchars($c['values']['phone'] ?? ''); ?>"
+                    class="<?php echo !empty($c['errors']['phone']) ? 'error-input' : ''; ?>">
+                <div id="phone-error" class="error">
+                    <?php echo !empty($c['errors']['phone']) ? htmlspecialchars($c['errors']['phone']) : ''; ?>
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email">Email: <span class="required">*</span></label>
+                <input type="email" id="email" name="email" placeholder="example@domain.com" required
+                    value="<?php echo htmlspecialchars($c['values']['email'] ?? ''); ?>"
+                    class="<?php echo !empty($c['errors']['email']) ? 'error-input' : ''; ?>">
+                <div id="email-error" class="error">
+                    <?php echo !empty($c['errors']['email']) ? htmlspecialchars($c['errors']['email']) : ''; ?>
+                </div>
+            </div>
+
+            <!-- Дата рождения -->
+            <div class="form-group">
+                <label for="birthdate">Дата рождения: <span class="required">*</span></label>
+                <input type="date" id="birthdate" name="birthdate" required
+                    value="<?php echo htmlspecialchars($c['values']['birthdate'] ?? ''); ?>"
+                    class="<?php echo !empty($c['errors']['birthdate']) ? 'error-input' : ''; ?>">
+                <div id="birthdate-error" class="error">
+                    <?php echo !empty($c['errors']['birthdate']) ? htmlspecialchars($c['errors']['birthdate']) : ''; ?>
+                </div>
+            </div>
+
+            <!-- Пол -->
+            <div class="form-group">
+                <label>Пол: <span class="required">*</span></label>
+                <div class="radio-group">
+                    <label><input type="radio" name="gender" value="male" required <?php echo (isset($c['values']['gender']) && $c['values']['gender'] == 'male') ? 'checked' : ''; ?>>
+                        <span class="form-check-label">Мужской</span></label>
+                    <label><input type="radio" name="gender" value="female" required <?php echo (isset($c['values']['gender']) && $c['values']['gender'] == 'female') ? 'checked' : ''; ?>>
+                        <span class="form-check-label">Женский</span></label>
+                </div>
+                <div id="gender-error" class="error">
+                    <?php echo !empty($c['errors']['gender']) ? htmlspecialchars($c['errors']['gender']) : ''; ?>
+                </div>
+            </div>
+
+            <!-- Языки программирования -->
+            <div class="form-group">
+                <label for="languages">Любимые языки программирования: <span class="required">*</span></label>
+                <select id="languages" name="languages[]" multiple required
+                    class="<?php echo !empty($c['errors']['languages']) ? 'error-input' : ''; ?>">
+                    <option value="1" <?php echo (isset($c['values']['languages']) && in_array(1, $c['values']['languages'])) ? 'selected' : ''; ?>>Pascal</option>
+                    <option value="2" <?php echo (isset($c['values']['languages']) && in_array(2, $c['values']['languages'])) ? 'selected' : ''; ?>>C</option>
+                    <option value="3" <?php echo (isset($c['values']['languages']) && in_array(3, $c['values']['languages'])) ? 'selected' : ''; ?>>C++</option>
+                    <option value="4" <?php echo (isset($c['values']['languages']) && in_array(4, $c['values']['languages'])) ? 'selected' : ''; ?>>JavaScript</option>
+                    <option value="5" <?php echo (isset($c['values']['languages']) && in_array(5, $c['values']['languages'])) ? 'selected' : ''; ?>>PHP</option>
+                    <option value="6" <?php echo (isset($c['values']['languages']) && in_array(6, $c['values']['languages'])) ? 'selected' : ''; ?>>Python</option>
+                    <option value="7" <?php echo (isset($c['values']['languages']) && in_array(7, $c['values']['languages'])) ? 'selected' : ''; ?>>Java</option>
+                    <option value="8" <?php echo (isset($c['values']['languages']) && in_array(8, $c['values']['languages'])) ? 'selected' : ''; ?>>Haskell</option>
+                    <option value="9" <?php echo (isset($c['values']['languages']) && in_array(9, $c['values']['languages'])) ? 'selected' : ''; ?>>Clojure</option>
+                    <option value="10" <?php echo (isset($c['values']['languages']) && in_array(10, $c['values']['languages'])) ? 'selected' : ''; ?>>Prolog</option>
+                    <option value="11" <?php echo (isset($c['values']['languages']) && in_array(11, $c['values']['languages'])) ? 'selected' : ''; ?>>Scala</option>
+                    <option value="12" <?php echo (isset($c['values']['languages']) && in_array(12, $c['values']['languages'])) ? 'selected' : ''; ?>>Go</option>
+                </select>
+                <div id="languages-error" class="error">
+                    <?php echo !empty($c['errors']['languages']) ? htmlspecialchars($c['errors']['languages']) : ''; ?>
+                </div>
+                <small>Для выбора нескольких языков удерживайте Ctrl (Windows) или Command (Mac)</small>
+            </div>
+
+            <!-- Биография -->
+            <div class="form-group">
+                <label for="bio">Биография:</label>
+                <textarea id="bio" name="bio"
+                    class="<?php echo !empty($c['errors']['bio']) ? 'error-input' : ''; ?>"><?php echo htmlspecialchars($c['values']['bio'] ?? ''); ?></textarea>
+                <div id="bio-error" class="error">
+                    <?php echo !empty($c['errors']['bio']) ? htmlspecialchars($c['errors']['bio']) : ''; ?>
+                </div>
+            </div>
+
+            <!-- Соглашение -->
+            <div class="form-group">
+                <label class="form-check-label1" style="display: block;">
+                    <input type="checkbox" id="agreement" name="agreement" value="1" required class="form-check-input" <?php echo (!empty($c['values']['agreement'])) ? 'checked' : ''; ?>>
+                    Я согласен(а) с условиями контракта <span class="required">*</span>
+                </label>
+                <div id="agreement-error" class="error">
+                    <?php echo !empty($c['errors']['agreement']) ? htmlspecialchars($c['errors']['agreement']) : ''; ?>
+                </div>
+            </div>
+
+            <button type="submit" id="submit-btn" class="btn-danger">Сохранить</button>
+        </form>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Валидация формы на клиенте
-        document.getElementById('user-form').addEventListener('submit', function(e) {
-            // Проверка обязательных полей
-            const requiredFields = ['fio', 'phone', 'email', 'birthdate', 'gender', 'agreement'];
-            let isValid = true;
-            
-            requiredFields.forEach(field => {
-                const element = field === 'gender' ? 
-                    document.querySelector(`input[name="${field}"]:checked`) :
-                    document.getElementById(field);
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('registration-form');
+            const submitBtn = document.getElementById('submit-btn');
+            const formMessages = document.getElementById('form-messages');
+
+            // Валидация формы перед отправкой
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
                 
-                if (!element || (element.type === 'checkbox' && !element.checked)) {
-                    isValid = false;
-                    const errorElement = document.querySelector(`#${field}-error`) || 
-                                        document.querySelector(`.error[for="${field}"]`);
-                    if (errorElement) {
-                        errorElement.textContent = 'Это поле обязательно для заполнения';
-                    }
+                // Очищаем предыдущие сообщения и ошибки
+                formMessages.innerHTML = '';
+                clearErrors();
+                
+                // Проверяем валидность формы
+                if (!validateForm()) {
+                    return;
                 }
+                
+                // Блокируем кнопку отправки
+                const originalBtnText = submitBtn.textContent;
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Отправка...';
+                
+                // Собираем данные формы
+                const formData = new FormData(form);
+                
+                // Для множественного выбора языков
+                const languagesSelect = document.getElementById('languages');
+                const selectedLanguages = Array.from(languagesSelect.selectedOptions).map(option => option.value);
+                formData.delete('languages[]');
+                selectedLanguages.forEach(lang => formData.append('languages[]', lang));
+                
+                // Отправляем AJAX-запрос
+                fetch('/web-backend/web/register', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(handleResponse)
+                .then(handleSuccess)
+                .catch(handleError)
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalBtnText;
+                });
             });
             
-            // Проверка языков программирования
-            const langCheckboxes = document.querySelectorAll('input[name="languages[]"]:checked');
-            if (langCheckboxes.length === 0) {
-                isValid = false;
-                const langError = document.querySelector('#languages-error');
-                if (langError) {
-                    langError.textContent = 'Выберите хотя бы один язык';
+            // Функция валидации формы
+            function validateForm() {
+                let isValid = true;
+                
+                // Проверка ФИО
+                const fio = document.getElementById('fio').value.trim();
+                if (!fio) {
+                    showError('fio', 'ФИО обязательно для заполнения');
+                    isValid = false;
+                } else if (!/^[а-яА-ЯёЁa-zA-Z\s\-]+$/u.test(fio)) {
+                    showError('fio', 'ФИО должно содержать только буквы, пробелы и дефисы');
+                    isValid = false;
+                } else if (fio.length > 200) {
+                    showError('fio', 'ФИО не должно превышать 200 символов');
+                    isValid = false;
+                }
+                
+                // Проверка телефона
+                const phone = document.getElementById('phone').value.trim();
+                if (!phone) {
+                    showError('phone', 'Телефон обязателен для заполнения');
+                    isValid = false;
+                } else if (!/^\+7\s?\(?\d{3}\)?\s?\d{3}-?\d{2}-?\d{2}$/.test(phone)) {
+                    showError('phone', 'Введите телефон в формате +7 (XXX) XXX-XX-XX');
+                    isValid = false;
+                }
+                
+                // Проверка email
+                const email = document.getElementById('email').value.trim();
+                if (!email) {
+                    showError('email', 'Email обязателен для заполнения');
+                    isValid = false;
+                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    showError('email', 'Введите корректный email адрес');
+                    isValid = false;
+                } else if (email.length > 100) {
+                    showError('email', 'Email не должен превышать 100 символов');
+                    isValid = false;
+                }
+                
+                // Проверка даты рождения
+                const birthdate = document.getElementById('birthdate').value;
+                if (!birthdate) {
+                    showError('birthdate', 'Дата рождения обязательна');
+                    isValid = false;
+                } else {
+                    const birthDate = new Date(birthdate);
+                    const now = new Date();
+                    const age = now.getFullYear() - birthDate.getFullYear();
+                    
+                    if (age < 18) {
+                        showError('birthdate', 'Возраст должен быть 18+ лет');
+                        isValid = false;
+                    } else if (age > 120) {
+                        showError('birthdate', 'Проверьте дату рождения');
+                        isValid = false;
+                    }
+                }
+                
+                // Проверка пола
+                const gender = document.querySelector('input[name="gender"]:checked');
+                if (!gender) {
+                    showError('gender', 'Укажите пол');
+                    isValid = false;
+                }
+                
+                // Проверка языков программирования
+                const languages = document.getElementById('languages');
+                const selectedLanguages = Array.from(languages.selectedOptions).map(option => option.value);
+                if (selectedLanguages.length === 0) {
+                    showError('languages', 'Выберите хотя бы один язык');
+                    isValid = false;
+                }
+                
+                // Проверка биографии
+                const bio = document.getElementById('bio').value.trim();
+                if (bio.length > 1000) {
+                    showError('bio', 'Биография не должна превышать 1000 символов');
+                    isValid = false;
+                }
+                
+                // Проверка соглашения
+                const agreement = document.getElementById('agreement').checked;
+                if (!agreement) {
+                    showError('agreement', 'Необходимо принять соглашение');
+                    isValid = false;
+                }
+                
+                return isValid;
+            }
+            
+            // Обработка ответа сервера
+            function handleResponse(response) {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`HTTP error! status: ${response.status}. Response: ${text}`);
+                    });
+                }
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    return response.text().then(text => {
+                        console.error('Received non-JSON response:', text);
+                        throw new TypeError("Ожидался JSON, но получен " + contentType);
+                    });
+                }
+                return response.json();
+            }
+            
+            // Обработка успешного ответа
+            function handleSuccess(data) {
+                if (data.success) {
+                    if (data.credentials) {
+                        // Показываем логин и пароль для нового пользователя
+                        showSuccessMessage(`
+                            <h4>Регистрация успешна!</h4>
+                            <p><strong>Логин:</strong> ${data.credentials.login}</p>
+                            <p><strong>Пароль:</strong> ${data.credentials.password}</p>
+                            <p class="text-danger">Запишите эти данные, они больше не будут показаны!</p>
+                            <a href="login.php" class="btn btn-success mt-2">Войти в систему</a>
+                        `);
+                    } else {
+                        // Просто сообщение об успехе для авторизованных пользователей
+                        showSuccessMessage(data.message || 'Данные успешно сохранены');
+                    }
+                    
+                    // Перенаправление после задержки
+                    if (data.redirect) {
+                        setTimeout(() => {
+                            window.location.href = data.redirect;
+                        }, 3000);
+                    }
+                } else {
+                    // Показываем ошибки валидации
+                    showValidationErrors(data.errors);
                 }
             }
             
-            if (!isValid) {
-                e.preventDefault();
-                alert('Пожалуйста, заполните все обязательные поля корректно!');
+            // Обработка ошибок
+            function handleError(error) {
+                console.error('Ошибка при отправке формы:', error);
+                
+                if (error instanceof TypeError && error.message.includes('JSON')) {
+                    showErrorMessage('Сервер вернул некорректный ответ. Пожалуйста, сообщите администратору.');
+                } else {
+                    showErrorMessage('Произошла ошибка при отправке формы. Пожалуйста, попробуйте ещё раз.');
+                }
             }
-        });
-
-        // Маска для телефона
-        document.getElementById('phone').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.startsWith('7')) {
-                value = '+7' + value.substring(1);
-            } else if (value.startsWith('8')) {
-                value = '+7' + value.substring(1);
-            } else if (value) {
-                value = '+7' + value;
+            
+            // Вспомогательные функции
+            function clearErrors() {
+                document.querySelectorAll('.error').forEach(el => el.textContent = '');
+                document.querySelectorAll('.error-input').forEach(el => el.classList.remove('error-input'));
             }
-            e.target.value = value;
+            
+            function showError(field, message) {
+                const errorElement = document.getElementById(`${field}-error`);
+                const inputElement = document.querySelector(`[name="${field}"], [name="${field}[]"]`);
+                
+                if (errorElement) {
+                    errorElement.textContent = message;
+                }
+                
+                if (inputElement) {
+                    inputElement.classList.add('error-input');
+                }
+                
+                // Для чекбокса соглашения
+                if (field === 'agreement') {
+                    const agreementLabel = document.querySelector('label[for="agreement"]');
+                    if (agreementLabel) {
+                        agreementLabel.classList.add('error');
+                    }
+                }
+            }
+            
+            function showSuccessMessage(message) {
+                const div = document.createElement('div');
+                div.className = 'alert alert-success';
+                div.innerHTML = message;
+                formMessages.appendChild(div);
+                formMessages.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            function showErrorMessage(message) {
+                const div = document.createElement('div');
+                div.className = 'alert alert-danger';
+                div.textContent = message;
+                formMessages.appendChild(div);
+                formMessages.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            function showValidationErrors(errors) {
+                for (const field in errors) {
+                    showError(field, errors[field]);
+                }
+                
+                // Фокусируемся на первом ошибочном поле
+                const firstErrorField = Object.keys(errors)[0];
+                if (firstErrorField) {
+                    const firstErrorInput = document.querySelector(`[name="${firstErrorField}"], [name="${firstErrorField}[]"]`);
+                    if (firstErrorInput) {
+                        firstErrorInput.focus();
+                    }
+                }
+            }
         });
     </script>
 </body>

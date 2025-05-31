@@ -268,8 +268,7 @@ function check_auth($db)
     return $result;
 }
 
-function get_form_data($db, $is_auth, $uid)
-{
+function get_form_data($db, $is_auth, $uid = null) {
     $data = [
         'errors' => $_SESSION['form_errors'] ?? [],
         'values' => $_SESSION['form_values'] ?? [],
@@ -278,7 +277,7 @@ function get_form_data($db, $is_auth, $uid)
 
     if ($is_auth && $uid) {
         try {
-            // Получаем данные из таблицы user
+            // Получаем данные пользователя
             $stmt = $db->prepare("SELECT * FROM user WHERE id = ?");
             $stmt->execute([$uid]);
             $user_data = $stmt->fetch();
@@ -286,20 +285,16 @@ function get_form_data($db, $is_auth, $uid)
             if ($user_data) {
                 $data['values'] = array_merge($data['values'], [
                     'fio' => htmlspecialchars($user_data['fio'] ?? ''),
-                    'phone' => htmlspecialchars($user_data['phone'] ?? ''),
+                    'phone' => htmlspecialchars($user_data['tel'] ?? ''),
                     'email' => htmlspecialchars($user_data['email'] ?? ''),
-                    'birthdate' => htmlspecialchars($user_data['birthdate'] ?? ''),
-                    'gender' => htmlspecialchars($user_data['gender'] ?? ''),
+                    'birthdate' => htmlspecialchars($user_data['bdate'] ?? ''),
+                    'gender' => strtolower($user_data['gender'] ?? ''),
                     'bio' => htmlspecialchars($user_data['bio'] ?? ''),
-                    'agreement' => $user_data['agreement'] ?? 0
+                    'agreement' => $user_data['ccheck'] ?? 0
                 ]);
 
-                // Получаем выбранные языки из user_language
-                $stmt = $db->prepare("
-                    SELECT language_id 
-                    FROM user_language 
-                    WHERE user_id = ?
-                ");
+                // Получаем выбранные языки
+                $stmt = $db->prepare("SELECT lang_id FROM user_language WHERE user_id = ?");
                 $stmt->execute([$uid]);
                 $data['values']['languages'] = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
             }
