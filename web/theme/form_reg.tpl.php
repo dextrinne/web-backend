@@ -73,8 +73,6 @@
         <div class="form-actions">
             <?php if (!$c['is_auth']): ?>
                 <a href="login.php" class="btn btn-secondary">Войти</a>
-            <?php endif; ?>
-            <?php if ($c['is_admin']): ?>
                 <a href="admin_panel.php" class="btn btn-admin">Администратор</a>
             <?php endif; ?>
         </div>
