@@ -75,7 +75,7 @@
                 <a href="logout.php" class="btn btn-danger">Выйти</a>
             <?php endif; ?>
             <?php if (!$c['is_auth']): ?>
-                <a href="login.php" class="btn btn-secondary">Войти</a>
+                <a href="login.php" class="btn btn-secondary" target="_blank">Войти</a>
                 <a href="./modules/admin_panel.php" class="btn btn-admin" target="_blank" 
                    style="background-color: #dc3545; color: white; border: none;">Администратор</a>
             <?php endif; ?>
