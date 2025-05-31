@@ -85,7 +85,7 @@
             <?php if (isset($_SESSION['admin_edit'])): ?>
                 <div class="alert alert-info">
                     Вы редактируете пользователя в режиме администратора.
-                    <a href="/web-backend/web/logout.php?return_to_admin=1" class="btn btn-warning">Вернуться в админку</a>
+                    <a href="/web-backend/web/logout.php?return_to_admin=1" class="btn btn-warning" target="_blank">Вернуться в админку</a>
                 </div>
             <?php endif; ?>
         </div>
