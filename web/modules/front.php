@@ -2,7 +2,10 @@
 function front_get($request)
 {
     global $conf;
-    session_start();
+    // Проверяем, не запущена ли уже сессия
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
 
     // флаг, что это главная страница
     $request['is_home'] = true;
