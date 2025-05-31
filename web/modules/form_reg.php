@@ -54,124 +54,102 @@ function form_reg_get($request) {
 }
 
 function form_reg_post($request) {
-    // 1. Инициализация сессии
-    if (session_status() !== PHP_SESSION_ACTIVE) {
-        session_start();
-    }
+    // Инициализация сессии
+    if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
-    // 2. Подключение к БД с обработкой ошибок
-    $db = connect_db();
-    if (!$db) {
-        error_log("Failed to connect to database");
+    // Подключение к БД с улучшенной обработкой ошибок
+    try {
+        $db = new PDO(
+            'mysql:host=localhost;dbname=u68595;charset=utf8mb4',
+            'u68595',
+            '6788124',
+            [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::ATTR_PERSISTENT => false
+            ]
+        );
+    } catch (PDOException $e) {
+        error_log("DB Connection Failed: ".$e->getMessage());
         return json_response([
             'success' => false,
-            'errors' => ['general' => 'Ошибка подключения к базе данных']
+            'errors' => ['general' => 'Database connection failed']
         ]);
     }
 
-    // 3. Проверка CSRF токена
-    if (empty($_SESSION['csrf_token']) || empty($request['post']['csrf_token']) || 
-        $request['post']['csrf_token'] !== $_SESSION['csrf_token']) {
+    // Валидация CSRF токена
+    if (empty($_SESSION['csrf_token']) || $_SESSION['csrf_token'] !== ($request['post']['csrf_token'] ?? '')) {
         return json_response([
             'success' => false,
-            'errors' => ['general' => 'Недействительный CSRF токен']
+            'errors' => ['general' => 'Invalid CSRF token']
         ]);
     }
 
-    // 4. Валидация данных
-    $validation = validate_form_data($request['post']);
-    if (!empty($validation['errors'])) {
-        return json_response([
-            'success' => false,
-            'errors' => $validation['errors']
-        ]);
+    // Базовая валидация данных
+    $required = ['fio', 'tel', 'email', 'bdate', 'gender', 'languages', 'ccheck'];
+    foreach ($required as $field) {
+        if (empty($request['post'][$field])) {
+            return json_response([
+                'success' => false,
+                'errors' => [$field => 'Это поле обязательно']
+            ]);
+        }
     }
 
-    // 5. Обработка данных
+    // Обработка данных
     try {
         $db->beginTransaction();
 
-        $is_auth = !empty($_SESSION['login']) && !empty($_SESSION['uid']);
+        // 1. Вставка в таблицу user
+        $stmt = $db->prepare("INSERT INTO user (fio, tel, email, bdate, gender, bio, ccheck) 
+                             VALUES (:fio, :tel, :email, :bdate, :gender, :bio, :ccheck)");
+        $stmt->execute([
+            ':fio' => $request['post']['fio'],
+            ':tel' => $request['post']['tel'],
+            ':email' => $request['post']['email'],
+            ':bdate' => $request['post']['bdate'],
+            ':gender' => $request['post']['gender'],
+            ':bio' => $request['post']['bio'] ?? '',
+            ':ccheck' => !empty($request['post']['ccheck']) ? 1 : 0
+        ]);
+        $user_id = $db->lastInsertId();
 
-        if ($is_auth) {
-            // Обновление существующего пользователя
-            $user_id = $_SESSION['uid'];
-            $stmt = $db->prepare("UPDATE user SET fio=?, tel=?, email=?, bdate=?, gender=?, bio=?, ccheck=? WHERE id=?");
-            $stmt->execute([
-                $validation['values']['fio'],
-                $validation['values']['tel'],
-                $validation['values']['email'],
-                $validation['values']['bdate'],
-                $validation['values']['gender'],
-                $validation['values']['bio'],
-                $validation['values']['ccheck'] ? 1 : 0,
-                $user_id
-            ]);
+        // 2. Создание учётных данных
+        $login = 'user_'.bin2hex(random_bytes(4));
+        $password = bin2hex(random_bytes(4));
+        $password_hash = password_hash($password, PASSWORD_BCRYPT);
+        
+        $stmt = $db->prepare("INSERT INTO user_login (user_id, login, password, role) 
+                             VALUES (:user_id, :login, :password, 'user')");
+        $stmt->execute([
+            ':user_id' => $user_id,
+            ':login' => $login,
+            ':password' => $password_hash
+        ]);
 
-            // Обновление языков
-            $db->prepare("DELETE FROM user_language WHERE user_id=?")->execute([$user_id]);
-            if (!empty($validation['values']['languages'])) {
-                $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (?, ?)");
-                foreach ($validation['values']['languages'] as $lang_id) {
-                    $stmt->execute([$user_id, (int)$lang_id]);
-                }
+        // 3. Добавление языков
+        if (!empty($request['post']['languages'])) {
+            $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (:user_id, :lang_id)");
+            foreach ((array)$request['post']['languages'] as $lang_id) {
+                $stmt->execute([':user_id' => $user_id, ':lang_id' => (int)$lang_id]);
             }
-
-            $db->commit();
-            return json_response(['success' => true, 'message' => 'Данные обновлены']);
-
-        } else {
-            // Регистрация нового пользователя
-            $stmt = $db->prepare("INSERT INTO user (fio, tel, email, bdate, gender, bio, ccheck) VALUES (?,?,?,?,?,?,?)");
-            $stmt->execute([
-                $validation['values']['fio'],
-                $validation['values']['tel'],
-                $validation['values']['email'],
-                $validation['values']['bdate'],
-                $validation['values']['gender'],
-                $validation['values']['bio'],
-                $validation['values']['ccheck'] ? 1 : 0
-            ]);
-            $user_id = $db->lastInsertId();
-
-            // Создание учетных данных
-            $login = 'user_' . bin2hex(random_bytes(4));
-            $password = substr(bin2hex(random_bytes(8)), 0, 8);
-            $password_hash = password_hash($password, PASSWORD_BCRYPT);
-
-            $db->prepare("INSERT INTO user_login (user_id, login, password, role) VALUES (?,?,?,'user')")
-               ->execute([$user_id, $login, $password_hash]);
-
-            // Добавление языков
-            if (!empty($validation['values']['languages'])) {
-                $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (?,?)");
-                foreach ($validation['values']['languages'] as $lang_id) {
-                    $stmt->execute([$user_id, (int)$lang_id]);
-                }
-            }
-
-            $db->commit();
-            return json_response([
-                'success' => true,
-                'credentials' => ['login' => $login, 'password' => $password],
-                'message' => 'Регистрация успешна'
-            ]);
         }
+
+        $db->commit();
+
+        return json_response([
+            'success' => true,
+            'login' => $login,
+            'password' => $password,
+            'message' => 'Регистрация успешно завершена'
+        ]);
 
     } catch (PDOException $e) {
-        if ($db->inTransaction()) {
-            $db->rollBack();
-        }
-        error_log("Database Error: " . $e->getMessage());
+        $db->rollBack();
+        error_log("Database Error: ".$e->getMessage());
         return json_response([
             'success' => false,
-            'errors' => ['general' => 'Ошибка базы данных: ' . $e->getMessage()]
-        ]);
-    } catch (Exception $e) {
-        error_log("General Error: " . $e->getMessage());
-        return json_response([
-            'success' => false,
-            'errors' => ['general' => 'Произошла ошибка: ' . $e->getMessage()]
+            'errors' => ['general' => 'Database error: '.$e->getMessage()]
         ]);
     }
 }
