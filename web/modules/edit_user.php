@@ -159,5 +159,5 @@ function json_response($data) {
     die(json_encode($data));
 }
 
-include(__DIR__ . '/../theme/edit_user.tpl.php'); 
+//include(__DIR__ . '/../theme/edit_user.tpl.php'); 
 ?>
