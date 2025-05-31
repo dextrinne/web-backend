@@ -1,138 +1,151 @@
 <?php
-header('Content-Type: text/html; charset=UTF-8');
-session_start();
-
-include_once(__DIR__ . '/../scripts/db.php');
-include(__DIR__ . '/../scripts/functions.php');
-
-// Проверка авторизации
-if (empty($_SESSION['login'])) {
-    header('Location: login.php');
-    exit();
-}
-
-// Получаем ID пользователя
-$user_id = isset($_GET['id']) ? intval($_GET['id']) : $_SESSION['uid'];
-
-// Проверка прав (админ или владелец аккаунта)
-if (!($_SESSION['is_admin'] ?? false) && $user_id != $_SESSION['uid']) {
-    header('Location: 403.php');
-    exit();
-}
-
-// Получаем данные пользователя
-try {
-    $stmt = $db->prepare("
-        SELECT u.*, GROUP_CONCAT(ul.lang_id) as languages 
-        FROM user u
-        LEFT JOIN user_language ul ON u.id = ul.user_id
-        WHERE u.id = ?
-        GROUP BY u.id
-    ");
-    $stmt->execute([$user_id]);
-    $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$user_data) {
-        header('Location: 404.php');
-        exit();
-    }
-} catch (PDOException $e) {
-    die('Ошибка получения данных пользователя: ' . $e->getMessage());
-}
-
-// Получаем список всех языков
-try {
-    $stmt = $db->prepare("SELECT id, name FROM language");
-    $stmt->execute();
-    $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die('Ошибка получения списка языков: ' . $e->getMessage());
-}
-
-// CSRF-токен
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-
-// Обработка формы
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Проверка CSRF
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        $_SESSION['form_errors'] = ['general' => 'Неверный CSRF-токен'];
-        header("Location: edit_user.php?id=$user_id");
-        exit();
+function edit_user_get($request) {
+    // Инициализация сессии
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
     }
 
-    // Валидация данных (используем функцию из form_reg.php)
-    $validation = validate_form_data($_POST);
-    
+    // Подключение к базе данных
+    $db = connect_db();
+    if (!$db) {
+        die("Ошибка подключения к базе данных");
+    }
+
+    // Проверка авторизации и прав
+    $auth_data = check_auth($db);
+    $is_auth = $auth_data['is_auth'];
+    $is_admin = $auth_data['is_admin'];
+    $uid = $auth_data['uid'];
+
+    // Получаем ID пользователя для редактирования
+    $edit_user_id = isset($request['params'][0]) ? (int)$request['params'][0] : $uid;
+
+    // Проверка прав доступа (админ или владелец аккаунта)
+    if (!$is_admin && $edit_user_id !== $uid) {
+        return access_denied();
+    }
+
+    // Получаем данные пользователя
+    $form_data = get_form_data($db, true, $edit_user_id);
+
+    // Генерация CSRF токена
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    // Подключаем шаблон формы регистрации в режиме редактирования
+    return theme('form_reg', [
+        'errors' => $form_data['errors'],
+        'values' => $form_data['values'],
+        'messages' => $form_data['messages'],
+        'is_auth' => $is_auth,
+        'is_admin' => $is_admin,
+        'csrf_token' => $_SESSION['csrf_token'],
+        'conf' => $GLOBALS['conf'],
+        'is_edit_mode' => true, // Флаг режима редактирования
+        'edit_user_id' => $edit_user_id // ID редактируемого пользователя
+    ]);
+}
+
+function edit_user_post($request) {
+    // Инициализация сессии
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+
+    // Подключение к базе данных
+    $db = connect_db();
+    if (!$db) {
+        return json_response([
+            'success' => false,
+            'errors' => ['general' => 'Ошибка подключения к базе данных']
+        ]);
+    }
+
+    // Проверка авторизации и прав
+    $auth_data = check_auth($db);
+    $is_auth = $auth_data['is_auth'];
+    $uid = $auth_data['uid'];
+
+    // Получаем ID пользователя из URL или сессии
+    $edit_user_id = isset($request['params'][0]) ? (int)$request['params'][0] : $uid;
+
+    // Проверка CSRF токена
+    if (!validate_csrf($request)) {
+        return json_response([
+            'success' => false,
+            'errors' => ['general' => 'Недействительный CSRF токен']
+        ]);
+    }
+
+    // Валидация данных формы
+    $validation = validate_form_data($request['post']);
     if (!empty($validation['errors'])) {
-        $_SESSION['form_errors'] = $validation['errors'];
-        $_SESSION['form_values'] = $validation['values'];
-        header("Location: edit_user.php?id=$user_id");
-        exit();
+        return json_response([
+            'success' => false,
+            'errors' => $validation['errors']
+        ]);
     }
 
-    // Обновление данных
     try {
         $db->beginTransaction();
 
-        // Основные данные
+        // Обновляем основную информацию в таблице user
         $stmt = $db->prepare("
-            UPDATE user 
-            SET fio = ?, tel = ?, email = ?, bdate = ?, gender = ?, bio = ?, ccheck = ?
-            WHERE id = ?
+            UPDATE user
+            SET
+                fio = :fio,
+                tel = :phone,
+                email = :email,
+                bdate = :birthdate,
+                gender = :gender,
+                bio = :bio,
+                ccheck = :agreement,
+                updated_at = NOW()
+            WHERE id = :user_id
         ");
         $stmt->execute([
-            $validation['values']['fio'],
-            $validation['values']['phone'],
-            $validation['values']['email'],
-            $validation['values']['birthdate'],
-            $validation['values']['gender'],
-            $validation['values']['bio'],
-            $validation['values']['agreement'] ? 1 : 0,
-            $user_id
+            ':fio' => $validation['values']['fio'],
+            ':phone' => $validation['values']['phone'],
+            ':email' => $validation['values']['email'],
+            ':birthdate' => $validation['values']['birthdate'],
+            ':gender' => $validation['values']['gender'],
+            ':bio' => $validation['values']['bio'],
+            ':agreement' => $validation['values']['agreement'] ? 1 : 0,
+            ':user_id' => $edit_user_id
         ]);
 
-        // Языки программирования
-        $stmt = $db->prepare("DELETE FROM user_language WHERE user_id = ?");
-        $stmt->execute([$user_id]);
+        // Обновляем языки программирования
+        $stmt = $db->prepare("DELETE FROM user_language WHERE user_id = :user_id");
+        $stmt->execute([':user_id' => $edit_user_id]);
 
-        $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (?, ?)");
+        $stmt = $db->prepare("
+            INSERT INTO user_language (user_id, lang_id)
+            VALUES (:user_id, :lang_id)
+        ");
         foreach ($validation['values']['languages'] as $lang_id) {
-            $stmt->execute([$user_id, (int)$lang_id]);
+            $lang_id = (int)$lang_id;
+            if ($lang_id <= 0) continue;
+            $stmt->execute([
+                ':user_id' => $edit_user_id,
+                ':lang_id' => $lang_id
+            ]);
         }
 
         $db->commit();
-        
-        $_SESSION['form_messages'] = ['Данные успешно обновлены'];
-        header("Location: edit_user.php?id=$user_id");
-        exit();
+
+        return json_response([
+            'success' => true,
+            'message' => 'Данные успешно обновлены',
+            'redirect' => $is_auth ? '/' : 'login.php'
+        ]);
+
     } catch (PDOException $e) {
         $db->rollBack();
-        $_SESSION['form_errors'] = ['general' => 'Ошибка базы данных: ' . $e->getMessage()];
-        header("Location: edit_user.php?id=$user_id");
-        exit();
+        error_log("Database error in edit_user_post: " . $e->getMessage());
+        return json_response([
+            'success' => false,
+            'errors' => ['general' => 'Ошибка базы данных: ' . $e->getMessage()]
+        ]);
     }
 }
-
-// Подготовка данных для шаблона
-$values = [
-    'fio' => $user_data['fio'],
-    'phone' => $user_data['tel'],
-    'email' => $user_data['email'],
-    'birthdate' => $user_data['bdate'],
-    'gender' => strtolower($user_data['gender']),
-    'bio' => $user_data['bio'],
-    'agreement' => $user_data['ccheck'],
-    'languages' => $user_data['languages'] ? explode(',', $user_data['languages']) : []
-];
-
-$errors = $_SESSION['form_errors'] ?? [];
-$messages = $_SESSION['form_messages'] ?? [];
-
-unset($_SESSION['form_errors'], $_SESSION['form_messages']);
-
-// Подключаем шаблон
-include(__DIR__ . '/../theme/edit_user.tpl.php');
-?>
