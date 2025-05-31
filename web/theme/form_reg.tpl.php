@@ -186,200 +186,193 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('registration-form');
-            const submitBtn = document.getElementById('submit-btn');
-
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Очищаем предыдущие сообщения и ошибки
-                document.getElementById('form-messages').innerHTML = '';
-                clearErrors();
-                
-                // Проверяем валидность формы
-                if (!validateForm()) {
-                    return;
-                }
-                
-                // Блокируем кнопку отправки
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Отправка...';
-                
-                // Собираем данные формы
-                const formData = new FormData(form);
-                
-                // Для множественного выбора языков
-                const languagesSelect = document.getElementById('languages');
-                const selectedLanguages = Array.from(languagesSelect.selectedOptions).map(option => option.value);
-                formData.delete('languages[]');
-                selectedLanguages.forEach(lang => formData.append('languages[]', lang));
-                
-                // Определяем URL для отправки
-                const url = '<?php echo $c['is_auth'] ? "edit_user.php?id=" . ($c['user']['id'] ?? '') : "form.php"; ?>';
-                
-                fetch('/web-backend/web/form_reg.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        showSuccessMessage();
-                        document.getElementById('registration-form').reset();
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-
-                function showSuccessMessage() {
-                    const alertDiv = document.createElement('div');
-                    alertDiv.className = 'registration-alert success';
-                    alertDiv.innerHTML = `
-                        <h3>Регистрация успешна!</h3>
-                        <p>Ваши данные для входа:</p>
-                        <p><strong>Логин:</strong> ${generatedLogin}</p>
-                        <p><strong>Пароль:</strong> ${generatedPassword}</p>
-                        <p>Сохраните эти данные!</p>
-                        <button onclick="this.parentElement.remove()">Закрыть</button>
-                    `;
-                    document.body.appendChild(alertDiv);
-                    setTimeout(() => alertDiv.remove(), 10000);
-                }
-                .catch(error => {
-                showMessage('error', 'Ошибка: ' + error.message);
-                });
-                .finally(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '<?php echo $c['is_auth'] ? "Обновить данные" : "Зарегистрироваться"; ?>';
-                });
-            });
+        const form = document.getElementById('registration-form');
+        const submitBtn = document.getElementById('submit-btn');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            function clearErrors() {
-                document.querySelectorAll('.error').forEach(el => el.textContent = '');
-                document.querySelectorAll('.error-input').forEach(el => el.classList.remove('error-input'));
+            // Очищаем предыдущие ошибки
+            clearErrors();
+            
+            // Валидация данных
+            if (!validateForm()) {
+                return;
             }
             
-            function showMessage(type, message) {
-                const div = document.createElement('div');
-                div.className = `alert alert-${type}`;
-                div.innerHTML = message;
-                document.getElementById('form-messages').appendChild(div);
-            }
+            // Блокируем кнопку
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Отправка...';
             
-            function showValidationErrors(errors) {
-                for (const field in errors) {
-                    const errorElement = document.getElementById(`${field}-error`);
-                    const inputElement = document.querySelector(`[name="${field}"], [name="${field}[]"]`);
-                    
-                    if (errorElement) {
-                        errorElement.textContent = errors[field];
-                    }
-                    
-                    if (inputElement) {
-                        inputElement.classList.add('error-input');
-                    }
-                }
-            }
+            // Формируем FormData
+            const formData = new FormData(form);
+            const languages = document.getElementById('languages');
+            const selectedLanguages = Array.from(languages.selectedOptions).map(option => option.value);
             
-            function validateForm() {
-                let isValid = true;
-                
-                // Проверка ФИО
-                const fio = document.getElementById('fio').value.trim();
-                if (!fio) {
-                    showError('fio', 'ФИО обязательно для заполнения');
-                    isValid = false;
-                } else if (fio.length > 150) {
-                    showError('fio', 'ФИО не должно превышать 150 символов');
-                    isValid = false;
+            // Добавляем языки
+            formData.delete('languages[]');
+            selectedLanguages.forEach(lang => formData.append('languages[]', lang));
+            
+            // Отправка данных
+            fetch('/web-backend/web/form_reg.php', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
-                
-                // Проверка телефона
-                const tel = document.getElementById('tel').value.trim();
-                if (!tel) {
-                    showError('tel', 'Телефон обязателен для заполнения');
-                    isValid = false;
-                } else if (!/^\+7\s?\(?\d{3}\)?\s?\d{3}-?\d{2}-?\d{2}$/.test(tel)) {
-                    showError('tel', 'Введите телефон в формате +7 (XXX) XXX-XX-XX');
-                    isValid = false;
-                }
-                
-                // Проверка email
-                const email = document.getElementById('email').value.trim();
-                if (!email) {
-                    showError('email', 'Email обязателен для заполнения');
-                    isValid = false;
-                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                    showError('email', 'Введите корректный email адрес');
-                    isValid = false;
-                } else if (email.length > 255) {
-                    showError('email', 'Email не должен превышать 255 символов');
-                    isValid = false;
-                }
-                
-                // Проверка даты рождения
-                const bdate = document.getElementById('bdate').value;
-                if (!bdate) {
-                    showError('bdate', 'Дата рождения обязательна');
-                    isValid = false;
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccessMessage(data);
                 } else {
-                    const birthDate = new Date(bdate);
-                    const now = new Date();
-                    const age = now.getFullYear() - birthDate.getFullYear();
-                    
-                    if (age < 18) {
-                        showError('bdate', 'Возраст должен быть 18+ лет');
-                        isValid = false;
-                    } else if (age > 120) {
-                        showError('bdate', 'Проверьте дату рождения');
-                        isValid = false;
-                    }
+                    showErrors(data.errors);
                 }
-                
-                // Проверка пола
-                const gender = document.querySelector('input[name="gender"]:checked');
-                if (!gender) {
-                    showError('gender', 'Укажите пол');
-                    isValid = false;
-                }
-                
-                // Проверка языков программирования
-                const languages = document.getElementById('languages');
-                const selectedLanguages = Array.from(languages.selectedOptions).map(option => option.value);
-                if (selectedLanguages.length === 0) {
-                    showError('languages', 'Выберите хотя бы один язык');
-                    isValid = false;
-                }
-                
-                // Проверка биографии
-                const bio = document.getElementById('bio').value.trim();
-                if (bio.length > 5000) {
-                    showError('bio', 'Биография не должна превышать 5000 символов');
-                    isValid = false;
-                }
-                
-                // Проверка соглашения
-                const ccheck = document.getElementById('ccheck').checked;
-                if (!ccheck) {
-                    showError('ccheck', 'Необходимо принять соглашение');
-                    isValid = false;
-                }
-                
-                return isValid;
+            })
+            .catch(error => {
+                showSystemError();
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = form.dataset.formType === 'update' ? 
+                                    'Обновить данные' : 'Зарегистрироваться';
+            });
+        });
+        
+        function validateForm() {
+            let isValid = true;
+            
+            // Валидация ФИО
+            const fio = document.getElementById('fio').value.trim();
+            if (!fio) {
+                showError('fio', 'ФИО обязательно для заполнения');
+                isValid = false;
+            } else if (fio.length > 150) {
+                showError('fio', 'ФИО не должно превышать 150 символов');
+                isValid = false;
             }
             
-            function showError(field, message) {
-                const errorElement = document.getElementById(`${field}-error`);
-                const inputElement = document.querySelector(`[name="${field}"], [name="${field}[]"]`);
+            // Валидация телефона
+            const tel = document.getElementById('tel').value.trim();
+            if (!tel) {
+                showError('tel', 'Телефон обязателен для заполнения');
+                isValid = false;
+            } else if (!/^\+7\s?\(?\d{3}\)?\s?\d{3}-?\d{2}-?\d{2}$/.test(tel)) {
+                showError('tel', 'Введите телефон в формате +7 (XXX) XXX-XX-XX');
+                isValid = false;
+            }
+            
+            // Валидация email
+            const email = document.getElementById('email').value.trim();
+            if (!email) {
+                showError('email', 'Email обязателен для заполнения');
+                isValid = false;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showError('email', 'Введите корректный email адрес');
+                isValid = false;
+            } else if (email.length > 255) {
+                showError('email', 'Email не должен превышать 255 символов');
+                isValid = false;
+            }
+            
+            // Валидация даты рождения
+            const bdate = document.getElementById('bdate').value;
+            if (!bdate) {
+                showError('bdate', 'Дата рождения обязательна');
+                isValid = false;
+            } else {
+                const birthDate = new Date(bdate);
+                const now = new Date();
+                const age = now.getFullYear() - birthDate.getFullYear();
                 
-                if (errorElement) {
-                    errorElement.textContent = message;
-                }
-                
-                if (inputElement) {
-                    inputElement.classList.add('error-input');
+                if (age < 18) {
+                    showError('bdate', 'Возраст должен быть 18+ лет');
+                    isValid = false;
+                } else if (age > 120) {
+                    showError('bdate', 'Проверьте дату рождения');
+                    isValid = false;
                 }
             }
-        });
+            
+            // Валидация пола
+            const gender = document.querySelector('input[name="gender"]:checked');
+            if (!gender) {
+                showError('gender', 'Укажите пол');
+                isValid = false;
+            }
+            
+            // Валидация языков
+            const languages = document.getElementById('languages');
+            const selectedLanguages = Array.from(languages.selectedOptions);
+            if (selectedLanguages.length === 0) {
+                showError('languages', 'Выберите хотя бы один язык');
+                isValid = false;
+            }
+            
+            // Валидация соглашения
+            const ccheck = document.getElementById('ccheck').checked;
+            if (!ccheck) {
+                showError('ccheck', 'Необходимо принять соглашение');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(el => el.textContent = '');
+            document.querySelectorAll('.error-input').forEach(el => 
+                el.classList.remove('error-input'));
+        }
+        
+        function showError(field, message) {
+            const errorElement = document.getElementById(`${field}-error`);
+            const inputElement = document.querySelector(`[name="${field}"]`) || 
+                                document.querySelector(`#${field}`);
+            
+            if (errorElement) errorElement.textContent = message;
+            if (inputElement) inputElement.classList.add('error-input');
+        }
+        
+        function showSuccessMessage(data) {
+            const formMessages = document.getElementById('form-messages');
+            formMessages.innerHTML = '';
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success';
+            
+            if (data.credentials) {
+                alertDiv.innerHTML = `
+                    <h4>Регистрация успешно завершена!</h4>
+                    <p><strong>Логин:</strong> ${data.credentials.login}</p>
+                    <p><strong>Пароль:</strong> ${data.credentials.password}</p>
+                    <p class="text-danger">Сохраните эти данные!</p>
+                    <a href="login.php" class="btn btn-success">Войти в систему</a>
+                `;
+            } else {
+                alertDiv.textContent = data.message || 'Данные успешно сохранены';
+            }
+            
+            formMessages.appendChild(alertDiv);
+        }
+        
+        function showErrors(errors) {
+            for (const field in errors) {
+                showError(field, errors[field]);
+            }
+        }
+        
+        function showSystemError() {
+            const formMessages = document.getElementById('form-messages');
+            formMessages.innerHTML = `
+                <div class="alert alert-danger">
+                    Произошла ошибка при отправке формы. Пожалуйста, попробуйте позже.
+                </div>
+            `;
+        }
+    });
     </script>
+
+    
 </body>
 </html>

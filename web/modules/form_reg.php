@@ -89,9 +89,6 @@ function form_reg_post($request) {
     try {
         $db->beginTransaction();
 
-        // Проверяем, авторизован ли пользователь
-        $is_auth = !empty($_SESSION['login']) && !empty($_SESSION['uid']);
-
         if ($is_auth) {
             // Обновление данных существующего пользователя
             $user_id = $_SESSION['uid'];
@@ -124,7 +121,12 @@ function form_reg_post($request) {
                 }
             }
 
-            $message = 'Данные успешно обновлены';
+            $db->commit();
+            
+            return json_response([
+                'success' => true,
+                'message' => 'Данные успешно обновлены'
+            ]);
         } else {
             // Регистрация нового пользователя
             //$db->beginTransaction();
@@ -171,17 +173,16 @@ function form_reg_post($request) {
         }
 
         $db->commit();
-        
-        // Сохраняем логин и пароль для показа пользователю
-        $_SESSION['new_login'] = $login;
-        $_SESSION['new_password'] = $password;
-
-        // Стало:
-        $_SESSION['registration_success'] = [
-            'login' => $login,
-            'password' => $password
-        ];
-        return json_response(['status' => 'success']);
+            
+            return json_response([
+                'success' => true,
+                'credentials' => [
+                    'login' => $login,
+                    'password' => $password
+                ],
+                'message' => 'Регистрация успешно завершена'
+            ]);
+        }
     } catch (PDOException $e) {
         $db->rollBack();
         return json_response([
