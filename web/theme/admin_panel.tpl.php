@@ -136,7 +136,7 @@
                             <input type="hidden" name="password" value="temporary_password">
                             <input type="hidden" name="admin_edit" value="1">
                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                            <button type="submit" class="edit-btn">Редактировать</button>
+                            <button type="submit" class="edit-btn" target="_blank">Редактировать</button>
                         </form>
                         <form method="post" style="display:inline;">
                             <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
