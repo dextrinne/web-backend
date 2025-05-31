@@ -5,17 +5,17 @@ session_start();
 include_once(__DIR__ . '/../scripts/db.php');
 include(__DIR__ . '/../scripts/functions.php');
 
-// Проверка авторизации пользователя или администратора
+// Проверка авторизации
 if (empty($_SESSION['login'])) {
     header('Location: login.php');
     exit();
 }
 
-// Получаем ID пользователя для редактирования
+// Получаем ID пользователя
 $user_id = isset($_GET['id']) ? intval($_GET['id']) : $_SESSION['uid'];
 
-// Проверяем, имеет ли текущий пользователь права на редактирование
-if (!$_SESSION['is_admin'] && $user_id != $_SESSION['uid']) {
+// Проверка прав (админ или владелец аккаунта)
+if (!($_SESSION['is_admin'] ?? false) && $user_id != $_SESSION['uid']) {
     header('Location: 403.php');
     exit();
 }
@@ -40,21 +40,30 @@ try {
     die('Ошибка получения данных пользователя: ' . $e->getMessage());
 }
 
-// Генерация CSRF-токена
+// Получаем список всех языков
+try {
+    $stmt = $db->prepare("SELECT id, name FROM language");
+    $stmt->execute();
+    $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die('Ошибка получения списка языков: ' . $e->getMessage());
+}
+
+// CSRF-токен
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Обработка отправки формы
+// Обработка формы
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Проверка CSRF-токена
+    // Проверка CSRF
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         $_SESSION['form_errors'] = ['general' => 'Неверный CSRF-токен'];
         header("Location: edit_user.php?id=$user_id");
         exit();
     }
 
-    // Валидация данных
+    // Валидация данных (используем функцию из form_reg.php)
     $validation = validate_form_data($_POST);
     
     if (!empty($validation['errors'])) {
@@ -64,11 +73,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
 
-    // Обновление данных в базе
+    // Обновление данных
     try {
         $db->beginTransaction();
 
-        // Обновляем основную информацию
+        // Основные данные
         $stmt = $db->prepare("
             UPDATE user 
             SET fio = ?, tel = ?, email = ?, bdate = ?, gender = ?, bio = ?, ccheck = ?
@@ -85,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $user_id
         ]);
 
-        // Обновляем языки программирования
+        // Языки программирования
         $stmt = $db->prepare("DELETE FROM user_language WHERE user_id = ?");
         $stmt->execute([$user_id]);
 
@@ -107,16 +116,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Получаем список всех языков
-$languages = [];
-try {
-    $stmt = $db->prepare("SELECT id, name FROM language");
-    $stmt->execute();
-    $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die('Ошибка получения списка языков: ' . $e->getMessage());
-}
-
 // Подготовка данных для шаблона
 $values = [
     'fio' => $user_data['fio'],
@@ -134,6 +133,6 @@ $messages = $_SESSION['form_messages'] ?? [];
 
 unset($_SESSION['form_errors'], $_SESSION['form_messages']);
 
-// Подключение шаблона
+// Подключаем шаблон
 include(__DIR__ . '/../theme/edit_user.tpl.php');
 ?>
