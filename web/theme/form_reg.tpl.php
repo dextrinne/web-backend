@@ -71,6 +71,9 @@
         <div id="form-messages"></div>
         
         <div class="form-actions">
+            <?php if ($c['is_auth']): ?>
+                <a href="logout.php" class="btn btn-danger">Выйти</a>
+            <?php endif; ?>
             <?php if (!$c['is_auth']): ?>
                 <a href="login.php" class="btn btn-secondary">Войти</a>
                 <a href="./modules/admin_panel.php" class="btn btn-admin" target="_blank" 
