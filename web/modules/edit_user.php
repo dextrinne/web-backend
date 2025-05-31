@@ -6,7 +6,7 @@ include_once(__DIR__ . '/../scripts/db.php');
 include(__DIR__ . '/../scripts/functions.php');
 
 // Проверка авторизации пользователя или администратора
-if (empty($_SESSION['login']) {
+if (empty($_SESSION['login'])) {
     header('Location: login.php');
     exit();
 }
