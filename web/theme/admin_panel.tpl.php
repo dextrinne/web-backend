@@ -132,7 +132,7 @@
                     <td><?= htmlspecialchars($user['languages']) ?></td>
                     <td>
                         <!-- <a href="/web-backend/web/modules/edit_user.php?id=" class="edit-btn">Редактировать</a> -->
-                        <a href="/web-backend/web/edit_user/<?= $user['id'] ?>" class="edit-btn">Редактировать</a>
+                        <a href="/web-backend/web/#form-anchor" target="_blank" class="edit-btn">Редактировать</a>
                         <form method="post" style="display:inline;">
                             <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
