@@ -7,44 +7,32 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 function form_reg_get($request) {
     global $db;
 
-    // Проверка авторизации
     $is_auth = !empty($_SESSION['login']) && !empty($_SESSION['uid']);
     $is_admin = false;
     $uid = $_SESSION['uid'] ?? null;
 
-    // Определяем тип формы
-    $form_type = 'register'; // По умолчанию форма регистрации
+    // Форма на главной странице ВСЕГДА будет регистрацией
+    $form_type = (isset($request['is_home']) && $request['is_home']) ? 'register' : 'update';
 
-    // Если это не главная страница и пользователь авторизован или есть параметр edit, это форма обновления
-    if ((!isset($request['is_home']) || !$request['is_home']) && ($is_auth || (isset($request['get']['edit']) && $request['get']['edit'] === 'true'))) {
-        $form_type = 'update';
+    // Если пользователь не авторизован, форма всегда регистрация
+    if (!$is_auth) {
+        $form_type = 'register';
     }
 
-    // Получаем все языки программирования
-    try {
-        $stmt = $db->prepare("SELECT id, name FROM language");
-        $stmt->execute();
-        $all_languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        die('Ошибка получения языков: ' . $e->getMessage());
-    }
-
-    // Если пользователь авторизован, загружаем его данные
+    // Получаем данные пользователя только для формы редактирования
     $values = [];
     $selected_lang_ids = [];
-    if ($is_auth && $uid) {
+    if ($form_type === 'update' && $uid) {
         try {
-            // Получаем данные пользователя
             $stmt = $db->prepare("SELECT * FROM user WHERE id = ?");
             $stmt->execute([$uid]);
             $values = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Получаем выбранные языки
             $stmt = $db->prepare("SELECT lang_id FROM user_language WHERE user_id = ?");
             $stmt->execute([$uid]);
             $selected_lang_ids = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
         } catch (PDOException $e) {
-            die('Ошибка загрузки данных пользователя: ' . $e->getMessage());
+            die('Ошибка загрузки данных: ' . $e->getMessage());
         }
     }
 
@@ -57,12 +45,11 @@ function form_reg_get($request) {
         'is_auth' => $is_auth,
         'is_admin' => $is_admin,
         'values' => $values,
-        'all_languages' => $all_languages,
+        'all_languages' => $db->query("SELECT id, name FROM language")->fetchAll(),
         'selected_lang_ids' => $selected_lang_ids,
         'csrf_token' => $_SESSION['csrf_token'],
         'errors' => $_SESSION['form_errors'] ?? [],
-        'user' => $values,
-        'form_type' => $form_type // Передаем тип формы в шаблон
+        'form_type' => $form_type
     ]);
 }
 

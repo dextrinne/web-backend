@@ -4,6 +4,9 @@ function front_get($request)
     global $conf;
     session_start();
 
+    // флаг, что это главная страница
+    $request['is_home'] = true;
+
     // Получаем ошибки и сообщения из сессии, если есть
     $messages = isset($_SESSION['form_messages']) ? $_SESSION['form_messages'] : [];
     $errors = isset($_SESSION['form_errors']) ? $_SESSION['form_errors'] : [];
@@ -17,8 +20,7 @@ function front_get($request)
         'base_url' => conf('basedir'),
         'messages' => $messages, // Передаем сообщения в шаблон
         'errors' => $errors, // Передаем ошибки в шаблон
-        // Передаем информацию о том, что это главная страница
-        'is_home' => true
+        'is_home' => true // Передаем информацию о том, что это главная страница
     ];
 
     // Собираем HTML страницы
