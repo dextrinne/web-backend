@@ -1,4 +1,8 @@
 <?php
+header('Content-Type: text/html; charset=UTF-8');
+include_once(__DIR__ . '/../scripts/db.php');
+include(__DIR__ . '/../scripts/functions.php');
+
 function edit_user_get($request, $user_id) {
     global $db;
 
