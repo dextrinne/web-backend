@@ -1,14 +1,12 @@
 <?php
-function edit_user_get($request, $user_id) {
+function edit_user_get($request, $user_id = null) {
     global $db;
     session_start();
 
-    // Проверка авторизации
-    if (empty($_SESSION['login']) || empty($_SESSION['uid'])) {
-        return redirect('/login');
-    }
-
-    // Проверка прав доступа
+    // Если user_id не передан, берем из запроса
+    $user_id = $user_id ?? ($_GET['user_id'] ?? $_POST['user_id'] ?? null);
+    
+    // Проверка авторизации (для обычных пользователей)
     $is_admin = false;
     if (!empty($_SESSION['admin_login'])) {
         try {
@@ -20,8 +18,8 @@ function edit_user_get($request, $user_id) {
         }
     }
 
-    // Проверка, что пользователь редактирует свои данные или является администратором
-    if (!$is_admin && $_SESSION['uid'] != $user_id) {
+    // Если это не админ и не владелец аккаунта - доступ запрещен
+    if (!$is_admin && (empty($_SESSION['uid']) || $_SESSION['uid'] != $user_id)) {
         return access_denied();
     }
 
@@ -67,7 +65,7 @@ function edit_user_get($request, $user_id) {
             'values' => $user
         ];
 
-        return theme('form', $template_data);
+        return theme($is_admin ? 'form_reg' : 'form', $template_data);
     } catch (PDOException $e) {
         error_log("Ошибка базы данных: " . $e->getMessage());
         die("Ошибка: Произошла ошибка на сервере.");
@@ -141,60 +139,3 @@ function json_response($data) {
     header('Content-Type: application/json');
     die(json_encode($data));
 }
-
-function edit_user_get($request, $user_id = null) {
-    global $db;
-    session_start();
-
-    // Если user_id не передан, берем из запроса
-    $user_id = $user_id ?? ($_GET['user_id'] ?? $_POST['user_id'] ?? null);
-    
-    // Проверка авторизации администратора
-    if (!isset($_SESSION['admin_login'])) {
-        return access_denied();
-    }
-
-    try {
-        // Получение данных пользователя
-        $stmt = $db->prepare("SELECT * FROM user WHERE id = ?");
-        $stmt->execute([$user_id]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$user) {
-            return not_found();
-        }
-
-        // Получение выбранных языков пользователя
-        $stmt = $db->prepare("SELECT l.id, l.name FROM language l 
-                             JOIN user_language ul ON l.id = ul.lang_id 
-                             WHERE ul.user_id = ?");
-        $stmt->execute([$user_id]);
-        $selected_languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $selected_lang_ids = array_column($selected_languages, 'id');
-
-        // Получение всех доступных языков
-        $stmt = $db->prepare("SELECT id, name FROM language");
-        $stmt->execute();
-        $all_languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Генерация CSRF токена
-        if (empty($_SESSION['csrf_token'])) {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-        }
-
-        return theme('form_reg', [
-            'user' => $user,
-            'all_languages' => $all_languages,
-            'selected_lang_ids' => $selected_lang_ids,
-            'csrf_token' => $_SESSION['csrf_token'],
-            'is_auth' => true,
-            'is_admin' => true,
-            'values' => $user
-        ]);
-
-    } catch (PDOException $e) {
-        error_log("Ошибка базы данных: " . $e->getMessage());
-        die("Ошибка: Произошла ошибка на сервере.");
-    }
-}
-?>
