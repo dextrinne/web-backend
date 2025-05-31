@@ -67,7 +67,7 @@
     </style>
 </head>
 <body>
-    <div class="form-container">
+    <div class="form-container" id="form-anchor">
         <div id="form-messages"></div>
         
         <div class="form-actions">
@@ -75,9 +75,9 @@
                 <a href="logout.php" class="btn btn-danger">Выйти</a>
             <?php else: ?>
                 <?php if (!$c['show_login']): ?>
-                    <button id="toggle-auth-btn" class="btn btn-secondary">Войти</button>
+                    <a href="?show_login=true#form-anchor" id="toggle-auth-btn" class="btn btn-secondary">Войти</a>
                 <?php else: ?>
-                    <button id="toggle-auth-btn" class="btn btn-secondary">Регистрация</button>
+                    <a href="?#form-anchor" id="toggle-auth-btn" class="btn btn-secondary">Регистрация</a>
                 <?php endif; ?>
                 <a href="./modules/admin_panel.php" class="btn btn-admin" target="_blank"
                 style="background-color: #dc3545; color: white; border: none;">Администратор</a>
