@@ -131,13 +131,17 @@
                     <td><?= $user['ccheck'] ? 'Да' : 'Нет' ?></td>
                     <td><?= htmlspecialchars($user['languages']) ?></td>
                     <td>
-                        <!-- <a href="/web-backend/web/modules/edit_user.php?id=" class="edit-btn">Редактировать</a> -->
-                        <a href="/web-backend/web/#form-anchor?user_id=<?= $user['id'] ?>" target="_blank" class="edit-btn">Редактировать</a>
+                        <form method="post" action="/web-backend/web/login.php" style="display:inline;">
+                            <input type="hidden" name="login" value="<?= htmlspecialchars($user['email']) ?>">
+                            <input type="hidden" name="password" value="temporary_password">
+                            <input type="hidden" name="admin_edit" value="1">
+                            <button type="submit" target="_blank" class="edit-btn">Редактировать</button>
+                        </form>
                         <form method="post" style="display:inline;">
                             <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                            <button type="submit" name="delete_user" class="delete-btn"
-                                onclick="return confirm('Вы уверены, что хотите удалить этого пользователя?')">Удалить</button>
+                            <button type="submit" name="delete_user" class="delete-btn" 
+                                    onclick="return confirm('Вы уверены, что хотите удалить этого пользователя?')">Удалить</button>
                         </form>
                     </td>
                 </tr>

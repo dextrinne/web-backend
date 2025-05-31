@@ -82,6 +82,12 @@
                 <a href="./modules/admin_panel.php" class="btn btn-admin" target="_blank"
                 style="background-color: #dc3545; color: white; border: none;">Администратор</a>
             <?php endif; ?>
+            <?php if (isset($_SESSION['admin_edit'])): ?>
+                <div class="alert alert-info">
+                    Вы редактируете пользователя в режиме администратора.
+                    <a href="/web-backend/web/logout.php?return_to_admin=1" class="btn btn-warning">Вернуться в админку</a>
+                </div>
+            <?php endif; ?>
         </div>
         
         <?php if ($c['show_login'] && !$c['is_auth']): ?>

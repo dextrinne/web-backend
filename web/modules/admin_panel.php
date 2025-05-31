@@ -12,6 +12,13 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])) {
     exit();
 }
 
+if (!isset($_SESSION['admin_login'])) {
+    header('WWW-Authenticate: Basic realm="Admin Panel"');
+    header('HTTP/1.0 401 Unauthorized');
+    echo 'Требуется авторизация';
+    exit();
+}
+
 // Проверка учетных данных администратора
 $admin_login = $_SERVER['PHP_AUTH_USER'];
 $admin_pass = $_SERVER['PHP_AUTH_PW'];
