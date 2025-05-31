@@ -218,12 +218,11 @@
                 const url = '<?php echo $c['is_auth'] ? "edit_user.php?id=" . ($c['user']['id'] ?? '') : "form.php"; ?>';
                 
                 // Отправляем AJAX-запрос
-                fetch(url, {
+                fetch('/web-backend/web/form_reg.php', {
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
                 .then(response => {
