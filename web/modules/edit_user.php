@@ -1,102 +1,44 @@
 <?php
 function edit_user_get($request, $user_id) {
     global $db;
-
     session_start();
 
-    // Проверка авторизации пользователя
-    if (empty($_SESSION['login']) || empty($_SESSION['uid'])) {
+    // Проверка авторизации
+    if (empty($_SESSION['login'])) {
         return redirect('/login');
     }
 
-    // Проверка, является ли пользователь администратором
-    $is_admin = false;
-    if (!empty($_SESSION['admin_login'])) {
-        try {
-            $stmt = $db->prepare("SELECT id FROM admin WHERE login = ?");
-            $stmt->execute([$_SESSION['admin_login']]);
-            $is_admin = (bool) $stmt->fetch();
-        } catch (PDOException $e) {
-            error_log("Admin auth error: " . $e->getMessage());
-        }
-    }
-
-    // Проверка, что пользователь редактирует свои данные или является администратором
-    /*$is_admin = false;
-    if (!empty($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['PHP_AUTH_PW'])) {
-        $admin_login = $_SERVER['PHP_AUTH_USER'];
-        $admin_password = $_SERVER['PHP_AUTH_PW'];
-        try {
-            $stmt = $db->prepare("SELECT id, password FROM admin WHERE login = ?");
-            $stmt->execute([$admin_login]);
-            $admin = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($admin && hash('sha256', $admin_password) === $admin['password']) {
-                $is_admin = true;
-            }
-        } catch (PDOException $e) {
-            error_log("Admin auth error: " . $e->getMessage());
-        }
-    }*/
-
+    // Проверка прав (админ или собственный профиль)
+    $is_admin = check_admin_privileges($db, $_SESSION['login']);
     if (!$is_admin && $_SESSION['uid'] != $user_id) {
         return access_denied();
     }
 
-    $admin_login = $_SERVER['PHP_AUTH_USER'];
-    $admin_password = $_SERVER['PHP_AUTH_PW'];
-
     try {
-        $stmt = $db->prepare("SELECT id, password FROM admin WHERE login = ?");
-        $stmt->execute([$admin_login]);
-        $admin = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        /*if (!$admin || !password_verify($admin_password, $admin['password'])) {
-            return authenticate();
-        }*/
-
         // Получение данных пользователя
-        $stmt = $db->prepare("SELECT * FROM user WHERE id = ?");
-        $stmt->execute([$user_id]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
+        $user = get_user_data($db, $user_id);
         if (!$user) {
             return not_found();
         }
 
-        // Получение выбранных языков пользователя
-        $stmt = $db->prepare("
-            SELECT l.id, l.name 
-            FROM language l
-            JOIN user_language ul ON l.id = ul.lang_id
-            WHERE ul.user_id = ?
-        ");
-        $stmt->execute([$user_id]);
-        $selected_languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $selected_lang_ids = array_column($selected_languages, 'id');
-
-        // Получение всех доступных языков
-        $stmt = $db->prepare("SELECT id, name FROM language");
-        $stmt->execute();
-        $all_languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Получение языков программирования
+        $all_languages = get_all_languages($db);
+        $selected_lang_ids = get_user_languages($db, $user_id);
 
         // Генерация CSRF токена
         if (empty($_SESSION['csrf_token'])) {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
 
-        // Формирование данных для шаблона
-        $template_data = [
+        return theme('edit_user', [
             'user' => $user,
             'all_languages' => $all_languages,
             'selected_lang_ids' => $selected_lang_ids,
-            'csrf_token' => $_SESSION['csrf_token'],
-        ];
-
-        return theme('edit_user', ['#content' => $template_data]);
-
+            'csrf_token' => $_SESSION['csrf_token']
+        ]);
     } catch (PDOException $e) {
-        error_log("Ошибка базы данных: " . $e->getMessage());
-        die("Ошибка: Произошла ошибка на сервере.");
+        error_log("Database error: " . $e->getMessage());
+        die("Ошибка сервера");
     }
 }
 
@@ -105,54 +47,31 @@ function edit_user_post($request, $user_id) {
     session_start();
 
     // Проверка CSRF токена
-    if (empty($_SESSION['csrf_token']) || !isset($request['post']['csrf_token']) || 
+    if (empty($_SESSION['csrf_token']) || 
+        !isset($request['post']['csrf_token']) || 
         $request['post']['csrf_token'] !== $_SESSION['csrf_token']) {
-        die('CSRF token validation failed.');
+        return json_encode(['success' => false, 'message' => 'Неверный CSRF-токен']);
     }
 
     try {
-        // Обновление данных пользователя
-        $stmt = $db->prepare("
-            UPDATE user 
-            SET fio = ?, tel = ?, email = ?, bdate = ?, gender = ?, bio = ?, ccheck = ?
-            WHERE id = ?
-        ");
-        $stmt->execute([
-            $request['post']['fio'],
-            $request['post']['tel'],
-            $request['post']['email'],
-            $request['post']['bdate'],
-            $request['post']['gender'],
-            $request['post']['bio'],
-            isset($request['post']['ccheck']) ? 1 : 0,
-            $user_id
-        ]);
-
-        // Обновление языков программирования
         $db->beginTransaction();
         
-        // Удаляем старые связи
-        $stmt = $db->prepare("DELETE FROM user_language WHERE user_id = ?");
-        $stmt->execute([$user_id]);
+        // Обновление основных данных
+        update_user_data($db, $user_id, $request['post']);
         
-        // Добавляем новые связи
-        if (!empty($request['post']['languages']) && is_array($request['post']['languages'])) {
-            $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (?, ?)");
-            foreach ($request['post']['languages'] as $lang_id) {
-                $stmt->execute([$user_id, intval($lang_id)]);
-            }
-        }
+        // Обновление языков
+        update_user_languages($db, $user_id, $request['post']['languages'] ?? []);
         
         $db->commit();
-
-        return json_response(['success' => true, 'message' => 'Данные успешно обновлены']);
-
+        
+        return json_encode([
+            'success' => true,
+            'message' => 'Данные успешно обновлены'
+        ]);
     } catch (PDOException $e) {
-        if ($db->inTransaction()) {
-            $db->rollBack();
-        }
-        error_log("Ошибка при обновлении пользователя: " . $e->getMessage());
-        return json_response(['success' => false, 'message' => 'Ошибка при обновлении данных']);
+        $db->rollBack();
+        error_log("Update error: " . $e->getMessage());
+        return json_encode(['success' => false, 'message' => 'Ошибка обновления']);
     }
 }
 
