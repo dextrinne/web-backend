@@ -17,6 +17,8 @@ function front_get($request)
         'base_url' => conf('basedir'),
         'messages' => $messages, // Передаем сообщения в шаблон
         'errors' => $errors // Передаем ошибки в шаблон
+        // Передаем информацию о том, что это главная страница
+        'is_home' => true
     ];
 
     // Собираем HTML страницы

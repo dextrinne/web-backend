@@ -15,8 +15,8 @@ function form_reg_get($request) {
     // Определяем тип формы
     $form_type = 'register'; // По умолчанию форма регистрации
 
-    // Если пользователь авторизован или есть параметр edit, это форма обновления
-    if ($is_auth || (isset($request['get']['edit']) && $request['get']['edit'] === 'true')) {
+    // Если это не главная страница и пользователь авторизован или есть параметр edit, это форма обновления
+    if ((!isset($request['is_home']) || !$request['is_home']) && ($is_auth || (isset($request['get']['edit']) && $request['get']['edit'] === 'true'))) {
         $form_type = 'update';
     }
 
