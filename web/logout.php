@@ -1,5 +1,9 @@
 <?php
 session_start();
+
+// Очищаем данные редактирования
+unset($_SESSION['edit_user_id']);
+
 $return_to_admin = isset($_GET['return_to_admin']);
 session_destroy();
 

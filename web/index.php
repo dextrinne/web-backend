@@ -1,4 +1,19 @@
 <?php
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['admin_edit'])) {
+    // Проверяем авторизацию администратора
+    if (!isset($_SESSION['admin_login'])) {
+        header("Location: /web-backend/web/admin_panel.php");
+        exit();
+    }
+    
+    // Сохраняем ID пользователя для редактирования
+    $_SESSION['edit_user_id'] = $_POST['edit_user_id'];
+    
+    // Перенаправляем на форму с якорем
+    header("Location: /web-backend/web/#form-anchor");
+    exit();
+}
+
 ob_start();
 include('./settings.php');
 ini_set('display_errors', DISPLAY_ERRORS);
