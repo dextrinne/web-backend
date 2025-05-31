@@ -255,9 +255,23 @@ function validate_form_data($post_data) {
     }
 
     // 7. Валидация биографии
-    $values['bio'] = strip_tags(trim($post_data['bio'] ?? ''));
-    if (strlen($values['bio']) > 5000) {
-        $errors['bio'] = 'Биография не должна превышать 5000 символов';
+    $values['bio'] = trim($post_data['bio'] ?? '');
+    if (empty($values['bio'])) {
+        $errors['bio'] = 'Биография обязательна для заполнения';
+    } else {
+        // Проверка длины
+        if (strlen($values['bio']) > 5000) {
+            $errors['bio'] = 'Биография не должна превышать 5000 символов';
+        }
+        
+        // Проверка на запрещённые символы и теги
+        $forbidden_pattern = '/[<>{}\[\]]|<\s*script|<\?php/i';
+        if (preg_match($forbidden_pattern, $values['bio'])) {
+            $errors['bio'] = 'Биография содержит недопустимые символы или теги';
+        }
+        
+        // Дополнительная очистка (удаление HTML/XML тегов)
+        $values['bio'] = strip_tags($values['bio']);
     }
 
     // 8. Валидация соглашения
