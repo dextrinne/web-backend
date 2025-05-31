@@ -142,7 +142,7 @@ function update_user_languages($db, $user_id, $languages) {
     $stmt->execute([$user_id]);
 
     // Добавляем новые связи
-    if (!empty($languages) {
+    if (!empty($languages)) {
         $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (?, ?)");
         foreach ($languages as $lang_id) {
             $stmt->execute([$user_id, intval($lang_id)]);
