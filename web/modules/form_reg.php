@@ -85,13 +85,15 @@ function form_reg_post($request) {
         ]);
     }
 
-    // Валидация данных
-    $validation = validate_form_data($request['post']);
-    if (!empty($validation['errors'])) {
-        return json_response([
-            'success' => false,
-            'errors' => $validation['errors']
-        ]);
+    // Базовая валидация данных
+    $required = ['fio', 'tel', 'email', 'bdate', 'gender', 'languages', 'ccheck'];
+    foreach ($required as $field) {
+        if (empty($request['post'][$field])) {
+            return json_response([
+                'success' => false,
+                'errors' => [$field => 'Это поле обязательно']
+            ]);
+        }
     }
 
     // Обработка данных
@@ -178,7 +180,7 @@ function validate_form_data($post_data) {
     }
 
     // Email
-    $values['email'] = strtolower(trim($post_data['email'] ?? ''));
+    $values['email'] = mb_strtolower(trim($post_data['email'] ?? ''));
     if (empty($values['email'])) {
         $errors['email'] = 'Email обязателен для заполнения';
     } else {

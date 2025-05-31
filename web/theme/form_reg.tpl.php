@@ -192,17 +192,6 @@
         const submitBtn = form.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         
-        // Очистка предыдущих ошибок
-        document.querySelectorAll('.error').forEach(el => el.textContent = '');
-        document.querySelectorAll('.error-input').forEach(el => el.classList.remove('error-input'));
-        
-        // Клиентская валидация
-        const clientErrors = validateFormClient(form);
-        if (Object.keys(clientErrors).length > 0) {
-            showErrors(clientErrors);
-            return;
-        }
-        
         // Блокируем кнопку
         submitBtn.disabled = true;
         submitBtn.textContent = 'Отправка...';
@@ -228,111 +217,43 @@
             const result = await response.json();
             
             if (result.success) {
-                showSuccessMessage(result);
+                // Успешная регистрация
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'alert alert-success';
+                messageDiv.innerHTML = `
+                    <h4>Успешная регистрация!</h4>
+                    <p><strong>Логин:</strong> ${result.login}</p>
+                    <p><strong>Пароль:</strong> ${result.password}</p>
+                    <p>Сохраните эти данные</p>
+                `;
+                document.getElementById('form-messages').appendChild(messageDiv);
+                
+                // Очищаем форму
                 form.reset();
             } else {
-                showErrors(result.errors || {});
+                // Ошибки валидации
+                if (result.errors) {
+                    for (const [field, error] of Object.entries(result.errors)) {
+                        const errorElement = document.getElementById(`${field}-error`);
+                        if (errorElement) {
+                            errorElement.textContent = error;
+                            const input = form.querySelector(`[name="${field}"]`);
+                            if (input) input.classList.add('error-input');
+                        }
+                    }
+                }
             }
         } catch (error) {
             console.error('Ошибка:', error);
-            showSystemError();
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
-        }
-        });
-
-        // Клиентская валидация
-        function validateFormClient(form) {
-            const errors = {};
-            const values = {
-                fio: form.fio.value.trim(),
-                tel: form.tel.value.trim().replace(/\s+/g, ''),
-                email: form.email.value.trim(),
-                bdate: form.bdate.value,
-                gender: form.querySelector('input[name="gender"]:checked')?.value,
-                languages: Array.from(form.languages.selectedOptions).map(o => o.value),
-                bio: form.bio.value.trim(),
-                ccheck: form.ccheck.checked
-            };
-
-            // ФИО
-            if (!values.fio) errors.fio = 'ФИО обязательно';
-            else if (values.fio.length > 150) errors.fio = 'Не более 150 символов';
-            else if (!/^[\p{Cyrillic}\p{Latin}\s\-]+$/u.test(values.fio)) {
-                errors.fio = 'Только буквы, пробелы и дефисы';
-            }
-
-            // Телефон
-            if (!values.tel) errors.tel = 'Телефон обязателен';
-            else if (!/^\+7\(\d{3}\)\d{3}-\d{2}-\d{2}$/.test(values.tel)) {
-                errors.tel = 'Формат: +7(XXX)XXX-XX-XX';
-            }
-
-            // Email
-            if (!values.email) errors.email = 'Email обязателен';
-            else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
-                errors.email = 'Неверный формат email';
-            }
-
-            // Дата рождения
-            if (!values.bdate) errors.bdate = 'Дата обязательна';
-            else {
-                const today = new Date();
-                const birthDate = new Date(values.bdate);
-                const age = today.getFullYear() - birthDate.getFullYear();
-                
-                if (age < 18) errors.bdate = 'Возраст 18+';
-                if (birthDate > today) errors.bdate = 'Дата в будущем';
-            }
-
-            // Пол
-            if (!values.gender) errors.gender = 'Укажите пол';
-
-            // Языки
-            if (values.languages.length === 0) errors.languages = 'Выберите хотя бы 1 язык';
-
-            // Биография
-            if (values.bio.length > 5000) errors.bio = 'Не более 5000 символов';
-
-            // Соглашение
-            if (!values.ccheck) errors.ccheck = 'Необходимо согласие';
-
-            return errors;
-        }
-
-        // Показать ошибки
-        function showErrors(errors) {
-            for (const [field, message] of Object.entries(errors)) {
-                const errorElement = document.getElementById(`${field}-error`);
-                const input = document.querySelector(`[name="${field}"]`) || 
-                            document.getElementById(field);
-                
-                if (errorElement) errorElement.textContent = message;
-                if (input) input.classList.add('error-input');
-            }
-        }
-
-        // Показать успех
-        function showSuccessMessage(data) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'alert alert-success';
-            messageDiv.innerHTML = `
-                <h4>Успешная регистрация!</h4>
-                <p><strong>Логин:</strong> ${data.login}</p>
-                <p><strong>Пароль:</strong> ${data.password}</p>
-                <p>Сохраните эти данные</p>
-            `;
-            document.getElementById('form-messages').appendChild(messageDiv);
-        }
-
-        // Системная ошибка
-        function showSystemError() {
             const messageDiv = document.createElement('div');
             messageDiv.className = 'alert alert-danger';
             messageDiv.textContent = 'Произошла ошибка при отправке формы';
             document.getElementById('form-messages').appendChild(messageDiv);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
         }
+    });
     </script>
 
     
