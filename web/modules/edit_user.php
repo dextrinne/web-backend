@@ -103,7 +103,7 @@ function edit_user_get($request, $user_id) {
 
 function edit_user_post($request, $user_id) {
     global $db;
-    session_start();
+    //session_start();
 
     // Проверка CSRF токена
     if (empty($_SESSION['csrf_token']) || !isset($request['post']['csrf_token']) || 
