@@ -182,7 +182,6 @@ function form_reg_post($request) {
                 ],
                 'message' => 'Регистрация успешно завершена'
             ]);
-        }
     } catch (PDOException $e) {
         $db->rollBack();
         return json_response([
