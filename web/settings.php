@@ -44,8 +44,7 @@ $urlconf = array(
   '' => array('module' => 'front'),
   '/^admin$/' => array('module' => 'admin_panel', 'auth' => 'auth_basic'),
   /*'/^edit_user\/(\d+)$/' => array('module' => 'edit_user', 'auth' => null ),*/
-  //'/^edit_user\/(\d+)$/' => array('module' => 'edit_user'),
-  '/\^edit_user\\/(\\d+)\$/' => array('module' => 'edit_user'),
+  '/^edit_user\/(\d+)$/' => array('module' => 'edit_user'),
   '/^form$/' => array('module' => 'form'),
   '/^success$/' => array('module' => 'success'),
   '/^register$/' => array('module' => 'form_reg'),
