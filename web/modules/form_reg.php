@@ -85,15 +85,13 @@ function form_reg_post($request) {
         ]);
     }
 
-    // Базовая валидация данных
-    $required = ['fio', 'tel', 'email', 'bdate', 'gender', 'languages', 'ccheck'];
-    foreach ($required as $field) {
-        if (empty($request['post'][$field])) {
-            return json_response([
-                'success' => false,
-                'errors' => [$field => 'Это поле обязательно']
-            ]);
-        }
+    // Валидация данных
+    $validation = validate_form_data($request['post']);
+    if (!empty($validation['errors'])) {
+        return json_response([
+            'success' => false,
+            'errors' => $validation['errors']
+        ]);
     }
 
     // Обработка данных
@@ -162,26 +160,34 @@ function validate_form_data($post_data) {
     $values['fio'] = trim($post_data['fio'] ?? '');
     if (empty($values['fio'])) {
         $errors['fio'] = 'ФИО обязательно для заполнения';
-    } elseif (strlen($values['fio']) > 150) {
-        $errors['fio'] = 'ФИО не должно превышать 150 символов';
+    } else {
+        if (strlen($values['fio']) > 150) {
+            $errors['fio'] = 'ФИО не должно превышать 150 символов';
+        }
+        if (!preg_match('/^[\p{Cyrillic}\p{Latin}\s\-]+$/u', $values['fio'])) {
+            $errors['fio'] = 'ФИО должно содержать только буквы и дефисы';
+        }
     }
 
     // Телефон
-    $values['tel'] = trim($post_data['tel'] ?? '');
+    $values['tel'] = preg_replace('/\s+/', '', trim($post_data['tel'] ?? ''));
     if (empty($values['tel'])) {
         $errors['tel'] = 'Телефон обязателен для заполнения';
-    } elseif (!preg_match('/^\+7\s?\(?\d{3}\)?\s?\d{3}-?\d{2}-?\d{2}$/', $values['tel'])) {
-        $errors['tel'] = 'Введите телефон в формате +7 (XXX) XXX-XX-XX';
+    } elseif (!preg_match('/^\+7\(\d{3}\)\d{3}-\d{2}-\d{2}$/', $values['tel'])) {
+        $errors['tel'] = 'Введите телефон в формате +7(XXX)XXX-XX-XX';
     }
 
     // Email
-    $values['email'] = trim($post_data['email'] ?? '');
+    $values['email'] = mb_strtolower(trim($post_data['email'] ?? ''));
     if (empty($values['email'])) {
         $errors['email'] = 'Email обязателен для заполнения';
-    } elseif (!filter_var($values['email'], FILTER_VALIDATE_EMAIL)) {
-        $errors['email'] = 'Введите корректный email адрес';
-    } elseif (strlen($values['email']) > 255) {
-        $errors['email'] = 'Email не должен превышать 255 символов';
+    } else {
+        if (strlen($values['email']) > 255) {
+            $errors['email'] = 'Email не должен превышать 255 символов';
+        }
+        if (!filter_var($values['email'], FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Введите корректный email адрес';
+        }
     }
 
     // Дата рождения
@@ -192,12 +198,17 @@ function validate_form_data($post_data) {
         try {
             $birthdate = new DateTime($values['bdate']);
             $now = new DateTime();
-            $age = $now->diff($birthdate)->y;
+            $minDate = new DateTime('1900-01-01');
             
-            if ($age < 18) {
-                $errors['bdate'] = 'Возраст должен быть 18+ лет';
-            } elseif ($age > 120) {
-                $errors['bdate'] = 'Проверьте дату рождения';
+            if ($birthdate > $now) {
+                $errors['bdate'] = 'Дата рождения не может быть в будущем';
+            } elseif ($birthdate < $minDate) {
+                $errors['bdate'] = 'Дата рождения слишком ранняя';
+            } else {
+                $age = $now->diff($birthdate)->y;
+                if ($age < 18) {
+                    $errors['bdate'] = 'Возраст должен быть 18+ лет';
+                }
             }
         } catch (Exception $e) {
             $errors['bdate'] = 'Некорректный формат даты';
@@ -213,14 +224,21 @@ function validate_form_data($post_data) {
     }
 
     // Языки программирования
-    $values['languages'] = $post_data['languages'] ?? [];
+    $values['languages'] = [];
+    if (!empty($post_data['languages'])) {
+        foreach ((array)$post_data['languages'] as $lang_id) {
+            if (ctype_digit((string)$lang_id)) {
+                $values['languages'][] = (int)$lang_id;
+            }
+        }
+    }
     if (empty($values['languages'])) {
         $errors['languages'] = 'Выберите хотя бы один язык';
     }
 
     // Биография
-    $values['bio'] = trim($post_data['bio'] ?? '');
-    if (!empty($values['bio']) && strlen($values['bio']) > 5000) {
+    $values['bio'] = strip_tags(trim($post_data['bio'] ?? ''));
+    if (strlen($values['bio']) > 5000) {
         $errors['bio'] = 'Биография не должна превышать 5000 символов';
     }
 
@@ -232,7 +250,6 @@ function validate_form_data($post_data) {
 
     return ['values' => $values, 'errors' => $errors];
 }
-
 function connect_db() {
     try {
         return new PDO(
