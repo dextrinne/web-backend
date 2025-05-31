@@ -50,7 +50,7 @@ $urlconf = array(
   //'/^register$/' => array('module' => 'form_reg'),
   '/^login$/' => array('module' => 'login'),
   '/^logout$/' => array('module' => 'logout'),
-  
+  '/^form_reg$/' => ['module' => 'form_reg'],
   '/^edit_user(\/\d+)?$/' => array('module' => 'edit_user'),
   '/^register$/' => array('module' => 'form_reg'),
 );

@@ -222,30 +222,26 @@
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
                     }
                 })
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
                 })
                 .then(data => {
-                    if (data.success) {
-                        showMessage('success', data.message);
-                        if (data.redirect) {
-                            setTimeout(() => {
-                                window.location.href = data.redirect;
-                            }, 2000);
-                        }
-                    } else {
-                        showValidationErrors(data.errors);
-                    }
+                if (data.success) {
+                    window.location.href = '/web-backend/web/success.php'; // Перенаправление после успеха
+                } else {
+                    showValidationErrors(data.errors);
+                }
                 })
                 .catch(error => {
-                    showMessage('error', 'Произошла ошибка при отправке формы: ' + error.message);
-                })
+                showMessage('error', 'Ошибка: ' + error.message);
+                });
                 .finally(() => {
                     submitBtn.disabled = false;
                     submitBtn.textContent = '<?php echo $c['is_auth'] ? "Обновить данные" : "Зарегистрироваться"; ?>';
