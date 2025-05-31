@@ -127,56 +127,66 @@ function form_reg_post($request) {
             $message = 'Данные успешно обновлены';
         } else {
             // Регистрация нового пользователя
-            // Создаем запись в user_login
-            $login = 'user_' . bin2hex(random_bytes(4));
-            $password = substr(bin2hex(random_bytes(8)), 0, 8);
-            $password_hash = password_hash($password, PASSWORD_BCRYPT);
+            try {
+                $db->beginTransaction();
 
-            $stmt = $db->prepare("INSERT INTO user_login (login, password) VALUES (?, ?)");
-            $stmt->execute([$login, $password_hash]);
-            $login_id = $db->lastInsertId();
+                // 1. Сначала вставляем данные в таблицу `user`
+                $stmt = $db->prepare("
+                    INSERT INTO user (fio, tel, email, bdate, gender, bio, ccheck)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                ");
+                $stmt->execute([
+                    $validation['values']['fio'],
+                    $validation['values']['tel'],
+                    $validation['values']['email'],
+                    $validation['values']['bdate'],
+                    $validation['values']['gender'],
+                    $validation['values']['bio'],
+                    $validation['values']['ccheck'] ? 1 : 0
+                ]);
+                $user_id = $db->lastInsertId(); // Получаем ID нового пользователя
 
-            // Создаем запись в user
-            $stmt = $db->prepare("
-                INSERT INTO user (fio, tel, email, bdate, gender, bio, ccheck)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            ");
-            $stmt->execute([
-                $validation['values']['fio'],
-                $validation['values']['tel'],
-                $validation['values']['email'],
-                $validation['values']['bdate'],
-                $validation['values']['gender'],
-                $validation['values']['bio'],
-                $validation['values']['ccheck'] ? 1 : 0
-            ]);
-            $user_id = $db->lastInsertId();
+                // 2. Теперь вставляем запись в `user_login` с полученным user_id
+                $login = 'user_' . bin2hex(random_bytes(4));
+                $password = substr(bin2hex(random_bytes(8)), 0, 8);
+                $password_hash = password_hash($password, PASSWORD_BCRYPT);
 
-            // Добавляем языки программирования
-            if (!empty($validation['values']['languages'])) {
-                $stmt = $db->prepare("INSERT INTO user_language (user_id, lang_id) VALUES (?, ?)");
-                foreach ($validation['values']['languages'] as $lang_id) {
-                    $stmt->execute([$user_id, (int)$lang_id]);
+                $stmt = $db->prepare("
+                    INSERT INTO user_login (user_id, login, password, role)
+                    VALUES (?, ?, ?, 'user')
+                ");
+                $stmt->execute([$user_id, $login, $password_hash]);
+
+                // 3. Добавляем выбранные языки
+                if (!empty($validation['values']['languages'])) {
+                    $stmt = $db->prepare("
+                        INSERT INTO user_language (user_id, lang_id)
+                        VALUES (?, ?)
+                    ");
+                    foreach ($validation['values']['languages'] as $lang_id) {
+                        $stmt->execute([$user_id, (int)$lang_id]);
+                    }
                 }
+
+                $db->commit();
+
+                // Сохраняем логин и пароль для показа пользователю
+                $_SESSION['new_login'] = $login;
+                $_SESSION['new_password'] = $password;
+
+                return json_response([
+                    'success' => true,
+                    'message' => 'Регистрация успешно завершена',
+                    'redirect' => '/web-backend/web/success.php'
+                ]);
+
+            } catch (PDOException $e) {
+                $db->rollBack();
+                return json_response([
+                    'success' => false,
+                    'errors' => ['general' => 'Ошибка базы данных: ' . $e->getMessage()]
+                ]);
             }
-
-            $message = 'Регистрация успешно завершена';
-        }
-
-        $db->commit();
-        
-        return json_response([
-            'success' => true,
-            'message' => $message,
-            'redirect' => '/'
-        ]);
-    } catch (PDOException $e) {
-        $db->rollBack();
-        return json_response([
-            'success' => false,
-            'errors' => ['general' => 'Ошибка базы данных: ' . $e->getMessage()]
-        ]);
-    }
 }
 
 function validate_form_data($post_data) {
