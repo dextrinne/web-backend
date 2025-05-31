@@ -5,6 +5,12 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 
 function form_reg_get($request) {
+    // Проверка, если это редактирование от администратора
+    if (isset($_SESSION['admin_edit']) {
+        $is_admin = true;
+        $uid = $_GET['user_id'] ?? $_POST['user_id'] ?? null;
+    }
+
     global $db;
     
     $is_auth = !empty($_SESSION['login']) && !empty($_SESSION['uid']);
@@ -45,6 +51,12 @@ function form_reg_get($request) {
 }
 
 function form_reg_post($request) {
+    // Проверка, если это редактирование от администратора
+    if (isset($_SESSION['admin_edit']) {
+        $is_admin = true;
+        $uid = $_GET['user_id'] ?? $_POST['user_id'] ?? null;
+    }
+
     // Инициализация сессии
     if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 

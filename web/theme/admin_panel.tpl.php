@@ -131,11 +131,12 @@
                     <td><?= $user['ccheck'] ? 'Да' : 'Нет' ?></td>
                     <td><?= htmlspecialchars($user['languages']) ?></td>
                     <td>
-                        <form method="post" action="/web-backend/web/index.php?admin_edit=1&user_id=<?= $user['id'] ?>" style="display:inline;">
+                        <form method="post" action="/web-backend/web/login.php" style="display:inline;">
                             <input type="hidden" name="login" value="<?= htmlspecialchars($user['email']) ?>">
                             <input type="hidden" name="password" value="temporary_password">
                             <input type="hidden" name="admin_edit" value="1">
-                            <button type="submit" target="_blank" class="edit-btn">Редактировать</button>
+                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                            <button type="submit" class="edit-btn">Редактировать</button>
                         </form>
                         <form method="post" style="display:inline;">
                             <input type="hidden" name="user_id" value="<?= $user['id'] ?>">

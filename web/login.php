@@ -11,16 +11,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     try {
         if ($is_admin_edit) {
-            // Проверяем, что администратор авторизован
-            if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SESSION['admin_login'])) {
+            // Проверяем авторизацию администратора
+            if (!isset($_SESSION['admin_login'])) {
                 die("Доступ запрещен");
             }
 
             // Получаем данные пользователя для входа
-            $stmt = $db->prepare("SELECT ul.user_id, ul.login, ul.password 
-                                 FROM user_login ul
-                                 JOIN user u ON ul.user_id = u.id
-                                 WHERE u.email = ?");
+            $stmt = $db->prepare("SELECT ul.user_id, ul.login, ul.password
+                                FROM user_login ul
+                                JOIN user u ON ul.user_id = u.id
+                                WHERE u.email = ?");
             $stmt->execute([$login]);
             $user = $stmt->fetch();
 
