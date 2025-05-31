@@ -5,7 +5,7 @@ function edit_user_get($request, $user_id) {
     session_start();
 
     // Проверка авторизации пользователя
-    if (empty($_SESSION['login']) {
+    if (empty($_SESSION['login'])) {
         return redirect('/login');
     }
 
