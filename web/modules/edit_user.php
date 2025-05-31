@@ -1,8 +1,9 @@
 <?php
+session_start();
 function edit_user_get($request, $user_id) {
     global $db;
 
-    session_start();
+    //session_start();
 
     // Проверка авторизации пользователя
     if (empty($_SESSION['login']) || empty($_SESSION['uid'])) {
