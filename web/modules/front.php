@@ -16,7 +16,7 @@ function front_get($request)
         'frontend_dir' => conf('frontend_dir'),
         'base_url' => conf('basedir'),
         'messages' => $messages, // Передаем сообщения в шаблон
-        'errors' => $errors // Передаем ошибки в шаблон
+        'errors' => $errors, // Передаем ошибки в шаблон
         // Передаем информацию о том, что это главная страница
         'is_home' => true
     ];
