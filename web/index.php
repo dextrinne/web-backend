@@ -2,7 +2,7 @@
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['admin_edit'])) {
     // Проверяем авторизацию администратора
     if (!isset($_SESSION['admin_login'])) {
-        header("Location: /web-backend/web/admin_panel.php");
+        header("Location: /web-backend/web/modules/admin_panel.php");
         exit();
     }
     
