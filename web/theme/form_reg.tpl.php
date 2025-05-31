@@ -73,118 +73,146 @@
         <div class="form-actions">
             <?php if ($c['is_auth']): ?>
                 <a href="logout.php" class="btn btn-danger">Выйти</a>
-            <?php endif; ?>
-            <?php if (!$c['is_auth']): ?>
-                <a href="login.php" class="btn btn-secondary" target="_blank">Войти</a>
-                <a href="./modules/admin_panel.php" class="btn btn-admin" target="_blank" 
-                   style="background-color: #dc3545; color: white; border: none;">Администратор</a>
+            <?php else: ?>
+                <?php if (!$c['show_login']): ?>
+                    <button id="toggle-auth-btn" class="btn btn-secondary">Войти</button>
+                <?php else: ?>
+                    <button id="toggle-auth-btn" class="btn btn-secondary">Регистрация</button>
+                <?php endif; ?>
+                <a href="./modules/admin_panel.php" class="btn btn-admin" target="_blank"
+                style="background-color: #dc3545; color: white; border: none;">Администратор</a>
             <?php endif; ?>
         </div>
         
-        <form method="post" id="registration-form" class="contact-form" novalidate>
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($c['csrf_token']); ?>">
-            
-            <!-- ФИО -->
-            <div class="form-group">
-                <label for="fio">ФИО: <span class="required">*</span></label>
-                <input type="text" id="fio" name="fio" required
-                    value="<?php echo htmlspecialchars($c['values']['fio'] ?? ''); ?>"
-                    class="<?php echo !empty($c['errors']['fio']) ? 'error-input' : ''; ?>">
-                <div id="fio-error" class="error">
-                    <?php echo !empty($c['errors']['fio']) ? htmlspecialchars($c['errors']['fio']) : ''; ?>
+        <?php if ($c['show_login'] && !$c['is_auth']): ?>
+            <!-- Форма входа -->
+            <form method="post" id="login-form" action="login.php">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($c['csrf_token']); ?>">
+                <div class="form-group">
+                    <label for="login">Логин:</label>
+                    <input type="text" id="login" name="login" required>
                 </div>
-            </div>
-            
-            <!-- Телефон -->
-            <div class="form-group">
-                <label for="tel">Телефон: <span class="required">*</span></label>
-                <input type="tel" id="tel" name="tel" placeholder="+7 (XXX) XXX-XX-XX" required
-                    value="<?php echo htmlspecialchars($c['values']['tel'] ?? ''); ?>"
-                    class="<?php echo !empty($c['errors']['tel']) ? 'error-input' : ''; ?>">
-                <div id="tel-error" class="error">
-                    <?php echo !empty($c['errors']['tel']) ? htmlspecialchars($c['errors']['tel']) : ''; ?>
+                <div class="form-group">
+                    <label for="password">Пароль:</label>
+                    <input type="password" id="password" name="password" required>
                 </div>
-            </div>
-            
-            <!-- Email -->
-            <div class="form-group">
-                <label for="email">Email: <span class="required">*</span></label>
-                <input type="email" id="email" name="email" placeholder="example@domain.com" required
-                    value="<?php echo htmlspecialchars($c['values']['email'] ?? ''); ?>"
-                    class="<?php echo !empty($c['errors']['email']) ? 'error-input' : ''; ?>">
-                <div id="email-error" class="error">
-                    <?php echo !empty($c['errors']['email']) ? htmlspecialchars($c['errors']['email']) : ''; ?>
+                <button type="submit">Войти</button>
+            </form>
+        <?php else: ?>
+            <!-- Общая форма (регистрация/редактирование) -->
+            <form method="post" id="user-form" class="contact-form" novalidate>
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($c['csrf_token']); ?>">
+                
+                <!-- ФИО -->
+                <div class="form-group">
+                    <label for="fio">ФИО: <span class="required">*</span></label>
+                    <input type="text" id="fio" name="fio" required
+                        value="<?php echo htmlspecialchars($c['values']['fio'] ?? ''); ?>"
+                        class="<?php echo !empty($c['errors']['fio']) ? 'error-input' : ''; ?>">
+                    <div id="fio-error" class="error">
+                        <?php echo !empty($c['errors']['fio']) ? htmlspecialchars($c['errors']['fio']) : ''; ?>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Дата рождения -->
-            <div class="form-group">
-                <label for="bdate">Дата рождения: <span class="required">*</span></label>
-                <input type="date" id="bdate" name="bdate" required
-                    value="<?php echo htmlspecialchars($c['values']['bdate'] ?? ''); ?>"
-                    class="<?php echo !empty($c['errors']['bdate']) ? 'error-input' : ''; ?>">
-                <div id="bdate-error" class="error">
-                    <?php echo !empty($c['errors']['bdate']) ? htmlspecialchars($c['errors']['bdate']) : ''; ?>
+                
+                <!-- Телефон -->
+                <div class="form-group">
+                    <label for="tel">Телефон: <span class="required">*</span></label>
+                    <input type="tel" id="tel" name="tel" placeholder="+7 (XXX) XXX-XX-XX" required
+                        value="<?php echo htmlspecialchars($c['values']['tel'] ?? ''); ?>"
+                        class="<?php echo !empty($c['errors']['tel']) ? 'error-input' : ''; ?>">
+                    <div id="tel-error" class="error">
+                        <?php echo !empty($c['errors']['tel']) ? htmlspecialchars($c['errors']['tel']) : ''; ?>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Пол -->
-            <div class="form-group">
-                <label>Пол: <span class="required">*</span></label>
-                <div class="radio-group">
-                    <label><input type="radio" name="gender" value="Male" required <?php echo (isset($c['values']['gender']) && $c['values']['gender'] == 'Male') ? 'checked' : ''; ?>>
-                        <span>Мужской</span></label>
-                    <label><input type="radio" name="gender" value="Female" required <?php echo (isset($c['values']['gender']) && $c['values']['gender'] == 'Female') ? 'checked' : ''; ?>>
-                        <span>Женский</span></label>
+                
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email">Email: <span class="required">*</span></label>
+                    <input type="email" id="email" name="email" placeholder="example@domain.com" required
+                        value="<?php echo htmlspecialchars($c['values']['email'] ?? ''); ?>"
+                        class="<?php echo !empty($c['errors']['email']) ? 'error-input' : ''; ?>">
+                    <div id="email-error" class="error">
+                        <?php echo !empty($c['errors']['email']) ? htmlspecialchars($c['errors']['email']) : ''; ?>
+                    </div>
                 </div>
-                <div id="gender-error" class="error">
-                    <?php echo !empty($c['errors']['gender']) ? htmlspecialchars($c['errors']['gender']) : ''; ?>
+                
+                <!-- Дата рождения -->
+                <div class="form-group">
+                    <label for="bdate">Дата рождения: <span class="required">*</span></label>
+                    <input type="date" id="bdate" name="bdate" required
+                        value="<?php echo htmlspecialchars($c['values']['bdate'] ?? ''); ?>"
+                        class="<?php echo !empty($c['errors']['bdate']) ? 'error-input' : ''; ?>">
+                    <div id="bdate-error" class="error">
+                        <?php echo !empty($c['errors']['bdate']) ? htmlspecialchars($c['errors']['bdate']) : ''; ?>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Языки программирования -->
-            <div class="form-group">
-                <label for="languages">Любимые языки программирования: <span class="required">*</span></label>
-                <select id="languages" name="languages[]" multiple required
-                    class="<?php echo !empty($c['errors']['languages']) ? 'error-input' : ''; ?>">
-                    <?php foreach ($c['all_languages'] as $lang): ?>
-                        <option value="<?php echo $lang['id']; ?>" <?php echo in_array($lang['id'], $c['selected_lang_ids'] ?? []) ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($lang['name']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <div id="languages-error" class="error">
-                    <?php echo !empty($c['errors']['languages']) ? htmlspecialchars($c['errors']['languages']) : ''; ?>
+                
+                <!-- Пол -->
+                <div class="form-group">
+                    <label>Пол: <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="gender" value="Male" required <?php echo (isset($c['values']['gender']) && $c['values']['gender'] == 'Male') ? 'checked' : ''; ?>>
+                            <span>Мужской</span></label>
+                        <label><input type="radio" name="gender" value="Female" required <?php echo (isset($c['values']['gender']) && $c['values']['gender'] == 'Female') ? 'checked' : ''; ?>>
+                            <span>Женский</span></label>
+                    </div>
+                    <div id="gender-error" class="error">
+                        <?php echo !empty($c['errors']['gender']) ? htmlspecialchars($c['errors']['gender']) : ''; ?>
+                    </div>
                 </div>
-                <small>Для выбора нескольких языков удерживайте Ctrl (Windows) или Command (Mac)</small>
-            </div>
-            
-            <!-- Биография -->
-            <div class="form-group">
-                <label for="bio">Биография:</label>
-                <textarea id="bio" name="bio"
-                    class="<?php echo !empty($c['errors']['bio']) ? 'error-input' : ''; ?>"><?php echo htmlspecialchars($c['values']['bio'] ?? ''); ?></textarea>
-                <div id="bio-error" class="error">
-                    <?php echo !empty($c['errors']['bio']) ? htmlspecialchars($c['errors']['bio']) : ''; ?>
+                
+                <!-- Языки программирования -->
+                <div class="form-group">
+                    <label for="languages">Любимые языки программирования: <span class="required">*</span></label>
+                    <select id="languages" name="languages[]" multiple required
+                        class="<?php echo !empty($c['errors']['languages']) ? 'error-input' : ''; ?>">
+                        <?php foreach ($c['all_languages'] as $lang): ?>
+                            <option value="<?php echo $lang['id']; ?>" <?php echo in_array($lang['id'], $c['selected_lang_ids'] ?? []) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($lang['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div id="languages-error" class="error">
+                        <?php echo !empty($c['errors']['languages']) ? htmlspecialchars($c['errors']['languages']) : ''; ?>
+                    </div>
+                    <small>Для выбора нескольких языков удерживайте Ctrl (Windows) или Command (Mac)</small>
                 </div>
-            </div>
-            
-            <!-- Соглашение -->
-            <div class="form-group">
-                <label class="form-check-label1" style="display: block;">
-                    <input type="checkbox" id="ccheck" name="ccheck" value="1" required class="form-check-input" <?php echo (!empty($c['values']['ccheck'])) ? 'checked' : ''; ?>>
-                    Я согласен(а) с условиями контракта <span class="required">*</span>
-                </label>
-                <div id="ccheck-error" class="error">
-                    <?php echo !empty($c['errors']['ccheck']) ? htmlspecialchars($c['errors']['ccheck']) : ''; ?>
+                
+                <!-- Биография -->
+                <div class="form-group">
+                    <label for="bio">Биография:</label>
+                    <textarea id="bio" name="bio"
+                        class="<?php echo !empty($c['errors']['bio']) ? 'error-input' : ''; ?>"><?php echo htmlspecialchars($c['values']['bio'] ?? ''); ?></textarea>
+                    <div id="bio-error" class="error">
+                        <?php echo !empty($c['errors']['bio']) ? htmlspecialchars($c['errors']['bio']) : ''; ?>
+                    </div>
                 </div>
-            </div>
-            
-            <button type="submit" id="submit-btn"><?php echo $c['is_auth'] ? 'Обновить данные' : 'Зарегистрироваться'; ?></button>
-        </form>
+                
+                <!-- Соглашение -->
+                <div class="form-group">
+                    <label class="form-check-label1" style="display: block;">
+                        <input type="checkbox" id="ccheck" name="ccheck" value="1" required class="form-check-input" <?php echo (!empty($c['values']['ccheck'])) ? 'checked' : ''; ?>>
+                        Я согласен(а) с условиями контракта <span class="required">*</span>
+                    </label>
+                    <div id="ccheck-error" class="error">
+                        <?php echo !empty($c['errors']['ccheck']) ? htmlspecialchars($c['errors']['ccheck']) : ''; ?>
+                    </div>
+                </div>
+                    
+                <button type="submit" id="submit-btn">
+                    <?php echo $c['is_auth'] ? 'Обновить данные' : 'Зарегистрироваться'; ?>
+                </button>
+            </form>
+        <?php endif; ?>
     </div>
 
     <script>
+        // Обработка переключения между формами
+        document.getElementById('toggle-auth-btn')?.addEventListener('click', function() {
+            window.location.href = '?show_login=' + (!<?php echo $c['show_login'] ? 'true' : 'false' ?>);
+        });
+
+        // Обработка отправки формы
         document.getElementById('registration-form').addEventListener('submit', async function(e) {
         e.preventDefault();
         
@@ -255,7 +283,5 @@
         }
     });
     </script>
-
-    
 </body>
 </html>

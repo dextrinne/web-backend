@@ -81,7 +81,7 @@ function edit_user_post($request, $user_id) {
     // Проверка CSRF токена
     if (empty($_SESSION['csrf_token']) || !isset($request['post']['csrf_token']) ||
         $request['post']['csrf_token'] !== $_SESSION['csrf_token']) {
-        die('CSRF token validation failed.');
+        return json_response(['success' => false, 'message' => 'CSRF token validation failed.']);
     }
 
     try {
@@ -91,13 +91,14 @@ function edit_user_post($request, $user_id) {
             SET fio = ?, tel = ?, email = ?, bdate = ?, gender = ?, bio = ?, ccheck = ?
             WHERE id = ?
         ");
+        
         $stmt->execute([
             $request['post']['fio'],
             $request['post']['tel'],
             $request['post']['email'],
             $request['post']['bdate'],
             $request['post']['gender'],
-            $request['post']['bio'],
+            $request['post']['bio'] ?? '',
             isset($request['post']['ccheck']) ? 1 : 0,
             $user_id
         ]);
@@ -118,7 +119,7 @@ function edit_user_post($request, $user_id) {
         }
         
         $db->commit();
-
+        
         return json_response(['success' => true, 'message' => 'Данные успешно обновлены']);
     } catch (PDOException $e) {
         if ($db->inTransaction()) {

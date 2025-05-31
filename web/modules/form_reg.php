@@ -6,30 +6,22 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 function form_reg_get($request) {
     global $db;
-
+    
     $is_auth = !empty($_SESSION['login']) && !empty($_SESSION['uid']);
-    $is_admin = false;
-    $uid = $_SESSION['uid'] ?? null;
-
-    // Форма на главной странице ВСЕГДА будет регистрацией
-    $form_type = (isset($request['is_home']) && $request['is_home']) ? 'register' : 'update';
-
-    // Если пользователь не авторизован, форма всегда регистрация
-    if (!$is_auth) {
-        $form_type = 'register';
-    }
-
-    // Получаем данные пользователя только для формы редактирования
+    $show_login = isset($_GET['show_login']) && $_GET['show_login'] == 'true';
+    
+    // Получаем данные пользователя если авторизован
     $values = [];
     $selected_lang_ids = [];
-    if ($form_type === 'update' && $uid) {
+    
+    if ($is_auth) {
         try {
             $stmt = $db->prepare("SELECT * FROM user WHERE id = ?");
-            $stmt->execute([$uid]);
+            $stmt->execute([$_SESSION['uid']]);
             $values = $stmt->fetch(PDO::FETCH_ASSOC);
-
+            
             $stmt = $db->prepare("SELECT lang_id FROM user_language WHERE user_id = ?");
-            $stmt->execute([$uid]);
+            $stmt->execute([$_SESSION['uid']]);
             $selected_lang_ids = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
         } catch (PDOException $e) {
             die('Ошибка загрузки данных: ' . $e->getMessage());
@@ -43,13 +35,12 @@ function form_reg_get($request) {
 
     return theme('form_reg', [
         'is_auth' => $is_auth,
-        'is_admin' => $is_admin,
+        'show_login' => $show_login,
         'values' => $values,
         'all_languages' => $db->query("SELECT id, name FROM language")->fetchAll(),
         'selected_lang_ids' => $selected_lang_ids,
         'csrf_token' => $_SESSION['csrf_token'],
         'errors' => $_SESSION['form_errors'] ?? [],
-        'form_type' => $form_type
     ]);
 }
 
@@ -57,7 +48,7 @@ function form_reg_post($request) {
     // Инициализация сессии
     if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
-    // Подключение к БД с улучшенной обработкой ошибок
+    // Подключение к БД 
     try {
         $db = new PDO(
             'mysql:host=localhost;dbname=u68595;charset=utf8mb4',
@@ -83,6 +74,11 @@ function form_reg_post($request) {
             'success' => false,
             'errors' => ['general' => 'Invalid CSRF token']
         ]);
+    }
+
+    // Если есть user_id - это редактирование
+    if (!empty($request['post']['user_id'])) {
+        return edit_user_post($request, $request['post']['user_id']);
     }
 
     // Базовая валидация данных
