@@ -6,7 +6,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 function form_reg_get($request) {
     // Проверка, если это редактирование от администратора
-    if (isset($_SESSION['admin_edit']) {
+    if (isset($_SESSION['admin_edit'])) {
         $is_admin = true;
         $uid = $_GET['user_id'] ?? $_POST['user_id'] ?? null;
     }
@@ -52,7 +52,7 @@ function form_reg_get($request) {
 
 function form_reg_post($request) {
     // Проверка, если это редактирование от администратора
-    if (isset($_SESSION['admin_edit']) {
+    if (isset($_SESSION['admin_edit'])) {
         $is_admin = true;
         $uid = $_GET['user_id'] ?? $_POST['user_id'] ?? null;
     }
