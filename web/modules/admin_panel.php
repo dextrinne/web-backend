@@ -4,6 +4,7 @@ session_start();
 
 // Подключение к базе данных
 require_once(__DIR__ . '/../scripts/db.php');
+require_once(__DIR__ . '/../scripts/functions.php');
 
 // Проверка HTTP-авторизации только если нет активной сессии админа
 if (!isset($_SESSION['admin_login'])) {
